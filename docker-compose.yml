@@ -2,7 +2,7 @@ version: '3'
 services:
   backend:
     build:
-      context: ./calculadora metodos
+      context: ./calculadora_metodos
       dockerfile: Dockerfile
     ports:
       - "5000:5000"
