@@ -1,5 +1,5 @@
 # Utiliza la imagen oficial de Python 3.9 con el tag "slim", que es una versión más ligera
-FROM python:3.9-slim
+FROM python:3.10-slim
 
 # Establece el directorio de trabajo dentro del contenedor en "/app"
 WORKDIR /app
