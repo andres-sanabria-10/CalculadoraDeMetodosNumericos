@@ -8,7 +8,7 @@ if defined _OLD_CODEPAGE (
     "%SystemRoot%\System32\chcp.com" 65001 > nul
 )
 
-set VIRTUAL_ENV=D:\Andres Sanabria\Desktop\9no semestre\Métodos numericos\calculadora metodos\Calculadora_Entorno
+set VIRTUAL_ENV=D:\Andres Sanabria\Desktop\9no semestre\Métodos numericos\calculadora_metodos\Calculadora_Entorno
 
 if not defined PROMPT set PROMPT=$P$G
 

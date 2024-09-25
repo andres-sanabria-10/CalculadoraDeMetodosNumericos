@@ -8,6 +8,8 @@ services:
       - "5000:5000"
     networks:
       - app-network
+    volumes:
+      - ./calculadora_metodos:/app
 
   frontend:
     build:
