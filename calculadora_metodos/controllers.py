@@ -1,5 +1,6 @@
 from scipy import optimize
 import numpy as np
+import math
 
 def home_controller():
     return {"message": "hello world"}
@@ -26,33 +27,77 @@ def biseccion_controller(func_str, a, b, tolerancia=1e-6, max_iteraciones=100):
     except ValueError as e:
         return {"error": str(e)}
     
+# Modificar evaluar_funcion para permitir funciones específicas como sqrt
+def evaluar_funcion(func_str, x):
+    # Definición de funciones básicas y diccionario seguro para eval
+    def sin(x):
+        resultado = 0
+        for n in range(10):
+            resultado += (-1) ** n * x ** (2 * n + 1) / factorial(2 * n + 1)
+        return resultado
 
-def punto_fijo_controller(func_inicial_str, func_despejada_str, valor_inicial, tolerancia, max_iteraciones):
-    def FuncionIn(x):
-        return eval(func_inicial_str)
+    def cos(x):
+        resultado = 0
+        for n in range(10):
+            resultado += (-1) ** n * x ** (2 * n) / factorial(2 * n)
+        return resultado
 
-    def Function_Des(x):
-        return eval(func_despejada_str)
+    def exp(x):
+        resultado = 0
+        for n in range(10):
+            resultado += x ** n / factorial(n)
+        return resultado
 
-    table_PF = []  # Tabla para almacenar iteraciones
-    root = []
-    x = valor_inicial
-    err = 100
-    Itera = 1
-    root.append(x)
+    def factorial(n):
+        if n == 0 or n == 1:
+            return 1
+        return n * factorial(n - 1)
 
-    while abs(err) > tolerancia and Itera <= max_iteraciones:  # Añadir límite de iteraciones
-        xs = Function_Des(x)   # Se calcula una nueva iteración
-        root.append(xs)
-        err = abs((xs - x) / xs) * 100  # Se calcula el error relativo
-        table_PF.append([Itera, x, xs, abs(FuncionIn(x)), abs(err)])
-        x = xs
-        Itera += 1
-
-    response = {
-        "tabla_punto_fijo": table_PF,
-        "raiz": x,
-        "mensaje": "Cálculo completado"
+    # Diccionario seguro con funciones permitidas
+    safe_dict = {
+        'sin': sin,
+        'cos': cos,
+        'exp': exp,
+        'sqrt': math.sqrt,
+        'x': x,
+        'factorial': factorial
     }
-    
-    return response
+
+    # Ahora puedes usar eval de forma más segura
+    try:
+        # Evaluar la función de forma segura
+        return eval(func_str, {"__builtins__": None}, safe_dict)
+    except ZeroDivisionError:
+        print("Error: División por cero")
+        return float('nan')
+    except Exception as e:
+        print(f"Error evaluando la función: {e}")
+        return float('nan')
+
+
+def calcular_puntos_punto_fijo(f, g_list, x0, tolerancia):
+    puntos = []
+    for i, g in enumerate(g_list):
+        x = x0
+        for iteracion in range(1, 21):
+            x_nuevo = evaluar_funcion(g, x)
+
+            # Si x_nuevo es None o complejo, saltar esta iteración
+            if x_nuevo is None or isinstance(x_nuevo, complex):
+                print(f"Iteración {iteracion}: Resultado inválido ({x_nuevo}). Pasando a la siguiente función.")
+                break
+
+            # Cálculo del error relativo
+            error_relativo = abs((x_nuevo - x) / x_nuevo) if x_nuevo != 0 else abs(x_nuevo - x)
+            puntos.append({
+                'iteracion': iteracion,
+                'x_nuevo': x_nuevo,
+                'error_relativo': error_relativo
+            })
+
+            if error_relativo < tolerancia:
+                return puntos, x_nuevo, iteracion, True
+
+            x = x_nuevo
+
+    return puntos, x, iteracion, False
