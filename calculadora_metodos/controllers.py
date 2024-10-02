@@ -1,5 +1,7 @@
 from scipy import optimize
 import numpy as np
+import sympy as sp
+import math
 
 def home_controller():
     return {"message": "hello world"}
@@ -10,49 +12,56 @@ def suma_controller(a, b):
 def resta_controller(a, b):
     return {"result": a - b}
 
-def biseccion_controller(func_str, a, b, tolerancia=1e-6, max_iteraciones=100):
-    def f(x):
-        return eval(func_str)
-    
+#BORRADOR METODO DE BISECCION
+
+def biseccion_controller(func_input, Xi, Xu, error=1e-6):
+    umbral = 1e10 
+    x = sp.Symbol('x')
     try:
-        resultado = optimize.root_scalar(f, method='bisect', bracket=[a, b], 
-                                         rtol=tolerancia, maxiter=max_iteraciones)
-        return {
-            "root": resultado.root,
-            "iterations": resultado.iterations,
-            "converged": resultado.converged,
-            "function_calls": resultado.function_calls
-        }
-    except ValueError as e:
-        return {"error": str(e)}
-    
+        f_expr = sp.sympify(func_input)  # Convertir la expresión de texto a simbólica
+        f = sp.lambdify(x, f_expr, 'numpy')  # Crear una función ejecutable a partir de la expresión
+    except Exception as e:
+        raise ValueError(f"Error al procesar la función: {e}")
 
-def punto_fijo_controller(func_inicial_str, func_despejada_str, valor_inicial, tolerancia, max_iteraciones):
-    def FuncionIn(x):
-        return eval(func_inicial_str)
+    # Bisección
+    num_puntos = 10
+    puntos = np.linspace(Xi, Xu, num_puntos)
+    f_puntos = [f(p) for p in puntos]
 
-    def Function_Des(x):
-        return eval(func_despejada_str)
+    # Verificar cambio de signo en el intervalo
+    cambio_signo = any(f_puntos[i] * f_puntos[i + 1] < 0 for i in range(len(f_puntos) - 1))
+    if not cambio_signo:
+        raise ValueError("No hay un cambio de signo en el intervalo, no hay una raíz factible.")
 
-    table_PF = []  # Tabla para almacenar iteraciones
-    root = []
-    x = valor_inicial
-    err = 100
-    Itera = 1
-    root.append(x)
+    iteraciones = []
+    contador = 0
+    while True:
+        Xr = (Xi + Xu) / 2
+        fXr = f(Xr)
 
-    while abs(err) > tolerancia and Itera <= max_iteraciones:  # Añadir límite de iteraciones
-        xs = Function_Des(x)   # Se calcula una nueva iteración
-        root.append(xs)
-        err = abs((xs - x) / xs) * 100  # Se calcula el error relativo
-        table_PF.append([Itera, x, xs, abs(FuncionIn(x)), abs(err)])
-        x = xs
-        Itera += 1
+        # Verificar si el valor es demasiado grande
+        if abs(fXr) > umbral:
+            raise ValueError("La ecuación diverge. Los valores son demasiado grandes.")
 
-    response = {
-        "tabla_punto_fijo": table_PF,
-        "raiz": x,
-        "mensaje": "Cálculo completado"
-    }
-    
-    return response
+        error_relativo = (Xu - Xi) / 2
+
+        iteraciones.append({
+            'iteracion': contador + 1,
+            'Xi': round(Xi, 8),
+            'Xu': round(Xu, 8),
+            'Xr': round(Xr, 8),
+            'f(Xr)': round(fXr, 8),
+            'error': round(error_relativo, 8),
+        })
+
+        # Comprobar convergencia
+        if abs(fXr) < error or error_relativo < error:
+            return Xr, iteraciones
+
+        # Actualizar los extremos del intervalo
+        if f(Xi) * fXr < 0:
+            Xu = Xr
+        else:
+            Xi = Xr
+
+        contador += 1
