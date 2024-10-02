@@ -1,16 +1,7 @@
-from scipy import optimize
+#from scipy import optimize
 import numpy as np
 import sympy as sp
 import math
-
-def home_controller():
-    return {"message": "hello world"}
-
-def suma_controller(a, b):
-    return {"result": a + b}
-
-def resta_controller(a, b):
-    return {"result": a - b}
 
 #BORRADOR METODO DE BISECCION
 
