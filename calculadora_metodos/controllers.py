@@ -3,6 +3,10 @@ import numpy as np
 import sympy as sp
 import math
 
+
+def home_controller():
+    return {"message": "hello world"}
+
 #BORRADOR METODO DE BISECCION
 
 def biseccion_controller(func_input, Xi, Xu, error=1e-6):
