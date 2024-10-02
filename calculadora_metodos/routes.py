@@ -1,5 +1,5 @@
 from flask import Blueprint, jsonify, request
-from controllers import home_controller, punto_fijo_controller, biseccion_controller  # Cambiado de .controllers a controllers
+from controllers import home_controller, punto_fijo_controller  # Cambiado de .controllers a controllers
 
 api = Blueprint('api', __name__)
 
