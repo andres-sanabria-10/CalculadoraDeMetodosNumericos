@@ -21,18 +21,6 @@ def resta():
     b = data.get('b', 0)
     return jsonify(resta_controller(a, b))
 
-@api.route('/biseccion', methods=['POST'])
-def biseccion():
-    data = request.json
-    func_str = data.get('func_str', '')
-    a = float(data.get('a', 0))
-    b = float(data.get('b', 0))
-    tolerancia = float(data.get('tolerancia', 1e-6))
-    max_iteraciones = int(data.get('max_iteraciones', 100))
-    return jsonify(biseccion_controller(func_str, a, b, tolerancia, max_iteraciones))
-
-
-
 # Ruta principal para calcular la raíz y el error
 @api.route('/punto-fijo', methods=['POST'])
 def calculate_fixed_point():
