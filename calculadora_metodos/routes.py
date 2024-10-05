@@ -1,5 +1,5 @@
 from flask import Blueprint, jsonify, request
-from controllers import home_controller, suma_controller, resta_controller, biseccion_controller,calculo_funcion # Cambiado de .controllers a controllers
+from controllers import home_controller, suma_controller, resta_controller, secante_controller # Cambiado de .controllers a controllers
 
 api = Blueprint('api', __name__)
 
@@ -21,13 +21,19 @@ def resta():
     b = data.get('b', 0)
     return jsonify(resta_controller(a, b))
 
-@api.route('/biseccion', methods=['POST'])
-def biseccion():
+@api.route('/secante', methods=['POST'])
+def secante():
+    # Obtener datos del cuerpo de la solicitud
     data = request.json
     func_str = data.get('func_str', '')
-    a = float(data.get('a', 0))
-    b = float(data.get('b', 0))
-    tolerancia = float(data.get('tolerancia', 1e-6))
-    max_iteraciones = int(data.get('max_iteraciones', 100))
-    return jsonify(biseccion_controller(func_str, a, b, tolerancia, max_iteraciones))
+    x0 = float(data.get('x0', 0))
+    x1 = float(data.get('x1', 1))
+    E = float(data.get('E', 1e-6))
+    max_iterations = int(data.get('max_iterations', 100))
+
+    # Llamar al controlador del método de la secante
+    result = secante_controller(func_str, x0, x1, E, max_iterations)
+    
+    # Retornar el resultado como JSON
+    return jsonify(result)
 
