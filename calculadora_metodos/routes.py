@@ -1,5 +1,5 @@
 from flask import Blueprint, jsonify, request
-from controllers import home_controller, suma_controller, resta_controller, newton_raphson_calculation # Cambiado de .controllers a controllers
+from controllers import home_controller, suma_controller, resta_controller, newton_raphson_controller # Cambiado de .controllers a controllers
 
 api = Blueprint('api', __name__)
 
@@ -21,31 +21,21 @@ def resta():
     b = data.get('b', 0)
     return jsonify(resta_controller(a, b))
 
+
 @api.route('/newton-raphson', methods=['POST'])
-def calculate():
+def newton_raphson():
     data = request.json
-    func_expr = data.get('function')  # La función a evaluar
-    x0 = data.get('x0', 1)  # Valor inicial
-    E = data.get('tolerance', 10**-3)  # Tolerancia
-    max_iterations = data.get('max_iterations', 100)  # Iteraciones máximas
-
-    # Verificar si se ha proporcionado la función
-    if not func_expr:
-        return jsonify({"error": "La función es requerida."}), 400
-
+    func_str = data.get('func_str', '')
+    func_prime_str = data.get('func_prime_str', '')
+    x0 = float(data.get('x0', 0))
+    E = float(data.get('E', 1e-6))
+    max_iterations = int(data.get('max_iterations', 100))
+    
     try:
-        # Ejecutar el método de Newton-Raphson
-        root, iterations_data = newton_raphson_calculation(func_expr, x0, E, max_iterations)
-        
-        # Convertir los datos de iteraciones a un formato JSON
-        iterations_json = iterations_data.to_dict(orient='records')
-
-        response = {
+        root, iteration_data = newton_raphson_controller(func_str, func_prime_str, x0, E, max_iterations)
+        return jsonify({
             "root": root,
-            "iterations": iterations_json
-        }
-
-        return jsonify(response), 200
-
+            "iterations": iteration_data
+        })
     except Exception as e:
-        return jsonify({"error": str(e)}), 500
+        return jsonify({"error": str(e)}), 400
