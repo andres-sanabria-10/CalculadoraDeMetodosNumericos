@@ -1,7 +1,6 @@
 from scipy import optimize
-import numpy as np
 import math
-from sympy import symbols, lambdify
+import sympy as sp
 
 def home_controller():
     return {"message": "hello world"}
@@ -36,14 +35,23 @@ def calculo_raiz(x):
 def calculo_error(a, b):
     return abs((a - b) / a)
 
+
 def calculo_funcion(function_str, initial_guess, tolerance):
     X0 = initial_guess
     error = 1.0
     steps = []
 
+
+    # Definir la variable simbólica 'x'
+    x = sp.symbols('x')
+
+    # Convertir el string de la función en una expresión simbólica
+    function_expr = sp.sympify(function_str)
+
+
     while error > tolerance:
         # Evalúa la función con el punto actual
-        X0_nuevo = eval(function_str.replace('x', str(X0)))
+        X0_nuevo = float(function_expr.subs(x,X0))
 
         if X0_nuevo != 0.0:
             error = calculo_error(X0_nuevo, X0)

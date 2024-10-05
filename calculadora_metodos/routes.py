@@ -1,5 +1,5 @@
 from flask import Blueprint, jsonify, request
-from controllers import home_controller, suma_controller, resta_controller, biseccion_controller,calculo_funcion  # Cambiado de .controllers a controllers
+from controllers import home_controller, suma_controller, resta_controller, biseccion_controller,calculo_funcion # Cambiado de .controllers a controllers
 
 api = Blueprint('api', __name__)
 
@@ -34,7 +34,7 @@ def biseccion():
 
 
 # Ruta principal para calcular la raíz y el error
-@api.route('/calcular-raiz', methods=['POST'])
+@api.route('/punto-fijo', methods=['POST'])
 def calculate_fixed_point():
     data = request.get_json()
     initial_guess = data.get('initial_guess', 1.5)
