@@ -31,19 +31,3 @@ def biseccion():
     max_iteraciones = int(data.get('max_iteraciones', 100))
     return jsonify(biseccion_controller(func_str, a, b, tolerancia, max_iteraciones))
 
-
-
-# Ruta principal para calcular la raíz y el error
-@api.route('/punto-fijo', methods=['POST'])
-def calculate_fixed_point():
-    data = request.get_json()
-    initial_guess = data.get('initial_guess', 1.5)
-    tolerance = data.get('tolerance', 0.000001)
-    function_str = data.get('function', '-1 / (2 * (sqrt(x**3) + (x**2 / 3.5) - 4))')
-
-    result, steps = calculo_funcion(function_str, initial_guess, tolerance)
-
-    return jsonify({
-        'final_result': result,
-        'steps': steps
-    })
