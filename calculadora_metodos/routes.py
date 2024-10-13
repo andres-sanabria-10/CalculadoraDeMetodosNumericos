@@ -25,17 +25,18 @@ def resta():
 @api.route('/newton-raphson', methods=['POST'])
 def newton_raphson():
     data = request.json
-    func_str = data.get('func_str', '')
-    func_prime_str = data.get('func_prime_str', '')
-    x0 = float(data.get('x0', 0))
-    E = float(data.get('E', 1e-6))
-    max_iterations = int(data.get('max_iterations', 100))
+    func_str = data.get('func_str')
+    func_prime_str = data.get('func_prime_str')
+    x0 = data.get('x0')
+    E = data.get('E')
+    max_iterations = data.get('max_iterations')
     
     try:
         root, iteration_data = newton_raphson_controller(func_str, func_prime_str, x0, E, max_iterations)
         return jsonify({
-            "root": root,
-            "iterations": iteration_data
+            "raiz": root,
+            "iteraciones": iteration_data
         })
     except Exception as e:
         return jsonify({"error": str(e)}), 400
+    
