@@ -1,5 +1,5 @@
 from flask import Blueprint, jsonify, request
-from controllers import home_controller, suma_controller, resta_controller, biseccion_controller,calculo_funcion # Cambiado de .controllers a controllers
+from controllers import home_controller, suma_controller, resta_controller,bisection_method # Cambiado de .controllers a controllers
 
 api = Blueprint('api', __name__)
 
@@ -23,11 +23,18 @@ def resta():
 
 @api.route('/biseccion', methods=['POST'])
 def biseccion():
-    data = request.json
-    func_str = data.get('func_str', '')
-    a = float(data.get('a', 0))
-    b = float(data.get('b', 0))
-    tolerancia = float(data.get('tolerancia', 1e-6))
-    max_iteraciones = int(data.get('max_iteraciones', 100))
-    return jsonify(biseccion_controller(func_str, a, b, tolerancia, max_iteraciones))
+    data = request.get_json()
+    punto_a = data['punto_inicial_a']  # Debe ser pasado en minúsculas
+    punto_b = data['punto_inicial_b']  # Debe ser pasado en minúsculas
+    tolerancia = data['tolerancia']
+    funcion = data['funcion']  # Se espera que la función sea pasada como string
+    max_iteraciones = 100  # Puedes cambiar esto según tus necesidades
 
+    resultado = bisection_method(funcion, punto_a, punto_b, tolerancia, max_iteraciones)
+
+    return jsonify({
+        'converged': resultado['converged'],
+        'resultado_final': resultado['resultado_final'],
+        'numero_iteraciones': resultado['numero_iteraciones'],
+        'iteraciones': resultado['iteraciones']
+    })
