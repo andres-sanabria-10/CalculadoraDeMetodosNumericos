@@ -21,19 +21,29 @@ def resta():
     b = data.get('b', 0)
     return jsonify(resta_controller(a, b))
 
-# Ruta principal para calcular la raíz y el error
+
 @api.route('/punto-fijo', methods=['POST'])
 def calculate_fixed_point():
     data = request.get_json()
-    initial_guess = data.get('Punto_inicial', 1.5)
-    tolerance = data.get('tolerancia', 0.000001)
-    function_str = data.get('función', '-1 / (2 * (sqrt(x**3) + (x**2 / 3.5) - 4))')
+    # Aquí nos aseguramos de que los valores vengan de Postman y no sean opcionales.
+    initial_guess = data.get('Punto_inicial')
+    tolerance = data.get('tolerancia')
+    function_str = data.get('función')
 
+    # Validar si se reciben todos los parámetros necesarios
+    if initial_guess is None or tolerance is None or function_str is None:
+        return jsonify({'error': 'Por favor, proporciona Punto_inicial, tolerancia y función en el cuerpo de la solicitud.'}), 400
+
+    # Convertir los valores recibidos a los tipos necesarios
+    initial_guess = float(initial_guess)
+    tolerance = float(tolerance)
+
+    # Llamar a la función de cálculo
     result, steps, iteraciones = calculo_funcion(function_str, initial_guess, tolerance)
 
     response = {
-        'Número iteraciones': iteraciones,  # Mover el número de iteraciones a la parte superior
         'Resultado Final': result,  # Mover el resultado final a la parte superior
+        'Número iteraciones': iteraciones,  # Mover el número de iteraciones a la parte superior
         'Iteraciones': steps  # Colocar las iteraciones completas abajo
     }
 
