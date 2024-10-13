@@ -1,6 +1,9 @@
 from scipy import optimize
 import math
 import sympy as sp
+import numpy as np
+import scipy.linalg as sla
+
 
 
 def home_controller():
@@ -12,49 +15,48 @@ def suma_controller(a, b):
 def resta_controller(a, b):
     return {"result": a - b}
 
-# Implementar el método de Newton-Raphson con función y derivada proporcionadas por el usuario
-def newton_raphson_controller(func_str, func_prime_str, x0, E, max_iterations=100):
-    # Definir la variable simbólica
-    x = sp.symbols('x')
+def eval_equations(f_equations, variables):
+    """Evalúa las ecuaciones dadas las variables."""
+    # Utilizar eval para evaluar dinámicamente las ecuaciones
+    return np.array([eval(eq, {**dict(zip(['x', 'y', 'z'], variables)), 'np': np}) for eq in f_equations])
 
-    # Convertir las cadenas de funciones en funciones simbólicas
-    f_sympy = sp.sympify(func_str)
-    f_prime_sympy = sp.sympify(func_prime_str)
-    
-    # Convertir la función simbólica y su derivada en funciones evaluables
-    f = sp.lambdify(x, f_sympy)
-    f_prime = sp.lambdify(x, f_prime_sympy)
+def broyden_good(variables, f_equations, tol=1e-10, maxIters=50):
+    steps_taken = 0
+    f = eval_equations(f_equations, variables)
+    J = np.zeros((len(f_equations), len(variables)))  # Jacobiana inicial
 
-    # Definir la función g(x)
-    def g(x_val):
-        return float(x_val - f(x_val) / f_prime(x_val))
+    # Estimar la Jacobiana inicial
+    h = 1e-8  # Pequeña perturbación para aproximar la Jacobiana
+    for i in range(len(f_equations)):
+        for j in range(len(variables)):
+            temp_vars = variables.copy()
+            temp_vars[j] += h
+            J[i, j] = (eval_equations(f_equations, temp_vars)[i] - f[i]) / h
 
-    # Implementación de Newton-Raphson
-    x_n = float(x0)
-    iteration_data = []  # Para almacenar los datos de las iteraciones
-    iteration = 0
-    
-    while iteration < max_iterations:
-        # Calcular el nuevo valor de x
-        x_n1 = g(x_n)
+    while np.linalg.norm(f, 2) > tol and steps_taken < maxIters:
+        try:
+            s = sla.solve(J, -f)
+        except sla.LinAlgError:
+            print("Matriz singular. Intentando perturbar la Jacobiana.")
+            # Perturbar la Jacobiana para evitar singularidad
+            J += np.eye(len(variables)) * 1e-5
+            try:
+                s = sla.solve(J, -f)
+            except sla.LinAlgError:
+                return steps_taken, variables, "Matrix singular after perturbation, unable to solve."
 
-        # Calcular el error absoluto
-        error = abs(x_n1 - x_n)
+        variables += s  # Actualiza todas las variables
+        newf = eval_equations(f_equations, variables)
+        z = newf - f
 
-        # Almacenar los resultados de la iteración
-        iteration_data.append({
-            'Iteration': iteration,
-            'x_n': float(x_n),
-            '|x_n1 - x_n|': float(error)
-        })
+        # Actualiza la Jacobiana
+        J += (np.outer((z - np.dot(J, s)), s)) / (np.dot(s, s))
 
-        # Actualizar x_n para la próxima iteración
-        x_n = x_n1
+        f = newf
+        steps_taken += 1
 
-        # Verificar condiciones de parada
-        if error <= E and abs(f(x_n)) <= E:
+        # Verificar si el método está estancado
+        if np.linalg.norm(s) < tol:
             break
-        
-        iteration += 1
 
-    return float(x_n), iteration_data
+    return steps_taken, variables, None  # Añadir None si no hay error
