@@ -12,7 +12,7 @@ def resta_controller(a, b):
     return {"result": a - b}
 
 # Función f(x), que se recibirá como cadena y será evaluada
-def secante_controller(func_str, x0, x1, E, max_iterations=101):
+def secante_controller(func_str, x0, x1, E, max_iterations=100):
      # Crear un contexto seguro para eval
     allowed_locals = {
         'math': math,
@@ -29,15 +29,14 @@ def secante_controller(func_str, x0, x1, E, max_iterations=101):
     def f(x):
         # Asegurarse de que la expresión sea evaluable
         try:
-            result = eval(func_str, {"__builtins__": None}, allowed_locals)
+            result = eval(func_str, {"__builtins__": None}, {**allowed_locals, 'x': x})
             return result
         except ValueError as ve:
             print(f"Error en la evaluación de la función: {ve}")
             return float('nan')  # Retorna NaN para indicar que hubo un error en la evaluación
 
-    
     iteration_data = []  # Para almacenar los datos de las iteraciones
-    iteration = 0
+    iteration = 1
 
     while iteration < max_iterations:
         # Calcular f(x0) y f(x1)
@@ -51,14 +50,21 @@ def secante_controller(func_str, x0, x1, E, max_iterations=101):
         # Aplicar la fórmula de la secante para calcular x_n1
         x_n1 = x1 - f_x1 * (x1 - x0) / (f_x1 - f_x0)
 
-        # Calcular el error absoluto
-        error = abs(x_n1 - x1)
+        # Calcular el error relativo en porcentaje
+        diferencia = abs(x_n1 - x1)
+        error=abs(diferencia/x_n1)
+
+        
+
+        
+
 
         # Almacenar los resultados de la iteración
         iteration_data.append({
-            'Iteration': iteration,
-            'x_n': x1,
-            '|x_n1 - x_n|': error
+            'Iteración': iteration  ,
+            'x': x_n1,
+            'F(x)': f(x_n1),
+            '|x(i) - x(i-1)|': error
         })
 
         # Actualizar x0 y x1 para la próxima iteración
@@ -66,14 +72,15 @@ def secante_controller(func_str, x0, x1, E, max_iterations=101):
         x1 = x_n1
 
         # Verificar la condición de parada
-        if error <= E and abs(f(x_n1)) <= E:
+        if error <= E:
             break
 
         iteration += 1
 
     # Retornar la raíz y los datos de las iteraciones
     return {
+        "iteraciones": iteration_data,
         "raiz": x_n1,
-        "iteraciones": iteration_data
+        "Iteracion": iteration
+
     }
-    

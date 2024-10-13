@@ -31,6 +31,10 @@ def secante():
     E = float(data.get('E', 1e-6))
     max_iterations = int(data.get('max_iterations', 100))
 
+    # Verificar que func_str no esté vacío
+    if not func_str:
+        return jsonify({"error": "La función no debe estar vacía"}), 400
+
     # Llamar al controlador del método de la secante
     result = secante_controller(func_str, x0, x1, E, max_iterations)
     
