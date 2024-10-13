@@ -25,6 +25,7 @@ def calculo_funcion(function_str, initial_guess, tolerance):
     X0 = initial_guess
     error = 1.0
     steps = []
+    iteraciones=0
 
 
     # Definir la variable simbólica 'x'
@@ -36,17 +37,23 @@ def calculo_funcion(function_str, initial_guess, tolerance):
 
     while error > tolerance:
         # Evalúa la función con el punto actual
+       
         X0_nuevo = float(function_expr.subs(x,X0))
 
         if X0_nuevo != 0.0:
             error = calculo_error(X0_nuevo, X0)
 
+        iteraciones += 1
+        
+
         steps.append({
+            'Iteración': f'Iteración {iteraciones}',
             'X0': X0,
             'X0_nuevo': X0_nuevo,
             'error': error
         })
 
         X0 = X0_nuevo
+        
 
-    return X0, steps
+    return X0, steps, iteraciones

@@ -1,5 +1,5 @@
 from flask import Blueprint, jsonify, request
-from controllers import home_controller, suma_controller, resta_controller, biseccion_controller,calculo_funcion # Cambiado de .controllers a controllers
+from controllers import home_controller, suma_controller, resta_controller,calculo_funcion # Cambiado de .controllers a controllers
 
 api = Blueprint('api', __name__)
 
@@ -25,13 +25,16 @@ def resta():
 @api.route('/punto-fijo', methods=['POST'])
 def calculate_fixed_point():
     data = request.get_json()
-    initial_guess = data.get('initial_guess', 1.5)
-    tolerance = data.get('tolerance', 0.000001)
-    function_str = data.get('function', '-1 / (2 * (sqrt(x**3) + (x**2 / 3.5) - 4))')
+    initial_guess = data.get('Punto_inicial', 1.5)
+    tolerance = data.get('tolerancia', 0.000001)
+    function_str = data.get('función', '-1 / (2 * (sqrt(x**3) + (x**2 / 3.5) - 4))')
 
-    result, steps = calculo_funcion(function_str, initial_guess, tolerance)
+    result, steps, iteraciones = calculo_funcion(function_str, initial_guess, tolerance)
 
-    return jsonify({
-        'final_result': result,
-        'steps': steps
-    })
+    response = {
+        'Número iteraciones': iteraciones,  # Mover el número de iteraciones a la parte superior
+        'Resultado Final': result,  # Mover el resultado final a la parte superior
+        'Iteraciones': steps  # Colocar las iteraciones completas abajo
+    }
+
+    return jsonify(response)
