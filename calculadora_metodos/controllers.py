@@ -1,8 +1,7 @@
-from scipy import optimize
-import math
+from sympy import symbols, Matrix
 import sympy as sp
 import numpy as np
-import scipy.linalg as sla
+from scipy.optimize import fsolve
 
 
 
@@ -15,48 +14,51 @@ def suma_controller(a, b):
 def resta_controller(a, b):
     return {"result": a - b}
 
-def eval_equations(f_equations, variables):
-    """Evalúa las ecuaciones dadas las variables."""
-    # Utilizar eval para evaluar dinámicamente las ecuaciones
-    return np.array([eval(eq, {**dict(zip(['x', 'y', 'z'], variables)), 'np': np}) for eq in f_equations])
 
-def broyden_good(variables, f_equations, tol=1e-10, maxIters=50):
-    steps_taken = 0
-    f = eval_equations(f_equations, variables)
-    J = np.zeros((len(f_equations), len(variables)))  # Jacobiana inicial
+def broyden_controller(equations, initial_guess, tolerance, max_iterations):
+    # Define the symbols
+    symbols = sp.symbols(' '.join(['x' + str(i) for i in range(len(initial_guess))]))
 
-    # Estimar la Jacobiana inicial
-    h = 1e-8  # Pequeña perturbación para aproximar la Jacobiana
-    for i in range(len(f_equations)):
-        for j in range(len(variables)):
-            temp_vars = variables.copy()
-            temp_vars[j] += h
-            J[i, j] = (eval_equations(f_equations, temp_vars)[i] - f[i]) / h
+    # Convert the equations into sympy expressions
+    f = [sp.sympify(eq) for eq in equations]
 
-    while np.linalg.norm(f, 2) > tol and steps_taken < maxIters:
-        try:
-            s = sla.solve(J, -f)
-        except sla.LinAlgError:
-            print("Matriz singular. Intentando perturbar la Jacobiana.")
-            # Perturbar la Jacobiana para evitar singularidad
-            J += np.eye(len(variables)) * 1e-5
-            try:
-                s = sla.solve(J, -f)
-            except sla.LinAlgError:
-                return steps_taken, variables, "Matrix singular after perturbation, unable to solve."
+    # Initial guess
+    x_n = np.array(initial_guess, dtype=float)
+    
+    # Create the Jacobian (initially the identity matrix)
+    J_n = np.eye(len(equations))
+    
+    iteration_data = []
+    
+    for iteration in range(max_iterations):
+        # Calculate function values
+        F_n = np.array([func.evalf(subs={symbols[i]: x_n[i] for i in range(len(x_n))}) for func in f], dtype=float)
 
-        variables += s  # Actualiza todas las variables
-        newf = eval_equations(f_equations, variables)
-        z = newf - f
+        # Solve the linear system J_n * delta = -F_n
+        delta = np.linalg.solve(J_n, -F_n)
 
-        # Actualiza la Jacobiana
-        J += (np.outer((z - np.dot(J, s)), s)) / (np.dot(s, s))
+        # Update x_n
+        x_n1 = x_n + delta
 
-        f = newf
-        steps_taken += 1
+        # Update Jacobian using Broyden's update formula
+        s = x_n1 - x_n
+        y = np.array([func.evalf(subs={symbols[i]: x_n1[i] for i in range(len(x_n1))}) for func in f], dtype=float) - F_n
+        
+        J_n += np.outer((y - J_n @ s), s) / (s.T @ s)
 
-        # Verificar si el método está estancado
-        if np.linalg.norm(s) < tol:
+        # Store iteration data
+        iteration_data.append({
+            'Iteración': iteration + 1,
+            'x': x_n1.tolist(),
+            'F(x)': F_n.tolist(),
+            '||x_n1 - x_n||': np.linalg.norm(delta)
+        })
+
+        # Check convergence
+        if np.linalg.norm(delta) < tolerance:
             break
 
-    return steps_taken, variables, None  # Añadir None si no hay error
+        # Update for next iteration
+        x_n = x_n1
+    
+    return x_n.tolist(), iteration_data
