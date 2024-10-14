@@ -1,18 +1,48 @@
+html, body, #root {
+  height: 100%;
+}
+
+/* En home_css.css */
+.principal {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+main {
+  flex: 1;
+  display: flex;
+
+}
+
+/* En Calculadora.css */
 .calculator-container {
-    width: 100%;
-    max-width: 800px;
-    margin: 0 auto;
-    display: flex;
-    flex-direction: column;
-  }
-  
-  .graph-area {
-    height: 400px;
-    background-color: #f0f0f0;
-    border: 1px solid #ccc;
-    margin-bottom: 10px;
-  }
-  
+  width:70%;
+  height: 75%;  
+  display: flex;
+  flex-direction: column;
+  box-sizing: border-box;
+  margin: 0 auto;
+
+}
+
+.graph-area {
+  flex: 0 0 50%;  /* Usar flex en lugar de vh para mejor responsividad */
+  background-color: #f0f0f0;
+  border: 1px solid #ccc;
+  margin-bottom: 0px;
+}
+.input-container input{
+  background-color: #fff;
+   width: 100%;
+   height: 40px;
+}
+.Data {
+  flex: 0 0 10%;  /* Usar flex en lugar de vh para mejor responsividad */
+  background-color: #f0f0f0;
+  border: 1px solid #ccc;
+  padding: 10px;
+}
   .calculator {
     background-color: #f0f0f0;
     border-radius: 10px;

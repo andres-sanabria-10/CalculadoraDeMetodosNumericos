@@ -1,8 +1,30 @@
-root{
-    height: 100vh;
-    width: 100vw;
-    background-color: black;
+body {
+  height: 100%;
+  width: 100%;
 }
-header{
- 
+
+.principal {
+  height: 100%;
+  width: 100%;
+}
+.left-container {
+  width: 35%;
+  padding: 20px;
+  background-color: #f9f9f9;
+  border-right: 1px solid #ccc;
+
+}
+.layout {
+  display: flex;
+  height: 100%;
+  width: 100%;
+
+
+
+}
+.right-container{
+  width: 25%;
+  padding: 20px;
+  background-color: #f9f9f9;
+  border-right: 1px solid #ccc;
 }
