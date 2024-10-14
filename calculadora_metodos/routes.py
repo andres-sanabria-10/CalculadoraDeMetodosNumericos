@@ -1,5 +1,5 @@
 from flask import Blueprint, jsonify, request
-from controllers import home_controller, suma_controller, resta_controller, biseccion_controller,punto_fijo_controller  # Cambiado de .controllers a controllers
+from controllers import home_controller, suma_controller, resta_controller,calculo_funcion # Cambiado de .controllers a controllers
 
 api = Blueprint('api', __name__)
 
@@ -21,28 +21,30 @@ def resta():
     b = data.get('b', 0)
     return jsonify(resta_controller(a, b))
 
-@api.route('/biseccion', methods=['POST'])
-def biseccion():
-    data = request.json
-    func_str = data.get('func_str', '')
-    a = float(data.get('a', 0))
-    b = float(data.get('b', 0))
-    tolerancia = float(data.get('tolerancia', 1e-6))
-    max_iteraciones = int(data.get('max_iteraciones', 100))
-    return jsonify(biseccion_controller(func_str, a, b, tolerancia, max_iteraciones))
 
+@api.route('/punto-fijo', methods=['POST'])
+def calculate_fixed_point():
+    data = request.get_json()
+    # Aquí nos aseguramos de que los valores vengan de Postman y no sean opcionales.
+    initial_guess = data.get('Punto_inicial')
+    tolerance = data.get('tolerancia')
+    function_str = data.get('función')
 
-@api.route('/puntofijo', methods=['POST'])
-def punto_fijo():
-    try:
-        data = request.json
-        func_inicial_str = data['func_inicial_str']
-        func_despejada_str = data['func_despejada_str']
-        valor_inicial = float(data['valor_inicial'])
-        tolerancia = float(data.get('tolerancia', 1e-6))
-        max_iteraciones = int(data.get('max_iteraciones', 100))
-        
-        resultado = punto_fijo_controller(func_inicial_str, func_despejada_str, valor_inicial, tolerancia, max_iteraciones)
-        return jsonify(resultado) 
-    except Exception as e:
-        return jsonify({"error": str(e)}), 500
+    # Validar si se reciben todos los parámetros necesarios
+    if initial_guess is None or tolerance is None or function_str is None:
+        return jsonify({'error': 'Por favor, proporciona Punto_inicial, tolerancia y función en el cuerpo de la solicitud.'}), 400
+
+    # Convertir los valores recibidos a los tipos necesarios
+    initial_guess = float(initial_guess)
+    tolerance = float(tolerance)
+
+    # Llamar a la función de cálculo
+    result, steps, iteraciones = calculo_funcion(function_str, initial_guess, tolerance)
+
+    response = {
+        'Resultado Final': result,  # Mover el resultado final a la parte superior
+        'Número iteraciones': iteraciones,  # Mover el número de iteraciones a la parte superior
+        'Iteraciones': steps  # Colocar las iteraciones completas abajo
+    }
+
+    return jsonify(response)
