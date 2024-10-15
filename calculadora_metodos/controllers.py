@@ -1,48 +1,42 @@
-from scipy import optimize
-import math
 import sympy as sp
 
 def home_controller():
     return {"message": "hello world"}
 
-def suma_controller(a, b):
-    return {"result": a + b}
 
-def resta_controller(a, b):
-    return {"result": a - b}
+# Controlador del método de la secante
+def metodo_secante_controller(ecuacion_str, x0, x1, tolerancia, max_iter):
+    aproximaciones = []
+    iteraciones = []
 
+    funcion_simb = sp.sympify(ecuacion_str)
+    variable_simb = list(funcion_simb.free_symbols)[0] 
+    funcion = sp.lambdify(variable_simb, funcion_simb, 'numpy')
 
-def calculo_error(a, b):
-    return abs((a - b) / a)
+    for i in range(max_iter):
+        valor_funcion_x0 = funcion(x0)
+        valor_funcion_x1 = funcion(x1)
 
-def calculo_funcion(function_str, initial_guess, tolerance):
-    X0 = initial_guess
-    error = 1.0
-    steps = []
-    iteraciones = 0
+        if valor_funcion_x1 == valor_funcion_x0:
+            raise ValueError("La función tiene valores iguales en x0 y x1, no se puede continuar.")
 
-    # Definir la variable simbólica 'x'
-    x = sp.symbols('x')
+        siguiente_valor = x1 - valor_funcion_x1 * (x1 - x0) / (valor_funcion_x1 - valor_funcion_x0)
+        aproximaciones.append(siguiente_valor)
 
-    # Convertir el string de la función en una expresión simbólica
-    function_expr = sp.sympify(function_str)
-
-    while error > tolerance:
-        # Evalúa la función con el punto actual
-        X0_nuevo = float(function_expr.subs(x, X0))
-
-        if X0_nuevo != 0.0:
-            error = calculo_error(X0_nuevo, X0)
-
-        iteraciones += 1
-
-        steps.append({
-            'Iteración': f'Iteración {iteraciones}', 
-            'X0': X0,
-            'X0_nuevo': X0_nuevo,
-            'error': error
+        iteraciones.append({
+            'Iteración': i + 1,
+            'x0': x0,
+            'x1': x1,
+            'Valor siguiente': siguiente_valor,
+            'Error absoluto': abs(valor_funcion_x1),
         })
 
-        X0 = X0_nuevo
+        # Verificar la convergencia
+        if abs(valor_funcion_x1) < tolerancia:
+            return siguiente_valor, iteraciones
 
-    return X0, steps, iteraciones
+        # Actualizar los valores para la siguiente iteración
+        x0 = x1
+        x1 = siguiente_valor
+
+    return aproximaciones[-1], iteraciones
