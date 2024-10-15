@@ -9,16 +9,17 @@ def home():
     return jsonify(home_controller())
 
 
-@api.route('/newtonRaphson', methods=['POST'])
-def newton_raphson():
+@api.route('/broyden', methods=['POST'])
+def broyden():
     data = request.json
-    equation_str = data.get('equation')
-    derivative_str = data.get('derivative')
+    f1_str = data.get('f1')
+    f2_str = data.get('f2')
     x0 = data.get('x0', 0)
-    tol = data.get('tolerance', 1e-3)
+    y0 = data.get('y0', 0)
+    tol = data.get('tolerance', 1e-6)
 
-    if not equation_str or not derivative_str:
-        return jsonify({"error": "No se proporcionó la ecuación o la derivada"}), 400
+    if not f1_str or not f2_str:
+        return jsonify({"error": "No se proporcionaron las ecuaciones f1 o f2"}), 400
 
-    resultado = newton_raphson_controller(equation_str, derivative_str, x0, tol)
+    resultado = broyden_controller(f1_str, f2_str, x0, y0, tol)
     return jsonify(resultado)
