@@ -9,16 +9,16 @@ def home():
     return jsonify(home_controller())
 
 
-@api.route('/secante', methods=['POST'])
-def secante():
+@api.route('/newtonRaphson', methods=['POST'])
+def newton_raphson():
     data = request.json
     equation_str = data.get('equation')
+    derivative_str = data.get('derivative')
     x0 = data.get('x0', 0)
-    x1 = data.get('x1', 1)
     tol = data.get('tolerance', 1e-3)
 
-    if not equation_str:
-        return jsonify({"error": "No se proporcionó ninguna ecuación"}), 400
+    if not equation_str or not derivative_str:
+        return jsonify({"error": "No se proporcionó la ecuación o la derivada"}), 400
 
-    resultado = secante_controller(equation_str, x0, x1, tol)
+    resultado = newton_raphson_controller(equation_str, derivative_str, x0, tol)
     return jsonify(resultado)

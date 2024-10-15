@@ -5,31 +5,38 @@ def home_controller():
     return {"message": "hello world"}
 
 
-def secante_controller(equation_str, x0, x1, tol, max_iter=100):
+def newton_raphson_controller(equation_str, derivative_str, x0, tol):
     x = sp.symbols('x')
-    equation = sp.sympify(equation_str)
-    f = sp.lambdify(x, equation)
+    f = sp.sympify(equation_str)
+    f_prime = sp.sympify(derivative_str)
 
-    iteraciones = []
+    xi = x0
+    erp = 100
+    i = 0
+    results = []
 
-    for i in range(max_iter):
-        f_x0 = float(f(x0))
-        f_x1 = float(f(x1))
+    while erp > tol:
+        f_xi = f.subs(x, xi)
+        f_prime_xi = f_prime.subs(x, xi)
 
-        if f_x1 - f_x0 == 0:
-            return {"error": f"División por cero en la iteración {i}"}
+        if f_prime_xi == 0:
+            return {"error": "División por cero, la derivada es cero en la iteración", "iteration": i}
 
-        x2 = x1 - (x1 - x0) * f_x1 / (f_x1 - f_x0)
+        xi_next = float(xi - (f_xi / f_prime_xi))
+        erp = abs((xi_next - xi) / xi_next) * 100
 
-        error = abs(x2 - x1)
-
-        iteraciones.append({
-            "iteracion": i + 1,
-            "x0": float(x0),
-            "x1": float(x1),
-            "x2": float(x2),
-            "error": float(error)
+        results.append({
+            'iteration': i,
+            'xi': float(xi),
+            'xi_next': float(xi_next),
+            'error': float(erp)
         })
+
+        xi = xi_next
+        i += 1
+
+    return {"root": float(xi), "iterations": results, "final_error": float(erp)}
+
 
         if error < tol:
             return {
