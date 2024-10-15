@@ -1,4 +1,4 @@
-import React, { useEffect,useState } from 'react';
+import React, { useEffect } from 'react';
 
 export function LeftContainer({
   content,
@@ -7,14 +7,10 @@ export function LeftContainer({
   funcionDespejada,
   setFuncionDespejada,
   puntoInicial,
-  setPuntoInicial
-
+  setPuntoInicial,
+  tolerancia,
+  setTolerancia,
 }) {
-  const [selectedOption, setSelectedOption] = useState('');
-
-  const handleOptionChange = (event) => {
-    setSelectedOption(event.target.value);
-  };
 
   const handleFuncionDespejadaFocus = () => onInputFocus('funcionDespejada');
   const handlePuntoInicialFocus = () => onInputFocus('puntoInicial');
@@ -27,23 +23,22 @@ export function LeftContainer({
     }
   }, [activeInput]);
 
-
   return (
     <div className="left-container">
       <h3>{content}</h3>
       <p>Seleccione el error porcentual:</p>
 
-      {/* Aquí van los radio buttons */}
+      {/* Radio buttons para la selección de tolerancia */}
       <div>
         <label>
           <input
             type="radio"
             name="options"
-            value="opcion1"
-            checked={selectedOption === 'opcion1'}
-            onChange={handleOptionChange}
+            value={Math.pow(10, 1)}
+            checked={tolerancia === String(Math.pow(10, 1))}
+            onChange={(e) => setTolerancia(e.target.value)}
           />
-          Opción 1
+          10^1
         </label>
       </div>
       <div>
@@ -51,11 +46,11 @@ export function LeftContainer({
           <input
             type="radio"
             name="options"
-            value="opcion2"
-            checked={selectedOption === 'opcion2'}
-            onChange={handleOptionChange}
+            value={Math.pow(10, 2)}
+            checked={tolerancia === String(Math.pow(10, 2))}
+            onChange={(e) => setTolerancia(e.target.value)}
           />
-          Opción 2
+          10^2
         </label>
       </div>
       <div>
@@ -63,11 +58,11 @@ export function LeftContainer({
           <input
             type="radio"
             name="options"
-            value="opcion3"
-            checked={selectedOption === 'opcion3'}
-            onChange={handleOptionChange}
+            value={Math.pow(10, 3)}
+            checked={tolerancia === String(Math.pow(10, 3))}
+            onChange={(e) => setTolerancia(e.target.value)}
           />
-          Opción 3
+          10^3
         </label>
       </div>
       <div>
@@ -75,11 +70,11 @@ export function LeftContainer({
           <input
             type="radio"
             name="options"
-            value="opcion4"
-            checked={selectedOption === 'opcion4'}
-            onChange={handleOptionChange}
+            value={Math.pow(10, 4)}
+            checked={tolerancia === String(Math.pow(10, 4))}
+            onChange={(e) => setTolerancia(e.target.value)}
           />
-          Opción 4
+          10^4
         </label>
       </div>
       <div>
@@ -87,11 +82,11 @@ export function LeftContainer({
           <input
             type="radio"
             name="options"
-            value="opcion5"
-            checked={selectedOption === 'opcion5'}
-            onChange={handleOptionChange}
+            value={Math.pow(10, 5)}
+            checked={tolerancia === String(Math.pow(10, 5))}
+            onChange={(e) => setTolerancia(e.target.value)}
           />
-          Opción 5
+          10^5
         </label>
       </div>
       <div>
@@ -99,11 +94,11 @@ export function LeftContainer({
           <input
             type="radio"
             name="options"
-            value="opcion6"
-            checked={selectedOption === 'opcion6'}
-            onChange={handleOptionChange}
+            value={Math.pow(10, 6)}
+            checked={tolerancia === String(Math.pow(10, 6))}
+            onChange={(e) => setTolerancia(e.target.value)}
           />
-          Opción 6
+          10^6
         </label>
       </div>
       <div>
@@ -111,11 +106,11 @@ export function LeftContainer({
           <input
             type="radio"
             name="options"
-            value="opcion7"
-            checked={selectedOption === 'opcion7'}
-            onChange={handleOptionChange}
+            value={Math.pow(10, 7)}
+            checked={tolerancia === String(Math.pow(10, 7))}
+            onChange={(e) => setTolerancia(e.target.value)}
           />
-          Opción 7
+          10^7
         </label>
       </div>
       <div>
@@ -123,11 +118,11 @@ export function LeftContainer({
           <input
             type="radio"
             name="options"
-            value="opcion8"
-            checked={selectedOption === 'opcion8'}
-            onChange={handleOptionChange}
+            value={Math.pow(10, 8)}
+            checked={tolerancia === String(Math.pow(10, 8))}
+            onChange={(e) => setTolerancia(e.target.value)}
           />
-          Opción 8
+          10^8
         </label>
       </div>
       <div>
@@ -135,11 +130,11 @@ export function LeftContainer({
           <input
             type="radio"
             name="options"
-            value="opcion9"
-            checked={selectedOption === 'opcion9'}
-            onChange={handleOptionChange}
+            value={Math.pow(10, 9)}
+            checked={tolerancia === String(Math.pow(10, 9))}
+            onChange={(e) => setTolerancia(e.target.value)}
           />
-          Opción 9
+          10^9
         </label>
       </div>
       <div>
@@ -147,15 +142,13 @@ export function LeftContainer({
           <input
             type="radio"
             name="options"
-            value="opcion10"
-            checked={selectedOption === 'opcion10'}
-            onChange={handleOptionChange}
+            value={Math.pow(10, 10)}
+            checked={tolerancia === String(Math.pow(10, 10))}
+            onChange={(e) => setTolerancia(e.target.value)}
           />
-          Opción 10
+          10^10
         </label>
       </div>
-
-
 
       <div style={{ marginTop: '10px' }}>
         <h4>Función despejada</h4>
@@ -191,11 +184,6 @@ export function LeftContainer({
           }}
         />
       </div>
-
-
-
-
-
     </div>
   );
 }

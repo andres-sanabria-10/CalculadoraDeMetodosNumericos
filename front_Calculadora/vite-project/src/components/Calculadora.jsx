@@ -7,9 +7,31 @@ export function Calculator({ onButtonClick }) {
   const [input, setInput] = useState('');
   const [cursorPosition, setCursorPosition] = useState(0);
   const [activeInput, setActiveInput] = useState('');  // Nuevo estado para el input activo
+
+  const [funcionInicial, setFuncionInicial] = useState('');
   const [funcionDespejada, setFuncionDespejada] = useState('');
   const [puntoInicial, setPuntoInicial] = useState('');
+  const [maxIteraciones, setMaxIteraciones] = useState('100');
+  const [tolerancia, setTolerancia] = useState(''); // Add this line
   const inputRef = useRef(null);
+
+
+  // Función para obtener los datos actuales
+  const getData = () => {
+    if (!funcionInicial || !funcionDespejada || !puntoInicial || !tolerancia || !maxIteraciones) {
+      alert("Por favor, completa todos los campos");
+      return;
+    }
+    const data = {
+      Punto_inicial: puntoInicial,
+      funcion: funcionInicial,
+      funcion_despejada: funcionDespejada,
+      max_iteraciones: maxIteraciones,
+      error_percentual: selectedOption
+    };
+    console.log("Los datos son:", data);
+    return data;
+  };
 
   const handleClick = (value) => {
     if (activeInput === 'calculator') {
@@ -70,7 +92,8 @@ export function Calculator({ onButtonClick }) {
 
   const handleInputChange = (e) => {
     setInput(e.target.value);
-    setCursorPosition(e.target.selectionStart);
+    setFuncionInicial(e.target.value);
+    //setCursorPosition(e.target.selectionStart);
   };
 
   const handleInputClick = (e) => {
@@ -94,6 +117,11 @@ export function Calculator({ onButtonClick }) {
         setFuncionDespejada={setFuncionDespejada}
         puntoInicial={puntoInicial}
         setPuntoInicial={setPuntoInicial}
+        maxIteraciones={maxIteraciones}
+        setMaxIteraciones={setMaxIteraciones}
+        tolerancia={tolerancia} // Add this line
+        setTolerancia={setTolerancia} // Add this line
+
       />
 
 
@@ -125,7 +153,7 @@ export function Calculator({ onButtonClick }) {
         </div>
 
         <div className="calculator">
-          <CustomKeyboard onButtonClick={handleClick} />
+          <CustomKeyboard onButtonClick={handleClick} getData={getData} />
         </div>
 
         {/* Pasamos el handleClick y handleInputFocus a LeftContainer */}
