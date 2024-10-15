@@ -1,48 +1,35 @@
-from scipy import optimize
-import math
 import sympy as sp
+import numpy as np
 
 def home_controller():
     return {"message": "hello world"}
 
-def suma_controller(a, b):
-    return {"result": a + b}
 
-def resta_controller(a, b):
-    return {"result": a - b}
-
-
-def calculo_error(a, b):
-    return abs((a - b) / a)
-
-def calculo_funcion(function_str, initial_guess, tolerance):
-    X0 = initial_guess
-    error = 1.0
-    steps = []
-    iteraciones = 0
-
-    # Definir la variable simbólica 'x'
+def bisection_controller(equation_str, xi, xu, tol):
     x = sp.symbols('x')
+    equation = sp.sympify(equation_str)
 
-    # Convertir el string de la función en una expresión simbólica
-    function_expr = sp.sympify(function_str)
+    erp = 100
+    xr = 0
+    i = 1
+    results = []
 
-    while error > tolerance:
-        # Evalúa la función con el punto actual
-        X0_nuevo = float(function_expr.subs(x, X0))
+    while erp > tol:
+        aux = xr
+        xr = (xi + xu) / 2
+        fxi = equation.subs(x, xi)
+        fxr = equation.subs(x, xr)
 
-        if X0_nuevo != 0.0:
-            error = calculo_error(X0_nuevo, X0)
+        z = fxi * fxr
 
-        iteraciones += 1
+        if z > 0:
+            xi = xr
+        else:
+            xu = xr
 
-        steps.append({
-            'Iteración': f'Iteración {iteraciones}', 
-            'X0': X0,
-            'X0_nuevo': X0_nuevo,
-            'error': error
-        })
+        erp = abs((xr - aux) / xr) * 100
 
-        X0 = X0_nuevo
+        results.append({'iteration': i, 'xr': xr, 'error': erp})
+        i += 1
 
-    return X0, steps, iteraciones
+    return {"root": xr, "error": erp, "iterations": results}
