@@ -1,48 +1,53 @@
-from scipy import optimize
-import math
 import sympy as sp
 
 def home_controller():
     return {"message": "hello world"}
 
-def suma_controller(a, b):
-    return {"result": a + b}
+def metodo_newton_controller(ecuacion_str, x_inicial, tolerancia, max_iter):
+    aproximaciones = []
+    iteraciones = []
+    aproximaciones.append(x_inicial)
+    iteracion = 0
 
-def resta_controller(a, b):
-    return {"result": a - b}
+    funcion_simb = sp.sympify(ecuacion_str)
 
+    variable_simb = list(funcion_simb.free_symbols)[0] 
 
-def calculo_error(a, b):
-    return abs((a - b) / a)
+    derivada_simb = sp.diff(funcion_simb, variable_simb)
+    segunda_derivada_simb = sp.diff(derivada_simb, variable_simb)
 
-def calculo_funcion(function_str, initial_guess, tolerance):
-    X0 = initial_guess
-    error = 1.0
-    steps = []
-    iteraciones = 0
+    funcion = sp.lambdify(variable_simb, funcion_simb, 'numpy')
+    derivada = sp.lambdify(variable_simb, derivada_simb, 'numpy')
+    segunda_derivada = sp.lambdify(variable_simb, segunda_derivada_simb, 'numpy')
 
-    # Definir la variable simbólica 'x'
-    x = sp.symbols('x')
+    while iteracion < max_iter:
+        valor_actual = aproximaciones[-1]
+        valor_funcion = funcion(valor_actual)
+        valor_derivada = derivada(valor_actual)
+        valor_segunda_derivada = segunda_derivada(valor_actual)
 
-    # Convertir el string de la función en una expresión simbólica
-    function_expr = sp.sympify(function_str)
+        if valor_derivada == 0:
+            raise ValueError("La derivada es cero, no se puede continuar.")
 
-    while error > tolerance:
-        # Evalúa la función con el punto actual
-        X0_nuevo = float(function_expr.subs(x, X0))
+        siguiente_valor = valor_actual - (valor_funcion / valor_derivada)
+        aproximaciones.append(siguiente_valor)
 
-        if X0_nuevo != 0.0:
-            error = calculo_error(X0_nuevo, X0)
+        error = (siguiente_valor - valor_actual) / siguiente_valor
+        x_abs = abs(siguiente_valor - valor_actual)
+        g_prima = abs(((valor_derivada**2) - (valor_funcion * valor_segunda_derivada)) / (valor_derivada**2))
 
-        iteraciones += 1
-
-        steps.append({
-            'Iteración': f'Iteración {iteraciones}', 
-            'X0': X0,
-            'X0_nuevo': X0_nuevo,
-            'error': error
+        iteraciones.append({
+            'Iteración': iteracion + 1,
+            'Valor actual': valor_actual,
+            'Valor siguiente': siguiente_valor,
+            'Error absoluto': x_abs,
+            'g\'': g_prima,
+            'Error relativo': error
         })
 
-        X0 = X0_nuevo
+        if abs(error) < tolerancia:
+            return siguiente_valor, iteraciones
 
-    return X0, steps, iteraciones
+        iteracion += 1
+
+    return aproximaciones[-1], iteraciones
