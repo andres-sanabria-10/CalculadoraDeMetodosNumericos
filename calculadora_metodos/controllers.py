@@ -15,7 +15,7 @@ def resta_controller(a, b):
 def calculo_error(a, b):
     return abs((a - b) / a)
 
-def calculo_funcion(function_str, initial_guess, tolerance):
+def calculo_funcion(function_str, transformada_str, initial_guess, tolerance):
     X0 = initial_guess
     error = 1.0
     steps = []
@@ -26,10 +26,11 @@ def calculo_funcion(function_str, initial_guess, tolerance):
 
     # Convertir el string de la función en una expresión simbólica
     function_expr = sp.sympify(function_str)
+    transformada_expr = sp.sympify(transformada_str)
 
     while error > tolerance:
         # Evalúa la función con el punto actual
-        X0_nuevo = float(function_expr.subs(x, X0))
+        X0_nuevo = float(transformada_expr.subs(x, X0))
 
         if X0_nuevo != 0.0:
             error = calculo_error(X0_nuevo, X0)

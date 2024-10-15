@@ -29,22 +29,25 @@ def calculate_fixed_point():
     initial_guess = data.get('Punto_inicial')
     tolerance = data.get('tolerancia')
     function_str = data.get('función')
+    transformada_str = data.get('transformada')  # Nueva clave para la transformada
 
-    # Validar si se reciben todos los parámetros necesarios
-    if initial_guess is None or tolerance is None or function_str is None:
-        return jsonify({'error': 'Por favor, proporciona Punto_inicial, tolerancia y función en el cuerpo de la solicitud.'}), 400
+
+  # Validar si se reciben todos los parámetros necesarios
+    if initial_guess is None or tolerance is None or function_str is None or transformada_str is None:
+        return jsonify({'error': 'Por favor, proporciona Punto_inicial, tolerancia, función y transformada en el cuerpo de la solicitud.'}), 400
 
     # Convertir los valores recibidos a los tipos necesarios
     initial_guess = float(initial_guess)
     tolerance = float(tolerance)
 
-    # Llamar a la función de cálculo
-    result, steps, iteraciones = calculo_funcion(function_str, initial_guess, tolerance)
+    # Llamar a la función de cálculo usando la transformada
+    result, steps, iteraciones = calculo_funcion(function_str, transformada_str, initial_guess, tolerance)
 
+    # Preparar la respuesta
     response = {
-        'Resultado Final': result,  # Mover el resultado final a la parte superior
-        'Número iteraciones': iteraciones,  # Mover el número de iteraciones a la parte superior
-        'Iteraciones': steps  # Colocar las iteraciones completas abajo
+        'Resultado Final': result,  
+        'Número iteraciones': iteraciones,  
+        'Iteraciones': steps  
     }
 
     return jsonify(response)
