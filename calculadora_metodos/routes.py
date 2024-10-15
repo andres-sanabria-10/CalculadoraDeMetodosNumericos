@@ -1,5 +1,5 @@
 from flask import Blueprint, jsonify, request
-from controllers import broyden_controller,secante_controller, newton_raphson_controller,bisection_method,home_controller,calculo_funcion, suma_controller, resta_controller,punto_fijo_controller # Cambiado de .controllers a controllers
+from controllers import broyden_controller,secante_controller, newton_raphson_controller,bisection_method,home_controller,calculo_funcion, suma_controller, resta_controller # Cambiado de .controllers a controllers
 
 api = Blueprint('api', __name__)
 
