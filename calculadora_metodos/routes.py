@@ -9,15 +9,16 @@ def home():
     return jsonify(home_controller())
 
 
-@api.route('/puntoFijo', methods=['POST'])
-def puntoFijo():
+@api.route('/secante', methods=['POST'])
+def secante():
     data = request.json
     equation_str = data.get('equation')
     x0 = data.get('x0', 0)
-    error_tolerancia = data.get('tolerance', 1e-3)
+    x1 = data.get('x1', 1)
+    tol = data.get('tolerance', 1e-3)
 
     if not equation_str:
         return jsonify({"error": "No se proporcionó ninguna ecuación"}), 400
 
-    resultado = punto_fijo_controller(equation_str, x0, error_tolerancia)
+    resultado = secante_controller(equation_str, x0, x1, tol)
     return jsonify(resultado)
