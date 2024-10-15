@@ -5,31 +5,26 @@ def home_controller():
     return {"message": "hello world"}
 
 
-def bisection_controller(equation_str, xi, xu, tol):
+def punto_fijo_controller(equation_str, x0, tol):
     x = sp.symbols('x')
-    equation = sp.sympify(equation_str)
+    g = sp.sympify(equation_str)
 
-    erp = 100
-    xr = 0
-    i = 1
+    e = 100
+    i = 0
     results = []
 
-    while erp > tol:
-        aux = xr
-        xr = (xi + xu) / 2
-        fxi = equation.subs(x, xi)
-        fxr = equation.subs(x, xr)
+    while e > tol:
+        x_new = float(g.subs(x, x0))
 
-        z = fxi * fxr
+        e = abs((x_new - x0) / x_new) * 100
 
-        if z > 0:
-            xi = xr
-        else:
-            xu = xr
-
-        erp = abs((xr - aux) / xr) * 100
-
-        results.append({'iteration': i, 'xr': xr, 'error': erp})
+        results.append({
+            'iteration': i,
+            'g(x)': float(x0),
+            'f(x)': float(x_new),
+            'error': float(e)
+        })
         i += 1
+        x0 = x_new
 
-    return {"root": xr, "error": erp, "iterations": results}
+    return results

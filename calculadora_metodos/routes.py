@@ -9,16 +9,15 @@ def home():
     return jsonify(home_controller())
 
 
-@api.route('/biseccion', methods=['POST'])
-def biseccion():
+@api.route('/puntoFijo', methods=['POST'])
+def puntoFijo():
     data = request.json
     equation_str = data.get('equation')
-    xi = data.get('xi', 0)
-    xu = data.get('xu', 1)
-    tol = data.get('tolerance', 1e-3)
+    x0 = data.get('x0', 0)
+    error_tolerancia = data.get('tolerance', 1e-3)
 
     if not equation_str:
         return jsonify({"error": "No se proporcionó ninguna ecuación"}), 400
 
-    resultado = bisection_controller(equation_str, xi, xu, tol)
+    resultado = punto_fijo_controller(equation_str, x0, error_tolerancia)
     return jsonify(resultado)
