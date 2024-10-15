@@ -18,10 +18,7 @@ export function Calculator({ onButtonClick }) {
 
   // Función para obtener los datos actuales
   const getData = () => {
-    if (!funcionInicial || !funcionDespejada || !puntoInicial || !tolerancia || !maxIteraciones) {
-      alert("Por favor, completa todos los campos");
-      return;
-    }
+  
     const data = {
       Punto_inicial: puntoInicial,
       funcion: funcionInicial,
