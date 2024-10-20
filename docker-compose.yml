@@ -2,7 +2,7 @@ version: '3'
 services:
   metodo_biseccion:
     build:
-      context: ./Metodo_Biseccion
+      context: ./calculadora_metodos/Metodo_Biseccion
       dockerfile: Dockerfile
     ports:
       - "5000:5000"
@@ -11,37 +11,37 @@ services:
 
   metodo_broyden:
     build:
-      context: ./Metodo_Broyden
+      context: ./calculadora_metodos/Metodo_Broyden
       dockerfile: Dockerfile
     ports:
-      - "5100:5000"
+      - "5100:5100"
     networks:
       - app-network
 
   metodo_newton_raphson:
     build:
-      context: ./Metodo_Newton_Rap
+      context: ./calculadora_metodos/Metodo_Newton_Raphson
       dockerfile: Dockerfile
     ports:
-      - "5200:5000"
+      - "5200:5200"
     networks:
       - app-network
 
   metodo_punto_fijo:
     build:
-      context: ./Metodo_Punto_Fijo
+      context: ./calculadora_metodos/Metodo_Punto_Fijo
       dockerfile: Dockerfile
     ports:
-      - "5300:5000"
+      - "5300:5300"
     networks:
       - app-network
 
   metodo_secante:
     build:
-      context: ./Metodo_Secante
+      context: ./calculadora_metodos/Metodo_Secante
       dockerfile: Dockerfile
     ports:
-      - "5400:5000"
+      - "5400:5400"
     networks:
       - app-network
 
