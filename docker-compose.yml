@@ -1,24 +1,62 @@
 version: '3'
 services:
-  backend:
+  metodo_biseccion:
     build:
-      context: ./calculadora_metodos
+      context: ./Metodo_Biseccion
       dockerfile: Dockerfile
     ports:
       - "5000:5000"
     networks:
       - app-network
-    volumes:
-      - ./calculadora_metodos:/app
+
+  metodo_broyden:
+    build:
+      context: ./Metodo_Broyden
+      dockerfile: Dockerfile
+    ports:
+      - "5100:5000"
+    networks:
+      - app-network
+
+  metodo_newton_raphson:
+    build:
+      context: ./Metodo_Newton_Rap
+      dockerfile: Dockerfile
+    ports:
+      - "5200:5000"
+    networks:
+      - app-network
+
+  metodo_punto_fijo:
+    build:
+      context: ./Metodo_Punto_Fijo
+      dockerfile: Dockerfile
+    ports:
+      - "5300:5000"
+    networks:
+      - app-network
+
+  metodo_secante:
+    build:
+      context: ./Metodo_Secante
+      dockerfile: Dockerfile
+    ports:
+      - "5400:5000"
+    networks:
+      - app-network
 
   frontend:
     build:
-      context: ./front_Calculadora./vite-project
+      context: ./front_Calculadora/vite-project
       dockerfile: Dockerfile
     ports:
       - "3000:3000"
     depends_on:
-      - backend
+      - metodo_biseccion
+      - metodo_broyden
+      - metodo_newton_raphson
+      - metodo_punto_fijo
+      - metodo_secante
     networks:
       - app-network
 
