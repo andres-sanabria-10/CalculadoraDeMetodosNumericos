@@ -47,7 +47,7 @@ services:
 
   frontend:
     build:
-      context: ./front_Calculadora/vite-project
+      context: ./front_Calculadora
       dockerfile: Dockerfile
     ports:
       - "3000:3000"
