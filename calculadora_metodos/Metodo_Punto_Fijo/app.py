@@ -1,7 +1,9 @@
 from flask import Flask, request, jsonify
+from flask_cors import CORS  # Importa CORS
 import sympy as sp
 
 app = Flask(__name__)
+CORS(app)  # Habilita CORS para toda la aplicación
 
 def calculo_error(a, b):
     return abs((a - b) / a)
@@ -10,14 +12,23 @@ def calculo_error(a, b):
 def calculate_fixed_point():
     try:
         data = request.get_json()
+        print("Datos recibidos:", data)
         initial_guess = float(data['Punto_inicial'])
         tolerance = float(data['tolerancia'])
-        function_str = data['función']
+        # Validar la tolerancia
+        if tolerance <= 0:
+            return jsonify({'error': 'La tolerancia debe ser un valor positivo'}), 400
+
+        function_str = data['funcion']
         transformada_str = data['transformada']
 
-        x = sp.symbols('x')
-        function_expr = sp.sympify(function_str)
-        transformada_expr = sp.sympify(transformada_str)
+      # Validar las funciones
+        try:
+            x = sp.symbols('x')
+            function_expr = sp.sympify(function_str)
+            transformada_expr = sp.sympify(transformada_str)
+        except Exception as e:
+            return jsonify({'error': 'Error al procesar las funciones: ' + str(e)}), 400
 
         X0 = initial_guess
         error = 1.0

@@ -6,10 +6,10 @@ const app = express()
 
 app.set('PORT',process.env.PORT || 3000)
 
-app.use(express.static('public'))
+app.use(express.static('publico'))
 
 app.get('/',(req,res)=>{
-  res.sendFile(path.join(__dirname,'/views/index.html'))
+  res.sendFile(path.join(__dirname,'/Vistas/index.html'))
 })
 
 app.listen(app.get('PORT'),()=>console.log(`Server front in port ${app.get('PORT')}`))
