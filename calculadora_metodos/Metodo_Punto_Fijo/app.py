@@ -30,6 +30,8 @@ def calculate_fixed_point():
         except Exception as e:
             return jsonify({'error': 'Error al procesar las funciones: ' + str(e)}), 400
 
+
+
         X0 = initial_guess
         error = 1.0
         steps = []
@@ -57,10 +59,16 @@ def calculate_fixed_point():
         if iteraciones == max_iteraciones:
             return jsonify({'error': 'Se alcanzó el máximo de iteraciones sin convergencia'}), 400
 
+        # Verificación de convergencia
+        converge = error <= tolerance
+ 
+
         return jsonify({
             'Resultado Final': X0,
             'Número iteraciones': iteraciones,
-            'Iteraciones': steps
+            'Iteraciones': steps,
+            'Converge': converge  # Agregado para incluir la convergencia en la respuesta
+      
         })
 
     except Exception as e:

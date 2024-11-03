@@ -47,11 +47,13 @@ def calculo_funcion(function_str, transformada_str, initial_guess, tolerance):
             'X0': X0,
             'X0_nuevo': X0_nuevo,
             'error': error
+            
         })
 
         X0 = X0_nuevo
 
-    return X0, steps, iteraciones
+      
+        return X0, steps, iteraciones
 
 
 def bisection_method(funcion, punto_a, punto_b, tolerancia, max_iteraciones):
@@ -322,9 +324,7 @@ def broyden_controller(ecuaciones_str, valores_iniciales, tolerancia=1e-6, max_i
 
 
 
-
 def jacobi_controller(A, b, x0, tolerancia=1e-6, max_iteraciones=100):
-
     n = len(b)
     x = np.copy(x0)
     iteraciones = []
@@ -333,11 +333,35 @@ def jacobi_controller(A, b, x0, tolerancia=1e-6, max_iteraciones=100):
         x_new = np.copy(x)
 
         for i in range(n):
-
-            suma = np.dot(A[i], x_new) - A[i][i] * x_new[i]
-
             suma = np.dot(A[i], x) - A[i][i] * x[i]
+            x_new[i] = (b[i] - suma) / A[i][i]
 
+        error = np.linalg.norm(x_new - x, np.inf)
+
+        iteraciones.append({
+            'iteracion': iter + 1,
+            'x': x_new.tolist(),
+            'error': error
+        })
+
+        if error < tolerancia:
+            return x_new.tolist(), iteraciones
+
+        x = x_new
+
+    return None, iteraciones
+
+
+def gauss_seidel_controller(A, b, x0, tolerancia=1e-6, max_iteraciones=100):
+    n = len(b)
+    x = np.copy(x0)
+    iteraciones = []
+
+    for iter in range(max_iteraciones):
+        x_new = np.copy(x)
+
+        for i in range(n):
+            suma = np.dot(A[i], x_new) - A[i][i] * x_new[i]
             x_new[i] = (b[i] - suma) / A[i][i]
 
         error = np.linalg.norm(x_new - x, np.inf)
