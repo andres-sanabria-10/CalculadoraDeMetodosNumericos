@@ -2,15 +2,30 @@ from flask import Flask, request, jsonify
 from flask_cors import CORS  # Importa CORS
 import sympy as sp
 import math
+import re  # Importar para expresiones regulares
 
 app = Flask(__name__)
 CORS(app)  # Habilita CORS para toda la aplicación
 
 def evaluar_funcion_segura(funcion_str, x):
     try:
+        # Validar que la función no contenga caracteres no permitidos
+        if not re.match(r'^[0-9x+\-*/().^ ]+$', funcion_str):
+            raise ValueError("La función contiene caracteres no permitidos.")
+        
         x_sym = sp.Symbol('x')
         expr = sp.sympify(funcion_str)
+
+        # Verificar divisiones por cero
+        if '1/x' in funcion_str and x == 0:
+            raise ValueError("División por cero detectada en la evaluación.")
+        
+        # Verificar raíces negativas
+        if isinstance(expr, sp.Pow) and expr.args[1] % 2 == 0 and expr.args[0] < 0:
+            raise ValueError("Raíz negativa detectada. Se requiere un número no negativo.")
+
         return float(expr.subs(x_sym, x))
+    
     except Exception as e:
         raise ValueError(f"Error al evaluar la función: {str(e)}")
 

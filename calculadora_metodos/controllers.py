@@ -103,7 +103,7 @@ def bisection_method(funcion, punto_a, punto_b, tolerancia, max_iteraciones):
         'resultado_final': punto_medio if converged else None,
         'numero_iteraciones': len(iteraciones)
     }
-    
+
 
 
 def newton_raphson_controller(func_str, func_prime_str, x0, E, max_iterations):
