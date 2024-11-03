@@ -27,6 +27,10 @@ header {
     display: flex;
     flex-direction: column;
 }
+canvas#grafico {
+    width: 100% !important;
+    height: 100% !important;
+}
 .botones_Grafico {
     display: flex; /* Asegura que los botones estén en una fila */
     justify-content: flex-start; /* Alinea los botones al inicio */
