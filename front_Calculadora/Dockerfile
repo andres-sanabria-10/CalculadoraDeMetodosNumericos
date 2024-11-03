@@ -8,7 +8,7 @@ WORKDIR /app
 COPY package*.json ./
 
 # Instala las dependencias
-RUN npm install
+RUN npm install -g nodemon && npm install
 
 # Copia el resto de los archivos de la aplicación
 COPY . .
@@ -17,4 +17,4 @@ COPY . .
 EXPOSE 3000
 
 # Comando para iniciar el servidor
-CMD ["npm", "start"]
+CMD ["nodemon", "App.js"]
