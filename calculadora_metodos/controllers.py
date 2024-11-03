@@ -1,4 +1,4 @@
-from scipy import optimize
+#from scipy import optimize
 import math
 import sympy as sp
 import re
