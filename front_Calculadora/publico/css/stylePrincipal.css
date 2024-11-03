@@ -25,8 +25,12 @@ header {
     border-radius: 4px;
     margin-bottom: 20px;
     display: flex;
-    justify-content: center;
-    align-items: center;
+    flex-direction: column;
+}
+.botones_Grafico {
+    display: flex; /* Asegura que los botones estén en una fila */
+    justify-content: flex-start; /* Alinea los botones al inicio */
+    padding: 10px; /* Agrega un poco de espacio alrededor de los botones */
 }
 .header-content {
     display: flex;
