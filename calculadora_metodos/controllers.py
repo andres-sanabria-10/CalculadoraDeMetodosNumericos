@@ -210,9 +210,6 @@ def secante_controller(func_str, x0, x1, E, max_iterations=100):
 
         
 
-        
-
-
         # Almacenar los resultados de la iteración
         iteration_data.append({
             'Iteración': iteration  ,
@@ -325,7 +322,9 @@ def broyden_controller(ecuaciones_str, valores_iniciales, tolerancia=1e-6, max_i
 
 
 
-def gauss_seidel_controller(A, b, x0, tolerancia=1e-6, max_iteraciones=100):
+
+def jacobi_controller(A, b, x0, tolerancia=1e-6, max_iteraciones=100):
+
     n = len(b)
     x = np.copy(x0)
     iteraciones = []
@@ -334,7 +333,11 @@ def gauss_seidel_controller(A, b, x0, tolerancia=1e-6, max_iteraciones=100):
         x_new = np.copy(x)
 
         for i in range(n):
+
             suma = np.dot(A[i], x_new) - A[i][i] * x_new[i]
+
+            suma = np.dot(A[i], x) - A[i][i] * x[i]
+
             x_new[i] = (b[i] - suma) / A[i][i]
 
         error = np.linalg.norm(x_new - x, np.inf)
