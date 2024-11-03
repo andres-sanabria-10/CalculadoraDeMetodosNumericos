@@ -45,6 +45,15 @@ services:
     networks:
       - app-network
 
+  metodo_jacobi:
+    build:
+      context: ./calculadora_metodos/Metodo_Jacobi
+      dockerfile: Dockerfile
+    ports:
+      - "5501:5501"
+    networks:
+      - app-network
+
   frontend:
     build:
       context: ./front_Calculadora
@@ -57,6 +66,7 @@ services:
       - metodo_newton_raphson
       - metodo_punto_fijo
       - metodo_secante
+      - metodo_jacobi
     networks:
       - app-network
 

@@ -1,4 +1,4 @@
 Flask==3.0.3
-sympy==1.13.3
-Werkzeug
+sympy==1.8
+numpy==1.24.3
 Flask-Cors==5.0.0

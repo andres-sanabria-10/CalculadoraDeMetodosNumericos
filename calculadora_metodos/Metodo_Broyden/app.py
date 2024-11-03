@@ -1,9 +1,11 @@
 from flask import Flask, request, jsonify
+from flask_cors import CORS  # Importa CORS
 import sympy as sp
 import numpy as np
 import re
 
 app = Flask(__name__)
+CORS(app)  # Habilita CORS para toda la aplicación
 
 def evaluar_funcion_segura(funcion_str, variables):
     try:
