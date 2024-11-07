@@ -32,7 +32,7 @@ services:
       context: ./calculadora_metodos/Metodo_Punto_Fijo
       dockerfile: Dockerfile
     ports:
-      - "5300:5300"
+      - "5201:5201"
     networks:
       - app-network
 

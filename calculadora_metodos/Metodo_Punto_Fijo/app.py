@@ -22,6 +22,27 @@ def calculate_fixed_point():
     try:
         data = request.get_json()
         
+        if 'Punto_inicial' not in data:
+            return jsonify({
+                'error': 'Falta el campo Punto_inicial.',
+                'mensaje': 'Por favor, ingrese el Punto_inicial.'
+            }), 400
+        if 'funcion' not in data:
+            return jsonify({
+                'error': 'Falta el campo funcion.',
+                'mensaje': 'Por favor, ingrese la ecuación original.'
+            }), 400
+        if 'transformada' not in data:
+            return jsonify({
+                'error': 'Falta el campo transformada.',
+                'mensaje': 'Por favor, ingrese la ecuación despejada.'
+            }), 400
+        if 'tolerancia' not in data:
+            return jsonify({
+                'error': 'Falta el campo tolerancia.',
+                'mensaje': 'Por favor, seleccione una tolerancia.'
+            }), 400
+        
         # Validar que el punto inicial es un número
         try:
             initial_guess = float(data['Punto_inicial'])
@@ -30,6 +51,7 @@ def calculate_fixed_point():
                 'error': 'El Punto_inicial debe ser un número.',
                 'mensaje': 'Por favor, ingrese un valor numérico válido para el Punto_inicial.'
             }), 400
+            
 
         tolerance = float(data['tolerancia'])
         function_str = data['funcion']
@@ -118,4 +140,4 @@ def calculate_fixed_point():
         return jsonify({'error': str(e), 'mensaje': 'Ocurrió un error inesperado en el servidor.'}), 400
     
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=5300)
+    app.run(host='0.0.0.0', port=5201)

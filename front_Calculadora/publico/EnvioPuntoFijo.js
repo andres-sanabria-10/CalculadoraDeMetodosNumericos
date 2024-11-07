@@ -92,6 +92,24 @@ document.addEventListener("DOMContentLoaded", function () {
         const selectedOption = document.querySelector('input[name="options"]:checked');
         const selectedValue = selectedOption ? selectedOption.value : null;
 
+
+        // Validaciones
+        if (!equationInput) {
+            alert('Por favor, ingrese la ecuación original.');
+            return;
+        }
+        if (!calculatorInput) {
+            alert('Por favor, ingrese la ecuación despejada.');
+            return;
+        }
+        if (!initialPointInput) {
+            alert('Por favor, ingrese el punto inicial.');
+            return;
+        }
+        if (!selectedValue) {
+            alert('Por favor, seleccione una tolerancia.');
+            return;
+        }
         const data = {
             Punto_inicial: initialPointInput,
             tolerancia: selectedValue,
