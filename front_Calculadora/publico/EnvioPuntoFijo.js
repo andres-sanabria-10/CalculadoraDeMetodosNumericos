@@ -118,7 +118,7 @@ document.addEventListener("DOMContentLoaded", function () {
         };
         console.log('Data a enviar:', data);
 
-        fetch('http://localhost:5300/punto-fijo', {
+        fetch('http://localhost:5201/punto-fijo', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
