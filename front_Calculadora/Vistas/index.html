@@ -70,7 +70,7 @@
                             original</button>
                         <button type="button" class="btn btn-outline-secondary" id="btnIteraciones">Iteraciones</button>
                     </div>
-                    <canvas id="grafico" ></canvas>
+                    <canvas id="grafico"></canvas>
                 </div>
 
                 <div class="input-container">
@@ -82,13 +82,14 @@
                 </div>
                 <div className="custom-keyboard">
                     <div className="calculator-row">
-                        <button class="key function purple">123</button>
-                        <button class="key function">f(x)</button>
-                        <button class="key function">ABC</button>
-                        <button class="key function">#&</button>
-
+                        <button class="key function " onclick="showKeyboard('numericKeyboard')">123</button>
+                        <button class="key function" onclick="showKeyboard('functionKeyboard')">f(x)</button>
+                        <button class="key function" onclick="showKeyboard('alphaKeyboard')">ABC</button>
+                        <button class="key function" onclick="showKeyboard('symbolKeyboard')">#&</button>
                     </div>
-                    <div class="calculator-keypad">
+
+
+                    <div id="numericKeyboard" class="calculator-keypad">
                         <button class="key">x</button>
                         <button class="key">y</button>
                         <button class="key">z</button>
@@ -148,6 +149,100 @@
                                 src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCI+PHBhdGggZmlsbD0ibm9uZSIgZD0iTTAgMGgyNHYyNEgwVjB6Ii8+PHBhdGggZD0iTTE5IDd2NEg1LjgzbDMuNTgtMy41OUw4IDZsLTYgNiA2IDYgMS40MS0xLjQxTDUuODMgMTNIMjFWN2gtMnoiLz48L3N2Zz4="
                                 alt="" data-funcion="enviar" /> </button>
                     </div>
+
+                    <!-- Teclado funciones-->
+                    <div id="functionKeyboard" class="calculator-keypad" style="display: none;">
+                        <!-- Primera fila -->
+                        <button class="key">sen</button>
+                        <button class="key">cos</button>
+                        <button class="key">tg</button>
+                        <button class="key">%</button>
+                        <button class="key">!</button>
+                        <button class="key">$</button>
+                        <button class="key">°</button>
+                        <button class="key">{</button>
+                        <button class="key">}</button>
+                        <button class="key">sen⁻¹</button>
+                        <button class="key">cos⁻¹</button>
+                        <button class="key">tg⁻¹</button>
+                        <button class="key">10ˣ</button>
+                        <button class="key">√</button>
+                        <button class="key">𝑑/𝑑𝑥</button>
+                        <button class="key">∫</button>
+                        <button class="key">𝑖</button>
+                        <button class="key">⌫</button>
+                        <button class="key">ln</button>
+                        <button class="key">log₁₀</button>
+                        <button class="key">logₑ</button>
+                        <button class="key">e</button>
+                        <button class="key">≤</button>
+                        <button class="key">≥</button>
+                        <button class="key" style="background-color: #d3d3d3; color: #000;">←</button>
+
+                    </div>
+
+                    <!-- Teclado alfabético -->
+                    <div id="alphaKeyboard" class="calculator-keypad" style="display: none;">
+                        <button class="key">q</button>
+                        <button class="key">w</button>
+                        <button class="key">e</button>
+                        <button class="key">r</button>
+                        <button class="key">t</button>
+                        <button class="key">y</button>
+                        <button class="key">u</button>
+                        <button class="key">i</button>
+                        <button class="key">o</button>
+                        <button class="key">p</button>
+
+                        <button class="key">a</button>
+                        <button class="key">s</button>
+                        <button class="key">d</button>
+                        <button class="key">f</button>
+                        <button class="key">g</button>
+                        <button class="key">h</button>
+                        <button class="key">j</button>
+                        <button class="key">k</button>
+
+                        <button class="key">l</button>
+                        <button class="key special">ñ</button>
+
+                        <button class="key">z</button>
+                        <button class="key">x</button>
+                        <button class="key">c</button>
+                        <button class="key">v</button>
+                        <button class="key">b</button>
+                        <button class="key">n</button>
+                        <button class="key">m</button>
+
+                        <button class="key special">shift</button>
+
+
+
+                        <button class="key ">,</button>
+                        <button class="key space"> </button>
+                        <button class="key">(</button>
+                        <button class="key">)</button>
+                        <button class="key">⌫</button>
+
+
+                        <button class="key">≤</button>
+                        <button class="key">≥</button>
+                        <button class="key" style="background-color: #d3d3d3; color: #000;">←</button>
+
+
+
+                    </div>
+
+                    <!-- Teclado de símbolos -->
+                    <div id="symbolKeyboard" class="calculator-keypad" style="display: none;">
+                        <button class="key">@</button>
+                        <button class="key">#</button>
+                        <button class="key">$</button>
+                        <button class="key">%</button>
+                        <button class="key">&</button>
+                        <button class="key">*</button>
+                    </div>
+
                 </div>
             </div>
         </div>
@@ -175,6 +270,23 @@
             </div>
         </div>
     </div>
+
+    <!-- Script para recargar las imágenes y gráficos -->
+    <script>
+        function showKeyboard(keyboard) {
+            const keyboards = document.querySelectorAll('.calculator-keypad');
+            keyboards.forEach(kb => {
+                kb.style.display = 'none';
+            });
+            const selectedKeyboard = document.getElementById(keyboard);
+            if (selectedKeyboard) {
+                selectedKeyboard.style.display = 'grid';
+            }
+        }
+
+    </script>
+
+
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
         integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
