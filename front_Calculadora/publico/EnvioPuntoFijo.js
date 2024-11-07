@@ -4,6 +4,12 @@ document.addEventListener("DOMContentLoaded", function () {
     let chart;
     let dataGlobal;
 
+    // Límites iniciales para los ejes
+    let xMin = -14;
+    let xMax = 18;
+    let yMin = -10;
+    let yMax = 12;
+
     function renderChart(data, label) {
         if (chart) {
             chart.destroy();
@@ -14,9 +20,9 @@ document.addEventListener("DOMContentLoaded", function () {
                 datasets: [{
                     label: label,
                     data: data,
-                    borderColor: 'rgb(75, 192, 192)',
+                    borderColor: 'rgb(208, 46, 11)',
                     tension: 0.1,
-                    pointRadius: 0, // Remove points
+                    pointRadius: 0,
                     borderWidth: 2
                 }]
             },
@@ -26,7 +32,9 @@ document.addEventListener("DOMContentLoaded", function () {
                 scales: {
                     x: {
                         type: 'linear',
-                        position: 'center', // This will make the axis cross at zero
+                        position: 'center',
+                        min: xMin,
+                        max: xMax,
                         grid: {
                             color: 'rgba(0, 0, 0, 0.1)',
                             drawTicks: true
@@ -36,13 +44,13 @@ document.addEventListener("DOMContentLoaded", function () {
                             callback: function (value) {
                                 return value.toString();
                             }
-                        },
-                        min: -14,
-                        max: 18
+                        }
                     },
                     y: {
                         type: 'linear',
-                        position: 'center', // This will make the axis cross at zero
+                        position: 'center',
+                        min: yMin,
+                        max: yMax,
                         grid: {
                             color: 'rgba(0, 0, 0, 0.1)',
                             drawTicks: true
@@ -52,9 +60,7 @@ document.addEventListener("DOMContentLoaded", function () {
                             callback: function (value) {
                                 return value.toString();
                             }
-                        },
-                        min: -10,
-                        max: 12
+                        }
                     }
                 },
                 plugins: {
@@ -66,6 +72,28 @@ document.addEventListener("DOMContentLoaded", function () {
             }
         });
     }
+
+    // Evento para zoom con la rueda del mouse
+    document.getElementById('grafico').addEventListener('wheel', function (event) {
+        event.preventDefault(); // Evita el desplazamiento de la página al hacer zoom
+
+        const zoomFactor = 0.1; // Factor de zoom
+        const delta = event.deltaY;
+
+        if (delta < 0) { // Zoom in
+            xMin += zoomFactor;
+            xMax -= zoomFactor;
+            yMin += zoomFactor;
+            yMax -= zoomFactor;
+        } else { // Zoom out
+            xMin -= zoomFactor;
+            xMax += zoomFactor;
+            yMin -= zoomFactor;
+            yMax += zoomFactor;
+        }
+
+        renderChart(chart.data.datasets[0].data, chart.data.datasets[0].label);
+    });
 
 
     function generarPuntosFuncionOriginal(funcion, min, max, puntos = 100) {
@@ -172,9 +200,7 @@ document.addEventListener("DOMContentLoaded", function () {
     document.getElementById('btnFuncionOriginal').addEventListener('click', function () {
         if (dataGlobal) {
             const equationInput = document.getElementById('equation-input').value;
-            // Generar puntos para la función original
-            // Puedes ajustar el rango según tus necesidades
-            const puntosFuncion = generarPuntosFuncionOriginal(equationInput, -10, 10);
+            const puntosFuncion = generarPuntosFuncionOriginal(equationInput, xMin, xMax);
             renderChart(puntosFuncion, 'Función Original');
         }
     });
