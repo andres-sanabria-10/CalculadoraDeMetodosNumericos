@@ -1,21 +1,30 @@
 from flask import Flask, request, jsonify
 from flask_cors import CORS  # Importa CORS
 import sympy as sp
-import re  
+import re  # Para validar expresiones con regex
 
 app = Flask(__name__)
 CORS(app)  # Habilita CORS para toda la aplicación
 
 def es_valido(entrada):
-    # Permite solo letras, números, paréntesis y operadores matemáticos básicos
-    patron = r'^[a-zA-Z0-9+\-*/^(). ]+$'
+    # Permite solo una letra (variable), números, operadores matemáticos y paréntesis
+    patron = r'^[a-zA-Z]{1}[\d+\-*/^().\s]*$'
     return re.match(patron, entrada) is not None
+
+def es_expresion_valida(expr):
+    try:
+        # Intenta convertir la expresión a una expresión de SymPy
+        sp.sympify(expr)
+        return True
+    except (sp.SympifyError, ValueError):
+        # Si no es una expresión válida, retorna False
+        return False
 
 def calculo_error(a, b):
     try:
         return abs((a - b) / a)
     except ZeroDivisionError:
-        return float('inf')  
+        return float('inf')  # Retorna un valor infinito para que se detecte como error
 
 @app.route('/punto-fijo', methods=['POST'])
 def calculate_fixed_point():
@@ -52,7 +61,6 @@ def calculate_fixed_point():
                 'mensaje': 'Por favor, ingrese un valor numérico válido para el Punto_inicial.'
             }), 400
             
-
         tolerance = float(data['tolerancia'])
         function_str = data['funcion']
         transformada_str = data['transformada']
@@ -61,10 +69,18 @@ def calculate_fixed_point():
         if tolerance <= 0:
             return jsonify({'error': 'La tolerancia debe ser un valor positivo', 'mensaje': 'Por favor, ingrese una tolerancia positiva.'}), 400
 
+        # Validar que las expresiones contengan caracteres permitidos
         if not es_valido(function_str) or not es_valido(transformada_str):
             return jsonify({
                 'error': 'Las funciones contienen caracteres no permitidos.',
-                'mensaje': 'Solo se permiten letras, números, operadores matemáticos y paréntesis en las funciones.'
+                'mensaje': 'Solo se permiten una letra para la variable, números, operadores matemáticos y paréntesis en las funciones.'
+            }), 400
+
+        # Validar que la expresión es una ecuación matemática válida
+        if not es_expresion_valida(function_str) or not es_expresion_valida(transformada_str):
+            return jsonify({
+                'error': 'La ecuación ingresada no es válida.',
+                'mensaje': 'Por favor, asegúrese de ingresar una ecuación matemática válida en ambos campos.'
             }), 400
 
         try:
@@ -72,7 +88,7 @@ def calculate_fixed_point():
             if len(variables) != 1:
                 return jsonify({
                     'error': 'Las funciones deben contener exactamente una variable.',
-                    'mensaje': 'Asegúrese de que las funciones solo usen una variable, como "x" o "t".'
+                    'mensaje': 'Asegúrese de que las funciones solo usen una variable, como "x".'
                 }), 400
             variable = variables[0]
         except Exception as e:
@@ -138,6 +154,6 @@ def calculate_fixed_point():
 
     except Exception as e:
         return jsonify({'error': str(e), 'mensaje': 'Ocurrió un error inesperado en el servidor.'}), 400
-    
+
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5201)
