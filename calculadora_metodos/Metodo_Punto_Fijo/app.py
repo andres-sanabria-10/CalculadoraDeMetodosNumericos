@@ -11,6 +11,15 @@ def es_valido(entrada):
     patron = r'^[a-zA-Z0-9+\-*/^(). ]+$'
     return re.match(patron, entrada) is not None
 
+def es_expresion_valida(expresion_str):
+    try:
+        # Intenta convertir la expresión en una expresión SymPy válida
+        expr = sp.sympify(expresion_str)
+        # Asegura que la expresión tenga al menos una variable
+        return len(expr.free_symbols) > 0
+    except (sp.SympifyError, TypeError):
+        return False
+
 def calculo_error(a, b):
     try:
         return abs((a - b) / a)
@@ -52,23 +61,38 @@ def calculate_fixed_point():
                 'mensaje': 'Por favor, ingrese un valor numérico válido para el Punto_inicial.'
             }), 400
             
-
         tolerance = float(data['tolerancia'])
         function_str = data['funcion']
         transformada_str = data['transformada']
 
         # Validar la tolerancia
         if tolerance <= 0:
-            return jsonify({'error': 'La tolerancia debe ser un valor positivo', 'mensaje': 'Por favor, ingrese una tolerancia positiva.'}), 400
+            return jsonify({
+                'error': 'La tolerancia debe ser un valor positivo',
+                'mensaje': 'Por favor, ingrese una tolerancia positiva.'
+            }), 400
 
+        # Validar sintaxis y caracteres permitidos en las funciones
         if not es_valido(function_str) or not es_valido(transformada_str):
             return jsonify({
                 'error': 'Las funciones contienen caracteres no permitidos.',
                 'mensaje': 'Solo se permiten letras, números, operadores matemáticos y paréntesis en las funciones.'
             }), 400
 
+        # Validar que las expresiones sean matemáticamente válidas y contengan una variable
+        if not es_expresion_valida(function_str) or not es_expresion_valida(transformada_str):
+            return jsonify({
+                'error': 'Las funciones deben ser expresiones matemáticas válidas que incluyan una variable.',
+                'mensaje': 'Por favor, asegúrese de que las funciones sean matemáticamente correctas y contengan al menos una variable, como "x".'
+            }), 400
+
         try:
-            variables = list(sp.sympify(function_str).free_symbols | sp.sympify(transformada_str).free_symbols)
+            # Verificar si la función es válida en SymPy
+            function_expr = sp.sympify(function_str)
+            transformada_expr = sp.sympify(transformada_str)
+
+            # Verificar que ambas expresiones contengan exactamente una variable
+            variables = list(function_expr.free_symbols | transformada_expr.free_symbols)
             if len(variables) != 1:
                 return jsonify({
                     'error': 'Las funciones deben contener exactamente una variable.',
@@ -76,11 +100,10 @@ def calculate_fixed_point():
                 }), 400
             variable = variables[0]
         except Exception as e:
-            return jsonify({'error': 'Error al procesar las funciones: ' + str(e), 'mensaje': 'Ocurrió un error al procesar las funciones dadas.'}), 400
-
-        # Convertir las expresiones de función y transformada a expresiones de SymPy
-        function_expr = sp.sympify(function_str)
-        transformada_expr = sp.sympify(transformada_str)
+            return jsonify({
+                'error': 'Error al procesar las funciones: ' + str(e),
+                'mensaje': 'Ocurrió un error al procesar las funciones dadas.'
+            }), 400
 
         X0 = initial_guess
         error = 1.0
@@ -137,7 +160,10 @@ def calculate_fixed_point():
         })
 
     except Exception as e:
-        return jsonify({'error': str(e), 'mensaje': 'Ocurrió un error inesperado en el servidor.'}), 400
+        return jsonify({
+            'error': str(e),
+            'mensaje': 'Ocurrió un error inesperado en el servidor.'
+        }), 400
     
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5201)
