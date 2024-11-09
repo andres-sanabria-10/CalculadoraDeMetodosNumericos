@@ -1,7 +1,7 @@
 // Obtener referencias a los elementos del DOM
 const originalEquationInput = document.getElementById('equation-input');
 const isolatedEquationInput = document.getElementById('calculator-input');
-const calculatorKeys = document.querySelector('.calculator-keypad');
+const calculatorKeys = document.querySelectorAll('.calculator-keypad'); // Cambiado a querySelectorAll
 
 // Variable para mantener registro del input activo
 let activeInput = originalEquationInput;
@@ -15,9 +15,23 @@ isolatedEquationInput.addEventListener('focus', () => {
     activeInput = isolatedEquationInput;
 });
 
-// Manejar clics en los botones de la calculadora
-calculatorKeys.addEventListener('click', (event) => {
+// Mostrar teclado seleccionado
+function showKeyboard(keyboardId) {
+    const keyboards = document.querySelectorAll('.calculator-keypad');
+    keyboards.forEach(kb => {
+        kb.style.display = 'none';
+    });
+    const selectedKeyboard = document.getElementById(keyboardId);
+    if (selectedKeyboard) {
+        selectedKeyboard.style.display = 'grid';
+    }
+}
+
+// Función para manejar el clic en los botones de la calculadora
+function handleCalculatorButtonClick(event) {
     const target = event.target.closest('button');
+
+
 
     // Asegurarse de que se hizo clic en un botón
     if (target) {
@@ -27,44 +41,25 @@ calculatorKeys.addEventListener('click', (event) => {
         const funcion = target.querySelector('img')?.getAttribute('data-funcion');
 
         switch (funcion) {
-            case 'raiz_cuadrada':
-                value = 'sqrt()';
-                break;
-            case 'valor_absoluto':
-                value = '|';
-                break;
-            case 'exponente_cuadrado':
-                value = '^2';
-                break;
-            case 'base_exponente':
-                value = '^'; // base exponent format, e.g., x^y
-                break;
-            case 'euler_Exponente':
-                value = 'e^'; // Euler’s number exponent
-                break;
-            case 'raiz_indicar_radical':
-               value = '(indice,Radicando)';
-                break;
+            case 'raiz_cuadrada': value = 'sqrt()'; break;
+            case 'valor_absoluto': value = '|'; break;
+            case 'exponente_cuadrado': value = '^2'; break;
+            case 'base_exponente': value = '^'; break;
+            case 'euler_Exponente': value = 'e^'; break;
+            case 'raiz_indicar_radical': value = '(indice,Radicando)'; break;
 
             default:
                 value = target.textContent.trim();
                 // Mapear símbolos especiales en texto
                 switch (value) {
-                    case '×':
-                        value = '*';
-                        break;
-                    case '÷':
-                        value = '/';
-                        break;
-                    case '−':
-                        value = '-';
-                        break;
-                    case 'π':
-                        value = 'pi';
-                        break;
-                    case 'e':
-                        value = 'e';
-                        break;
+                    case '×': value = '*'; break;
+                    case '÷': value = '/'; break;
+                    case '−': value = '-'; break;
+                    case 'π': value = 'pi'; break;
+                    case 'e': value = 'e'; break;
+                    case 'sen': value = 'sin( )'; break;
+                    case 'cos': value = 'cos( )'; break;
+                    case 'tg': value = 'tan( )'; break;
                 }
         }
 
@@ -87,7 +82,28 @@ calculatorKeys.addEventListener('click', (event) => {
             activeInput.focus();
         }
     }
+}
+
+
+// Función para agregar el evento de retroceso a todos los botones
+function addBackspaceEventListeners() {
+    const backspaceButtons = document.querySelectorAll('button[data-funcion="Borrar"]'); // Seleccionar todos los botones con data-funcion="Borrar"
+
+    // Agregar evento de retroceso a cada botón de borrado
+    backspaceButtons.forEach(button => {
+        button.addEventListener('click', handleBackspace);
+    });
+}
+
+// Agregar evento de clic a todos los teclados
+calculatorKeys.forEach(keyboard => {
+    keyboard.addEventListener('click', handleCalculatorButtonClick);
 });
+
+
+
+// Llamar a la función para agregar los eventos de retroceso
+addBackspaceEventListeners();
 
 // Función para manejar el retroceso (backspace)
 const backspaceButton = document.querySelector('button img[data-funcion="retroceso"]').parentElement;
@@ -111,6 +127,7 @@ backspaceButton.addEventListener('click', () => {
     }
 });
 
+
 // Función para validar la entrada y formatear la ecuación
 function formatEquation(input) {
     // Aquí puedes agregar lógica para validar y formatear la ecuación
@@ -124,5 +141,3 @@ function formatEquation(input) {
         e.target.value = formatEquation(e.target.value);
     });
 });
-
-
