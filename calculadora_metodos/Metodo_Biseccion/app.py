@@ -17,7 +17,7 @@ def evaluar_funcion_segura(funcion_str, x):
         expr = sp.sympify(funcion_str)
 
         # Verificar divisiones por cero
-        if '1/x' in funcion_str and x == 0:
+        if x == 0 and '1/x' in funcion_str:
             raise ValueError("División por cero detectada en la evaluación.")
         
         # Verificar raíces negativas
@@ -62,8 +62,8 @@ def biseccion():
         fb = evaluar_funcion_segura(funcion, punto_b)
         if fa * fb >= 0:
             return jsonify({
-          'error': 'Los valores de la función en los puntos iniciales deberían ser de signos opuestos.',
-         'mensaje': 'Para aplicar el método de bisección, asegúrese de que f(a) y f(b) tengan signos opuestos, lo cual indica la posible existencia de una raíz en el intervalo.'
+                'error': 'Los valores de la función en los puntos iniciales deberían ser de signos opuestos.',
+                'mensaje': 'Se recomienda que f(a) y f(b) tengan signos opuestos para asegurar la convergencia, pero el método de bisección puede funcionar incluso cuando los puntos iniciales tienen el mismo signo'
             }), 400 
         
         iteraciones = []
@@ -76,7 +76,11 @@ def biseccion():
             valor_funcion_medio = evaluar_funcion_segura(funcion, punto_medio)
             function_calls += 1
 
-            error = abs((punto_medio - punto_medio_anterior) / punto_medio) * 100 if punto_medio_anterior is not None else float('inf')
+            # Calcular el error de manera segura con manejo de división por cero
+            try:
+                error = abs((punto_medio - punto_medio_anterior) / punto_medio) * 100 if punto_medio_anterior  is not None else 1e10
+            except ZeroDivisionError:
+                error = 1e10 # Si ocurre una división por cero, el error es infinito
 
             iteraciones.append({
                 'iteracion': iteracion,
