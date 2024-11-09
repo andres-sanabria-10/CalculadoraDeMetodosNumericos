@@ -10,6 +10,8 @@ document.addEventListener("DOMContentLoaded", function () {
     let yMin = -10;
     let yMax = 12;
 
+
+
     function renderChart(data, label) {
         if (chart) {
             chart.destroy();
