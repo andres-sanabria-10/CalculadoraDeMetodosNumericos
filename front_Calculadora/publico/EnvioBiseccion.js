@@ -114,9 +114,9 @@ document.addEventListener("DOMContentLoaded", function () {
 
     enviarButton.addEventListener('click', function () {
         const equationInput = document.getElementById('equation-input').value;
-        const calculatorInput = document.getElementById('calculator-input').value;
-        const initialPointInput = document.getElementById('initial-point').value;
 
+        const initialPointInput = document.getElementById('initial-point').value;
+        const initialPointInput2 = document.getElementById('initial-point2').value;
         const selectedOption = document.querySelector('input[name="options"]:checked');
         const selectedValue = selectedOption ? selectedOption.value : null;
 
@@ -126,12 +126,12 @@ document.addEventListener("DOMContentLoaded", function () {
             alert('Por favor, ingrese la ecuación original.');
             return;
         }
-        if (!calculatorInput) {
-            alert('Por favor, ingrese la ecuación despejada.');
+        if (!initialPointInput2) {
+            alert('Por favor, ingrese el segundo punto Inicial B.');
             return;
         }
         if (!initialPointInput) {
-            alert('Por favor, ingrese el punto inicial.');
+            alert('Por favor, ingrese el punto inicial A.');
             return;
         }
         if (!selectedValue) {
@@ -139,14 +139,14 @@ document.addEventListener("DOMContentLoaded", function () {
             return;
         }
         const data = {
-            Punto_inicial: initialPointInput,
+            punto_inicial_a: initialPointInput,
+            punto_inicial_b: initialPointInput2,
             tolerancia: selectedValue,
-            funcion: equationInput,
-            transformada: calculatorInput
+            funcion: equationInput
         };
         console.log('Data a enviar:', data);
 
-        fetch('http://localhost:5201/punto-fijo', {
+        fetch('http://localhost:5000/biseccion', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
@@ -166,42 +166,41 @@ document.addEventListener("DOMContentLoaded", function () {
                 console.log('Éxito:', data);
                 alert(data.mensaje);
 
-                dataGlobal = data;
+                // Llenar la tabla de iteraciones
+                const iteracionesTableBody = document.querySelector('.table tbody');
+                iteracionesTableBody.innerHTML = ''; // Limpiar la tabla antes de llenarla
 
-                // Llenar la tabla
-                const tableBody = document.querySelector('.table tbody');
-                tableBody.innerHTML = '';
+                // Asegúrate de que `data.Iteraciones` existe y es un array
+                if (Array.isArray(data.Iteraciones)) {
+                    data.Iteraciones.forEach(iteracion => {
+                        const newRow = document.createElement('tr');
+                        newRow.innerHTML = `
+                            <td>${iteracion.Iteración}</td>
+                            <td>${iteracion.PuntoA.toFixed(4)}</td>
+                            <td>${iteracion.PuntoB.toFixed(4)}</td>
+                            <td>${iteracion.PuntoMedio.toFixed(4)}</td>
+                            <td>${iteracion.ErrorPorcentual.toFixed(4)}</td>
+                        `;
+                        iteracionesTableBody.appendChild(newRow);
+                    });
+                }
 
-                data.Iteraciones.forEach(iteracion => {
-                    const newRow = document.createElement('tr');
-                    newRow.innerHTML = `
-                    <td>${iteracion.Iteración}</td>
-                    <td>${iteracion.X0.toFixed(4)}</td>
-                    <td>${iteracion.X0_nuevo.toFixed(4)}</td>
-                    <td>${iteracion.error.toFixed(4)}</td>
-                    <td>${iteracion.valor_funcion.toFixed(4)}</td>
-                `;
-                    tableBody.appendChild(newRow);
-                });
-
-                // Llenar la segunda tabla usando el ID
+                // Llenar la tabla de resultados finales
                 const resultadoTableBody = document.getElementById('resultadoTabla').querySelector('tbody');
-                resultadoTableBody.innerHTML = ''; // Limpiar el cuerpo de la tabla
+                resultadoTableBody.innerHTML = ''; // Limpiar la tabla antes de llenarla
 
+                // Asegúrate de que `data["Resultado Final"]` y `data["Número de iteraciones"]` existen
                 const resultadoRow = document.createElement('tr');
                 resultadoRow.innerHTML = `
-                    <td>${data["Resultado Final"].toFixed(4)}</td>
-                    <td>${data["Número iteraciones"]}</td>
+                    <td>${data["resultado_final"].toFixed(4)}</td>
+                    <td>${data["numero_iteraciones"]}</td>
                 `;
                 resultadoTableBody.appendChild(resultadoRow);
 
-
-
-
-                // Mostrar inicialmente el gráfico de iteraciones
+                // Renderizar el gráfico de iteraciones
                 const iteracionesData = data.Iteraciones.map(iteracion => ({
-                    x: iteracion.X0,
-                    y: iteracion.valor_funcion
+                    x: iteracion.PuntoMedio, // Aquí debes ajustar según lo que quieras graficar
+                    y: iteracion.ErrorPorcentual // Aquí también
                 }));
                 renderChart(iteracionesData, 'Iteraciones');
             })
@@ -219,14 +218,5 @@ document.addEventListener("DOMContentLoaded", function () {
         }
     });
 
-    // Evento para el botón de Iteraciones
-    document.getElementById('btnIteraciones').addEventListener('click', function () {
-        if (dataGlobal && dataGlobal.Iteraciones) {
-            const iteracionesData = dataGlobal.Iteraciones.map(iteracion => ({
-                x: iteracion.X0,
-                y: iteracion.valor_funcion
-            }));
-            renderChart(iteracionesData, 'Iteraciones');
-        }
-    });
+
 });

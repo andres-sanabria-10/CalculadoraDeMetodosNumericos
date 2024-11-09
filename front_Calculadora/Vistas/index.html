@@ -19,15 +19,15 @@
                 <a href="/" class="logo">Calculadora</a>
                 <nav>
                     <ul class="nav-pills">
-                        <li><button class="btn btn-outline-primary">Punto Fijo</button></li>
-                        <li><button class="btn btn-outline-primary">Bisección</button></li>
-                        <li><button class="btn btn-outline-danger">Newton-Raphson</button></li>
-                        <li><button class="btn btn-outline-danger">Secante</button></li>
-                        <li><button class="btn btn-outline-danger">Broyden</button></li>
-                        <li><button class="btn btn-outline-danger">Jacobi</button></li>
-                        <li><button class="btn btn-outline-danger">Gauss</button></li>
-                        <li><button class="btn btn-outline-danger">Trapecio</button></li>
-                        <li><button class="btn btn-outline-danger">Simpson</button></li>
+                        <li><a class="btn btn-outline-primary">Punto Fijo</a></li>
+                        <li><a class="btn btn-outline-primary" href="/MetodoBiseccion">Bisección</a></li>
+                        <li><a class="btn btn-outline-danger">Newton-Raphson</a></li>
+                        <li><a class="btn btn-outline-danger">Secante</a></li>
+                        <li><a class="btn btn-outline-danger">Broyden</a></li>
+                        <li><a class="btn btn-outline-danger">Jacobi</a></li>
+                        <li><a class="btn btn-outline-danger">Gauss</a></li>
+                        <li><a class="btn btn-outline-danger">Trapecio</a></li>
+                        <li><a class="btn btn-outline-danger">Simpson</a></li>
                     </ul>
                 </nav>
             </div>
@@ -248,7 +248,7 @@
         <div class="right-container">
             <div class="input-container">
                 <h3>Punto Inicial</h3>
-                <input type="text" id="initial-point" placeholder="Ingrese el punto inicial">
+                <input type="number" id="initial-point" placeholder="Ingrese el punto inicial">
             </div>
             <div class="right-container">
                 <h3>Resultados</h3>
@@ -266,6 +266,19 @@
                         <!-- Las filas de la tabla se llenarán dinámicamente -->
                     </tbody>
                 </table>
+                <table class="table table-bordered table-striped-columns" id="resultadoTabla">
+                    <thead>
+                        <tr class="table-Success">
+                            <th>Resultado</th>
+                            <th>Numero de Iteraciones</th>
+                            
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <!-- Las filas de la tabla se llenarán dinámicamente -->
+                    </tbody>
+                </table>
+                
             </div>
         </div>
     </div>

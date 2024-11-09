@@ -12,4 +12,8 @@ app.get('/',(req,res)=>{
   res.sendFile(path.join(__dirname,'/Vistas/index.html'))
 })
 
+app.get('/MetodoBiseccion',(req,res)=>{
+  res.sendFile(path.join(__dirname,'/Vistas/Biseccion.html'))
+})
+
 app.listen(app.get('PORT'),()=>console.log(`Server front in port ${app.get('PORT')}`))
