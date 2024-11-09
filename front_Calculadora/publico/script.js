@@ -47,6 +47,9 @@ function handleCalculatorButtonClick(event) {
             case 'base_exponente': value = '^'; break;
             case 'euler_Exponente': value = 'e^'; break;
             case 'raiz_indicar_radical': value = '(indice,Radicando)'; break;
+            case 'borrar': value = ''; break;  // Agregar valor vacío para borrar
+            case 'izquierda': handleMoveCursor('left'); return;  // Mover el cursor a la izquierda
+            case 'derecha': handleMoveCursor('right'); return;  // Mover el cursor a la derecha
 
             default:
                 value = target.textContent.trim();
@@ -87,7 +90,7 @@ function handleCalculatorButtonClick(event) {
 
 // Función para agregar el evento de retroceso a todos los botones
 function addBackspaceEventListeners() {
-    const backspaceButtons = document.querySelectorAll('button[data-funcion="Borrar"]'); // Seleccionar todos los botones con data-funcion="Borrar"
+    const backspaceButtons = document.querySelectorAll('button[data-funcion="borrar"]'); // Seleccionar todos los botones con data-funcion="Borrar"
 
     // Agregar evento de retroceso a cada botón de borrado
     backspaceButtons.forEach(button => {
@@ -100,32 +103,91 @@ calculatorKeys.forEach(keyboard => {
     keyboard.addEventListener('click', handleCalculatorButtonClick);
 });
 
-
-
 // Llamar a la función para agregar los eventos de retroceso
 addBackspaceEventListeners();
 
-// Función para manejar el retroceso (backspace)
-const backspaceButton = document.querySelector('button img[data-funcion="retroceso"]').parentElement;
-backspaceButton.addEventListener('click', () => {
+
+// Cuando el usuario haga clic en el botón de espacio
+const spaceButton = document.querySelector('button[data-funcion="espacio"]');
+spaceButton.addEventListener('click', () => {
+    if (activeInput) {
+        const start = activeInput.selectionStart;
+        const end = activeInput.selectionEnd;
+        const currentValue = activeInput.value;
+
+        // Insertar un espacio en la posición actual del cursor
+        activeInput.value = currentValue.substring(0, start) + ' ' + currentValue.substring(end);
+
+        // Mover el cursor después del espacio insertado
+        const newPosition = start + 1;
+        activeInput.setSelectionRange(newPosition, newPosition);
+
+        // Mantener el foco en el input
+        activeInput.focus();
+    }
+});
+
+
+// Función para mover el cursor (izquierda o derecha)
+function handleMoveCursor(direction) {
     if (activeInput) {
         const start = activeInput.selectionStart;
         const end = activeInput.selectionEnd;
 
-        if (start === end) { // No hay texto seleccionado
-            if (start > 0) { // Hay caracteres antes del cursor
-                activeInput.value = activeInput.value.substring(0, start - 1) +
-                    activeInput.value.substring(end);
-                activeInput.setSelectionRange(start - 1, start - 1);
-            }
-        } else { // Hay texto seleccionado
-            activeInput.value = activeInput.value.substring(0, start) +
-                activeInput.value.substring(end);
-            activeInput.setSelectionRange(start, start);
+        let newPosition;
+        if (direction === 'left') {
+            newPosition = start - 1 >= 0 ? start - 1 : 0;
+        } else if (direction === 'right') {
+            newPosition = end + 1 <= activeInput.value.length ? end + 1 : activeInput.value.length;
         }
+
+        // Mover el cursor a la nueva posición
+        activeInput.setSelectionRange(newPosition, newPosition);
         activeInput.focus();
     }
-});
+}
+
+
+// Función para manejar el retroceso (borrar)
+function handleBackspace() {
+    if (activeInput) {
+        const start = activeInput.selectionStart;
+        const end = activeInput.selectionEnd;
+
+        // Si no hay texto seleccionado, borrar el carácter anterior al cursor
+        if (start === end && start > 0) {
+            // Eliminar el carácter antes del cursor
+            activeInput.value = activeInput.value.substring(0, start - 1) + activeInput.value.substring(end);
+            // Colocar el cursor en la posición anterior
+            activeInput.setSelectionRange(start - 1, start - 1);
+        } else if (start !== end) { // Si hay texto seleccionado, eliminar el texto seleccionado
+            activeInput.value = activeInput.value.substring(0, start) + activeInput.value.substring(end);
+            // Colocar el cursor en la nueva posición después de borrar
+            activeInput.setSelectionRange(start, start);
+        }
+
+        // Mantener el foco en el input
+        activeInput.focus();
+    }
+}
+
+// Función para agregar el evento de retroceso a todos los botones de borrar
+function addBackspaceEventListeners() {
+    // Selecciona los botones con el atributo data-funcion="borrar" y data-funcion="Borrar" (de imagen)
+    const backspaceButtons = document.querySelectorAll('button[data-funcion="borrar"], button[data-funcion="borrarN"], button[data-funcion="Borrar"], img[data-funcion="Borrar"]');
+
+    // Agregar evento de retroceso a cada botón de borrado
+    backspaceButtons.forEach(button => {
+        button.addEventListener('click', handleBackspace);
+    });
+}
+
+// Llamar a la función para agregar los eventos de retroceso
+addBackspaceEventListeners();
+
+
+
+
 
 
 // Función para validar la entrada y formatear la ecuación
