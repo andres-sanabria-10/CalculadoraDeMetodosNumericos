@@ -33,11 +33,26 @@ def evaluar_funcion_segura(funcion_str, x):
 def biseccion():
     try:
         data = request.get_json()
-        punto_a = float(data['punto_inicial_a'])
-        punto_b = float(data['punto_inicial_b'])
-        tolerancia = float(data['tolerancia'])
+        
+        # Validación de campos requeridos en el JSON
+        if 'punto_inicial_a' not in data or 'punto_inicial_b' not in data or 'tolerancia' not in data or 'funcion' not in data:
+            return jsonify({
+                'error': 'Faltan campos requeridos en la solicitud.',
+                'mensaje': 'Por favor, asegúrese de incluir punto_inicial_a, punto_inicial_b, tolerancia y funcion.'
+            }), 400
+
+        try:
+            punto_a = float(data['punto_inicial_a'])
+            punto_b = float(data['punto_inicial_b'])
+            tolerancia = float(data['tolerancia'])
+        except (ValueError, TypeError):
+            return jsonify({
+                'error': 'Los valores de punto_inicial_a, punto_inicial_b y tolerancia deben ser numéricos.',
+                'mensaje': 'Por favor, proporcione en los puntos iniciales valores numéricos válidos.'
+            }), 400
+
         funcion = data['funcion']
-        max_iteraciones = data.get('max_iteraciones', 100)
+        max_iteraciones = data.get('max_iteraciones', 1000)
 
         # Validación de entrada
         if punto_a >= punto_b:
@@ -46,8 +61,11 @@ def biseccion():
         fa = evaluar_funcion_segura(funcion, punto_a)
         fb = evaluar_funcion_segura(funcion, punto_b)
         if fa * fb >= 0:
-            return jsonify({'error': 'La función debe tener signos opuestos en los puntos iniciales'}), 400
-
+            return jsonify({
+          'error': 'Los valores de la función en los puntos iniciales deberían ser de signos opuestos.',
+         'mensaje': 'Para aplicar el método de bisección, asegúrese de que f(a) y f(b) tengan signos opuestos, lo cual indica la posible existencia de una raíz en el intervalo.'
+            }), 400 
+        
         iteraciones = []
         function_calls = 0
         converged = False
@@ -89,7 +107,10 @@ def biseccion():
         })
 
     except Exception as e:
-        return jsonify({'error': str(e)}), 400
+        return jsonify({
+            'error': str(e),
+            'mensaje': 'Ocurrió un error inesperado en el servidor.'
+        }), 400
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000)
