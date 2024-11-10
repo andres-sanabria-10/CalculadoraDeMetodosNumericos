@@ -12,6 +12,14 @@ def evaluar_funcion_segura(funcion, x):
     except Exception as e:
         raise ValueError(f"Error al evaluar la función: {str(e)}")
 
+def calcular_derivadas(funcion_str):
+    """Calcula la primera y segunda derivada de una función usando SymPy"""
+    x_sym = sp.Symbol('x')
+    expr = sp.sympify(funcion_str)
+    primera_derivada = sp.diff(expr, x_sym)
+    segunda_derivada = sp.diff(primera_derivada, x_sym)
+    return str(primera_derivada), str(segunda_derivada)
+
 @app.route('/newton-raphson', methods=['POST'])
 def newton_raphson():
     try:
@@ -34,13 +42,19 @@ def newton_raphson():
                 'mensaje': 'Por favor, proporcione valores numéricos válidos.'
             }), 400
 
-        # Obtiene la función y sus derivadas
+        # Obtiene la función y, si no están, calcula las derivadas
         funcion_str = data['funcion']
+        derivada_funcion_str = data.get('derivada')
+        segunda_derivada_funcion_str = data.get('segunda_derivada')
+
+        if not derivada_funcion_str or not segunda_derivada_funcion_str:
+            derivada_funcion_str, segunda_derivada_funcion_str = calcular_derivadas(funcion_str)
+
+        # Convertir las funciones y derivadas a funciones evaluables
         funcion = lambda x: eval(funcion_str, {"x": x, "math": math})
-        derivada_funcion_str = data['derivada']
         derivada_funcion = lambda x: eval(derivada_funcion_str, {"x": x, "math": math})
-        segunda_derivada_funcion_str = data['segunda_derivada']
         segunda_derivada_funcion = lambda x: eval(segunda_derivada_funcion_str, {"x": x, "math": math})
+
         max_iteraciones = data.get('max_iteraciones', 100)
 
         # Validación de tolerancia
@@ -87,7 +101,9 @@ def newton_raphson():
             'converged': converged,
             'iteraciones': iteraciones,
             'resultado_final': x_i if converged else None,
-            'numero_iteraciones': len(iteraciones)
+            'numero_iteraciones': len(iteraciones),
+            'primera_derivada': derivada_funcion_str,    # Añade la primera derivada
+            'segunda_derivada': segunda_derivada_funcion_str  # Añade la segunda derivada
         })
 
     except Exception as e:

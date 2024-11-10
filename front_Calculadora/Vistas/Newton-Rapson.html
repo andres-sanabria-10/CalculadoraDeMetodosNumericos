@@ -248,18 +248,16 @@
             <div class="input-container">
                 <h3>Punto Inicial 1</h3>
                 <input type="text" class="calculator-input" id="initial-point" placeholder="Ingrese el punto inicial1">
-                <h3>Punto Inicial 2</h3>
-                <input type="text" class="calculator-input" id="initial-point2" placeholder="Ingrese el punto inicial2">
-            </div>
+                
             <div class="right-container">
                 <h3>Resultados</h3>
                 <table class="table table-bordered table-striped-columns" id="iteracionesTabla">
                     <thead>
                         <tr class="table-Success ">
                             <th>Iteración</th>
-                            <th>Punto A</th>
-                            <th>Punto B</th>
-                            <th>Punto Medio</th>
+                            <th>Xi</th>
+                            <th>Diferencia</th>
+                            <th>G'</th>
                             <th>Error Porcentual</th>
                         </tr>
                     </thead>
@@ -305,7 +303,7 @@
 
     <script src="script.js"></script>
    
-    <script src="EnvioBiseccion.js"> </script>
+    <script src="EnvioNewtonRapson.js"> </script>
 
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/hammerjs@2.0.8"></script>
