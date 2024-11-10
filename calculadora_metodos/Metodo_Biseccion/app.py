@@ -70,7 +70,6 @@ def biseccion():
         # Evaluación de la función en los puntos iniciales
         fa = evaluar_funcion_segura(funcion, punto_a)
         fb = evaluar_funcion_segura(funcion, punto_b)
-       
 
         # Variables de control para el ciclo de iteraciones
         iteraciones = []
@@ -84,8 +83,12 @@ def biseccion():
             valor_funcion_medio = evaluar_funcion_segura(funcion, punto_medio)
             function_calls += 1
 
-            # Calcular el error de manera segura con manejo de división por cero
-            error = abs((punto_medio - punto_medio_anterior) / punto_medio) * 100 if punto_medio_anterior is not None else 1e10
+            # Calcular el error solo a partir de la segunda iteración
+            if punto_medio_anterior is not None:
+                error = abs((punto_medio - punto_medio_anterior) / punto_medio) * 100
+            else:
+                error = None  # No calculamos error en la primera iteración
+
             iteraciones.append({
                 'iteracion': iteracion,
                 'punto_a': punto_a,
@@ -95,7 +98,7 @@ def biseccion():
             })
 
             # Verificación de convergencia
-            if math.isclose(valor_funcion_medio, 0, abs_tol=tolerancia) or error < tolerancia:
+            if math.isclose(valor_funcion_medio, 0, abs_tol=tolerancia) or (error is not None and error < tolerancia):
                 converged = True
                 break
 
@@ -112,7 +115,7 @@ def biseccion():
         if iteracion == max_iteraciones:
             return jsonify({
                 'error': 'Se alcanzó el máximo de iteraciones sin convergencia',
-                'mensaje': 'El proceso alcanzó el límite de iteraciones sin converger. Intente con un valor inicial diferente '
+                'mensaje': 'El proceso alcanzó el límite de iteraciones sin converger. Intente con un valor inicial diferente.'
             }), 400
 
         # Respuesta final
@@ -131,4 +134,4 @@ def biseccion():
         }), 400
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=5000)
+    app.run(host='0.0.0.0', port=5800)
