@@ -19,15 +19,15 @@
                 <a href="/" class="logo">Calculadora</a>
                 <nav>
                     <ul class="nav-pills">
-                        <li><button class="btn btn-outline-primary">Punto Fijo</button></li>
-                        <li><button class="btn btn-outline-primary">Bisección</button></li>
-                        <li><button class="btn btn-outline-danger">Newton-Raphson</button></li>
-                        <li><button class="btn btn-outline-danger">Secante</button></li>
-                        <li><button class="btn btn-outline-danger">Broyden</button></li>
-                        <li><button class="btn btn-outline-danger">Jacobi</button></li>
-                        <li><button class="btn btn-outline-danger">Gauss</button></li>
-                        <li><button class="btn btn-outline-danger">Trapecio</button></li>
-                        <li><button class="btn btn-outline-danger">Simpson</button></li>
+                        <li><a class="btn btn-outline-primary" href="/">Punto Fijo</a></li>
+                        <li><a class="btn btn-outline-primary" href="/MetodoBiseccion">Bisección</a></li>
+                        <li><a class="btn btn-outline-danger" href="/Newton-Rapson">Newton-Raphson</a></li>
+                        <li><a class="btn btn-outline-danger">Secante</a></li>
+                        <li><a class="btn btn-outline-danger">Broyden</a></li>
+                        <li><a class="btn btn-outline-danger">Jacobi</a></li>
+                        <li><a class="btn btn-outline-danger">Gauss</a></li>
+                        <li><a class="btn btn-outline-danger">Trapecio</a></li>
+                        <li><a class="btn btn-outline-danger">Simpson</a></li>
                     </ul>
                 </nav>
             </div>
@@ -75,7 +75,7 @@
 
                 <div class="input-container">
                     <h5>Ecuación original</h5>
-                    <input type="text" id="equation-input" placeholder="Ingrese la ecuación original">
+                    <input type="text" class="calculator-input" id="equation-input" placeholder="Ingrese la ecuación original">
                     
 
                 </div>
@@ -247,13 +247,13 @@
         <div class="right-container">
             <div class="input-container">
                 <h3>Punto Inicial 1</h3>
-                <input type="number" id="initial-point" placeholder="Ingrese el punto inicial1">
+                <input type="text" class="calculator-input" id="initial-point" placeholder="Ingrese el punto inicial1">
                 <h3>Punto Inicial 2</h3>
-                <input type="number" id="initial-point2" placeholder="Ingrese el punto inicial2">
+                <input type="text" class="calculator-input" id="initial-point2" placeholder="Ingrese el punto inicial2">
             </div>
             <div class="right-container">
                 <h3>Resultados</h3>
-                <table class="table table-bordered table-striped-columns">
+                <table class="table table-bordered table-striped-columns" id="iteracionesTabla">
                     <thead>
                         <tr class="table-Success ">
                             <th>Iteración</th>

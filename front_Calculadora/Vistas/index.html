@@ -19,9 +19,9 @@
                 <a href="/" class="logo">Calculadora</a>
                 <nav>
                     <ul class="nav-pills">
-                        <li><a class="btn btn-outline-primary">Punto Fijo</a></li>
+                        <li><a class="btn btn-outline-primary"  href="/">Punto Fijo</a></li>
                         <li><a class="btn btn-outline-primary" href="/MetodoBiseccion">Bisección</a></li>
-                        <li><a class="btn btn-outline-danger">Newton-Raphson</a></li>
+                        <li><a class="btn btn-outline-danger" href="/Newton-Rapson">Newton-Raphson</a></li>
                         <li><a class="btn btn-outline-danger">Secante</a></li>
                         <li><a class="btn btn-outline-danger">Broyden</a></li>
                         <li><a class="btn btn-outline-danger">Jacobi</a></li>
@@ -75,9 +75,9 @@
 
                 <div class="input-container">
                     <h5>Ecuación original</h5>
-                    <input type="text" id="equation-input" placeholder="Ingrese la ecuación original">
+                    <input type="text" id="equation-input"class="calculator-input" placeholder="Ingrese la ecuación original">
                     <h5>Ecuación despejada</h5>
-                    <input type="text" id="calculator-input" placeholder="Ingrese la ecuación despejada">
+                    <input type="text" id="calculator-input" class="calculator-input" placeholder="Ingrese la ecuación despejada">
 
                 </div>
                 <div className="custom-keyboard">
@@ -248,7 +248,7 @@
         <div class="right-container">
             <div class="input-container">
                 <h3>Punto Inicial</h3>
-                <input type="number" id="initial-point" placeholder="Ingrese el punto inicial">
+                <input type="text" class="calculator-input" id="initial-point" placeholder="Ingrese el punto inicial">
             </div>
             <div class="right-container">
                 <h3>Resultados</h3>
