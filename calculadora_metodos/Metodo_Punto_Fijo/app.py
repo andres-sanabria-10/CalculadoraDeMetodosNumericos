@@ -1,10 +1,10 @@
 from flask import Flask, request, jsonify
-from flask_cors import CORS  # Importa CORS
+from flask_cors import CORS
 import sympy as sp
 import re  
 
 app = Flask(__name__)
-CORS(app)  # Habilita CORS para toda la aplicación
+CORS(app)
 
 def es_valido(entrada):
     # Permite solo letras, números, paréntesis y operadores matemáticos básicos
@@ -13,18 +13,23 @@ def es_valido(entrada):
 
 def es_expresion_valida(expresion_str):
     try:
-        # Intenta convertir la expresión en una expresión SymPy válida
         expr = sp.sympify(expresion_str)
-        # Asegura que la expresión tenga al menos una variable
         return len(expr.free_symbols) > 0
     except (sp.SympifyError, TypeError):
         return False
 
 def calculo_error(a, b):
     try:
+        if abs(a) < 1e-10:
+            return float('inf')
         return abs((a - b) / a)
     except ZeroDivisionError:
-        return float('inf')  
+        return float('inf')
+
+def is_infinite_or_large(value):
+    """Verifica si el valor es infinito o muy grande."""
+    threshold = 1e10  # Umbral para considerar un valor extremadamente grande
+    return abs(value) > threshold or sp.oo in [value, -value]
 
 @app.route('/punto-fijo', methods=['POST'])
 def calculate_fixed_point():
@@ -51,8 +56,7 @@ def calculate_fixed_point():
                 'error': 'Falta el campo tolerancia.',
                 'mensaje': 'Por favor, seleccione una tolerancia.'
             }), 400
-        
-        # Validar que el punto inicial es un número
+
         try:
             initial_guess = float(data['Punto_inicial'])
         except (ValueError, TypeError):
@@ -65,38 +69,32 @@ def calculate_fixed_point():
         function_str = data['funcion']
         transformada_str = data['transformada']
 
-        # Validar la tolerancia
         if tolerance <= 0:
             return jsonify({
                 'error': 'La tolerancia debe ser un valor positivo',
                 'mensaje': 'Por favor, ingrese una tolerancia positiva.'
             }), 400
 
-        # Validar sintaxis y caracteres permitidos en las funciones
         if not es_valido(function_str) or not es_valido(transformada_str):
             return jsonify({
                 'error': 'Las funciones contienen caracteres no permitidos.',
                 'mensaje': 'Solo se permiten letras, números, operadores matemáticos y paréntesis en las funciones.'
             }), 400
 
-        # Validar que las expresiones sean matemáticamente válidas y contengan una variable
         if not es_expresion_valida(function_str) or not es_expresion_valida(transformada_str):
             return jsonify({
-                'error': 'Las funciones deben ser expresiones matemáticas válidas que incluyan una variable.',
-                'mensaje': 'Por favor, asegúrese de que las funciones sean matemáticamente correctas y contengan al menos una variable, como "x".'
+                'error': 'Las funciones deben ser expresiones matemáticas válidas.',
+                'mensaje': 'Por favor, asegúrese de que las funciones sean matemáticamente correctas'
             }), 400
 
         try:
-            # Verificar si la función es válida en SymPy
             function_expr = sp.sympify(function_str)
             transformada_expr = sp.sympify(transformada_str)
-
-            # Verificar que ambas expresiones contengan exactamente una variable
             variables = list(function_expr.free_symbols | transformada_expr.free_symbols)
             if len(variables) != 1:
                 return jsonify({
                     'error': 'Las funciones deben contener exactamente una variable.',
-                    'mensaje': 'Asegúrese de que las funciones solo usen una variable, como "x" o "t".'
+                    'mensaje': 'Asegúrese de que las funciones sean matematicamente correctass.'
                 }), 400
             variable = variables[0]
         except Exception as e:
@@ -109,23 +107,37 @@ def calculate_fixed_point():
         error = 1.0
         steps = []
         iteraciones = 0
-        max_iteraciones = 1000  # Establece un número máximo de iteraciones
+        max_iteraciones = 1000
 
-        # Bucle principal para el cálculo de Punto Fijo
         while error > tolerance and iteraciones < max_iteraciones:
             X0_nuevo = transformada_expr.subs(variable, X0)
-                        
-            # Verificar si el resultado es complejo
             if sp.im(X0_nuevo) != 0:
                 return jsonify({
                     'error': 'La función transformada generó un número complejo.',
                     'mensaje': 'La función transformada produjo un valor complejo. Intente con otro punto inicial o ajuste la función transformada.'
                 }), 400
 
-            X0_nuevo = float(X0_nuevo)  # Convertir a float después de verificar que no es complejo
+            X0_nuevo = float(X0_nuevo)
+            if is_infinite_or_large(X0_nuevo):
+                return jsonify({
+                    'error': 'La función transformada generó un valor infinito o muy grande.',
+                    'mensaje': 'La función transformada produjo un valor fuera de los límites aceptables. Intente con otro punto inicial o ajuste la función transformada.'
+                }), 400
 
             error = calculo_error(X0_nuevo, X0)
+            if is_infinite_or_large(error):
+                return jsonify({
+                    'error': 'Se produjo un error de cálculo infinito o muy grande.',
+                    'mensaje': 'El error en los cálculos se desbordó. Intente con otro punto inicial o ajuste la función transformada.'
+                }), 400
+
             valor_funcion = float(function_expr.subs(variable, X0_nuevo))
+            if is_infinite_or_large(valor_funcion):
+                return jsonify({
+                    'error': 'La evaluación de la función produjo un valor infinito o muy grande.',
+                    'mensaje': 'El valor calculado de la función es demasiado grande. Intente con otro punto inicial o ajuste la función.'
+                }), 400
+
             iteraciones += 1
             steps.append({
                 'Iteración': iteraciones,
@@ -136,7 +148,6 @@ def calculate_fixed_point():
             })
             X0 = X0_nuevo
 
-            # Verificación de convergencia
             if abs(valor_funcion) < tolerance:
                 return jsonify({
                     'Resultado Final': X0,
@@ -145,7 +156,6 @@ def calculate_fixed_point():
                     'mensaje': f"Convergió exitosamente en {iteraciones} iteraciones."
                 })
 
-        # Caso en que se alcanza el máximo de iteraciones
         if iteraciones == max_iteraciones:
             return jsonify({
                 'error': 'Se alcanzó el máximo de iteraciones sin convergencia',
