@@ -21,7 +21,7 @@ def es_expresion_valida(expresion_str):
                 raise ValueError("Las variables deben tener un nombre de máximo 2 caracteres.")
         return True, ""
     except (sp.SympifyError, TypeError, ValueError) as e:
-        return False, "La función no contiene variables."
+        return False, "La función no es matematicamente correcta o no contiene variables."
 
 def verificar_una_variable(funcion_str):
     try:
