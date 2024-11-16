@@ -84,7 +84,7 @@ def calculate_fixed_point():
         if not es_expresion_valida(function_str) or not es_expresion_valida(transformada_str):
             return jsonify({
                 'error': 'Las funciones deben ser expresiones matemáticas válidas.',
-                'mensaje': 'Por favor, asegúrese de que las funciones sean matemáticamente correctas'
+                'mensaje': 'Por favor, asegúrese de que las funciones sean matemáticamente correctas y contenga solo una variable'
             }), 400
 
         try:
@@ -94,7 +94,7 @@ def calculate_fixed_point():
             if len(variables) != 1:
                 return jsonify({
                     'error': 'Las funciones deben contener exactamente una variable.',
-                    'mensaje': 'Asegúrese de que las funciones sean matematicamente correctass.'
+                    'mensaje': 'Asegúrese de que las funciones sean matematicamente correctas y contenga solo una variable.'
                 }), 400
             variable = variables[0]
         except Exception as e:

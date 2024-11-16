@@ -14,18 +14,27 @@ def es_valido(entrada):
 def es_expresion_valida(expresion_str):
     try:
         expr = sp.sympify(expresion_str)
-        return len(expr.free_symbols) > 0
-    except (sp.SympifyError, TypeError):
-        return False
+        if len(expr.free_symbols) == 0:
+            raise ValueError("La función no contiene variables.")
+        for variable in expr.free_symbols:
+            if len(str(variable)) > 2:  # Limitar el nombre de la variable a 2 caracteres como máximo
+                raise ValueError("Las variables deben tener un nombre de máximo 2 caracteres.")
+        return True, ""
+    except (sp.SympifyError, TypeError, ValueError) as e:
+        return False, "La función no es matematicamente correcta o no contiene variables."
 
 def verificar_una_variable(funcion_str):
     try:
-        # Convertir la función a una expresión simbólica y obtener las variables
         expr = sp.sympify(funcion_str)
         variables = list(expr.free_symbols)
-        return len(variables) == 1, variables[0] if len(variables) == 1 else None
-    except Exception:
-        return False, None
+        if len(variables) == 1:
+            return True, variables[0]
+        elif len(variables) == 0:
+            return False, "No hay variables en la expresión."
+        else:
+            return False, "Hay múltiples variables en la expresión."
+    except Exception as e:
+        return False, str(e)
 
 def is_infinite_or_large(value):
     """Verifica si el valor es infinito o muy grande."""
@@ -80,18 +89,19 @@ def newton_raphson():
             }), 400
 
         funcion_str = data['funcion']
-        
+
         # Validar la expresión de la función
         if not es_valido(funcion_str):
             return jsonify({
-                'error': 'Las funciones contienen caracteres no permitidos.',
-                'mensaje': 'Solo se permiten letras, números, operadores matemáticos y paréntesis en las funciones.'
+                'error': 'La función contiene caracteres no permitidos.',
+                'mensaje': 'Por favor, asegúrese de que la función contenga solo caracteres permitidos como letras, números, paréntesis y operadores matemáticos básicos.'
             }), 400
 
-        if not es_expresion_valida(funcion_str):
+        es_valida, mensaje_error = es_expresion_valida(funcion_str)
+        if not es_valida:
             return jsonify({
-                'error': 'Las funciones deben ser expresiones matemáticas válidas.',
-                'mensaje': 'Por favor, asegúrese de que las funciones sean matemáticamente correctas.'
+                'error': 'La función ingresada no es válida.',
+                'mensaje': mensaje_error
             }), 400
 
         # Verificar que solo haya una variable en la expresión
@@ -99,7 +109,7 @@ def newton_raphson():
         if not valida_variable:
             return jsonify({
                 'error': 'La función debe contener exactamente una variable.',
-                'mensaje': 'Asegúrese de que la función sea matemáticamente correcta y use solo una variable.'
+                'mensaje': f'Por favor, asegúrese de que la función sea matemáticamente correcta y contenga solo una variable'
             }), 400
 
         try:
@@ -114,11 +124,10 @@ def newton_raphson():
 
             derivada_funcion = lambda x: float(derivada_funcion_expr.subs(variable, x))
             segunda_derivada_funcion = lambda x: float(segunda_derivada_funcion_expr.subs(variable, x))
-
-        except Exception as e:
+        except (sp.SympifyError, ValueError, TypeError) as e:
             return jsonify({
-                'error': 'Error al procesar la función o sus derivadas: ' + str(e),
-                'mensaje': 'Ocurrió un error al procesar las funciones dadas. Asegúrese de que sean matemáticamente correctas.'
+                'error': 'Error al procesar las funciones.',
+                'mensaje': f'Ocurrió un error al procesar las funciones dadas. Asegúrese de que la función sea válida y no cause errores matemáticos'
             }), 400
 
         max_iteraciones = data.get('max_iteraciones', 1000)
@@ -139,24 +148,36 @@ def newton_raphson():
             try:
                 valor_funcion = funcion(x_i)
                 valor_derivada = derivada_funcion(x_i)
-                
-                if is_infinite_or_large(valor_funcion) or is_infinite_or_large(valor_derivada):
+                valor_segunda_derivada = segunda_derivada_funcion(x_i)
+
+                if is_infinite_or_large(valor_funcion) or is_infinite_or_large(valor_derivada) or is_infinite_or_large(valor_segunda_derivada):
                     return jsonify({
-                        'error': 'La función o su derivada generaron un valor infinito o muy grande.',
-                        'mensaje': 'La función o su derivada produjo un valor fuera de los límites aceptables. Intente con otro punto inicial o ajuste la función.'
+                        'error': 'La función o sus derivadas generaron un valor infinito o muy grande.',
+                        'mensaje': 'La función o sus derivadas produjeron un valor fuera de los límites aceptables. Intente con otro punto inicial o ajuste la función.'
                     }), 400
 
-                if valor_derivada == 0:
+                if abs(valor_derivada) == 0 or abs(valor_segunda_derivada) == 0:
                     return jsonify({
-                        'error': 'La derivada de la función es cero en un punto, lo que provoca una división por cero.',
-                        'mensaje': 'Intente con un valor inicial diferente.'
+                        'error': 'La derivada de la función es cercana a cero, lo que provoca una posible división por cero.',
+                        'mensaje': 'Una de las derivadas de la función es cero, o revise la funcion'
+                    }), 400 
+                if abs(valor_derivada) < 1e-10:  # Umbral para evitar divisiones problemáticas
+                    return jsonify({
+                        'error': 'La derivada de la función es cercana a cero, lo que provoca una posible división por cero.',
+                        'mensaje': 'La derivada de la función es cercana a cero, intente con un valor inicial diferente o revise la funcion'
+                    }), 400
+
+                if abs(valor_segunda_derivada) < 1e-10:  # Umbral para evitar divisiones problemáticas en la segunda derivada
+                    return jsonify({
+                        'error': 'La segunda derivada de la función es cercana a cero, lo que puede afectar la convergencia.',
+                        'mensaje': 'La segunda derivada de la función es cercana a cero, intente con un valor inicial diferente o revise la funcion'
                     }), 400
 
                 # Cálculo del siguiente valor de x
                 x_i1 = x_i - valor_funcion / valor_derivada
                 diferencia = abs(x_i1 - x_i)
                 error = abs(diferencia / x_i1) if x_i1 != 0 else float('inf')
-                g_prima = 1 - ((derivada_funcion(x_i) ** 2 - funcion(x_i) * segunda_derivada_funcion(x_i)) / derivada_funcion(x_i) ** 2)
+                g_prima = 1 - ((derivada_funcion(x_i) ** 2 - funcion(x_i) * valor_segunda_derivada) / derivada_funcion(x_i) ** 2)
                 estado = "Convergiendo" if abs(g_prima) < 1 else "Divergiendo"
 
                 iteraciones.append({
@@ -186,6 +207,12 @@ def newton_raphson():
                     'mensaje': 'El cálculo generó valores demasiado grandes para procesar. Intente con otro punto inicial o ajuste la función.'
                 }), 400
 
+            except Exception as e:
+                return jsonify({
+                    'error': 'Error inesperado durante la iteración',
+                    'mensaje': 'Ocurrió un error inesperado durante la iteración. Revise la función y los valores proporcionados.'
+                }), 400
+
         if not converged:
             return jsonify({
                 'error': 'Se alcanzó el máximo de iteraciones sin convergencia',
@@ -204,8 +231,8 @@ def newton_raphson():
 
     except Exception as e:
         return jsonify({
-            'error': str(e),
-            'mensaje': 'Ocurrió un error inesperado en el servidor.'
+            'error': 'Error en el servidor: ' + str(e),
+            'mensaje': 'Ocurrió un error inesperado en el servidor'
         }), 400
 
 if __name__ == '__main__':
