@@ -1,15 +1,15 @@
-from flask import Flask, request, jsonify
-from flask_cors import CORS  # Importa CORS
+from flask import Flask, request, jsonify 
+from flask_cors import CORS
 import sympy as sp
 import math
-import re  # Importar para expresiones regulares
+import re
 
 app = Flask(__name__)
-CORS(app)  # Habilita CORS para toda la aplicación
+CORS(app)
 
 def evaluar_funcion_segura(funcion_str, x):
     try:
-        # Validar que la función no contenga caracteres no permitidos
+        # Verificar caracteres permitidos
         if not re.match(r'^[0-9x+\-*/().^ ]+$', funcion_str):
             return jsonify({
                 'error': 'Las funciones contienen caracteres no permitidos.',
@@ -19,7 +19,7 @@ def evaluar_funcion_segura(funcion_str, x):
         x_sym = sp.Symbol('x')
         expr = sp.sympify(funcion_str)
 
-        # Verificar divisiones por cero
+        # Verificar división por cero
         if x == 0 and '1/x' in funcion_str:
             raise ValueError("División por cero detectada en la evaluación.")
         
@@ -27,17 +27,19 @@ def evaluar_funcion_segura(funcion_str, x):
         if isinstance(expr, sp.Pow) and expr.args[1] % 2 == 0 and expr.args[0] < 0:
             raise ValueError("Raíz negativa detectada. Se requiere un número no negativo.")
 
+        # Evaluar función
         return float(expr.subs(x_sym, x))
     
     except Exception as e:
         raise ValueError(f"Error al evaluar la función: {str(e)}")
+
 
 @app.route('/biseccion', methods=['POST'])
 def biseccion():
     try:
         data = request.get_json()
 
-        # Validación de campos requeridos en el JSON
+        # Validar campos requeridos
         campos_requeridos = ['punto_inicial_a', 'punto_inicial_b', 'tolerancia', 'funcion']
         for campo in campos_requeridos:
             if campo not in data:
@@ -46,7 +48,7 @@ def biseccion():
                     'mensaje': f'Por favor, asegúrese de incluir {campo}.'
                 }), 400
 
-        # Validación de que punto_a y punto_b sean numéricos
+        # Validar puntos de inicio
         try:
             punto_a = float(data['punto_inicial_a'])
             punto_b = float(data['punto_inicial_b'])
@@ -60,49 +62,47 @@ def biseccion():
         funcion = data['funcion']
         max_iteraciones = data.get('max_iteraciones', 1000)
 
-        # Validación de que punto_a sea menor que punto_b
         if punto_a >= punto_b:
             return jsonify({
                 'error': 'punto_a debe ser menor que punto_b',
                 'mensaje': 'El punto a debe ser menor que el punto b'
             }), 400
-        
-        # Evaluación de la función en los puntos iniciales
+
+        # Evaluar funciones en los puntos iniciales
         fa = evaluar_funcion_segura(funcion, punto_a)
         fb = evaluar_funcion_segura(funcion, punto_b)
 
-        # Variables de control para el ciclo de iteraciones
         iteraciones = []
         function_calls = 0
         converged = False
         punto_medio_anterior = None
 
-        # Ciclo de iteraciones
         for iteracion in range(1, max_iteraciones + 1):
             punto_medio = (punto_a + punto_b) / 2
             valor_funcion_medio = evaluar_funcion_segura(funcion, punto_medio)
             function_calls += 1
 
             # Calcular el error solo a partir de la segunda iteración
-            if punto_medio_anterior is not None:
+            if iteracion > 1:
                 error = abs((punto_medio - punto_medio_anterior) / punto_medio) * 100
             else:
-                error = None  # No calculamos error en la primera iteración
+                error = None  # No se calcula error en la primera iteración
 
+            # Añadir la iteración a la lista
             iteraciones.append({
                 'iteracion': iteracion,
                 'punto_a': punto_a,
                 'punto_b': punto_b,
                 'punto_medio': punto_medio,
-                'error': error
+                'error': error if error is not None else 'N/A'  # Evitar mostrar el error en la primera iteración
             })
 
-            # Verificación de convergencia
+            # Verificar convergencia
             if math.isclose(valor_funcion_medio, 0, abs_tol=tolerancia) or (error is not None and error < tolerancia):
                 converged = True
                 break
 
-            # Actualización de los puntos a y b
+            # Actualizar los puntos
             if fa * valor_funcion_medio < 0:
                 punto_b = punto_medio
             else:
@@ -111,19 +111,18 @@ def biseccion():
 
             punto_medio_anterior = punto_medio
 
-        # Caso en que se alcanza el máximo de iteraciones
+        # Verificar si se alcanzó el máximo de iteraciones
         if iteracion == max_iteraciones:
             return jsonify({
                 'error': 'Se alcanzó el máximo de iteraciones sin convergencia',
                 'mensaje': 'El proceso alcanzó el límite de iteraciones sin converger. Intente con un valor inicial diferente.'
             }), 400
 
-        # Respuesta final
         return jsonify({
             'converged': converged,
             'function_calls': function_calls,
             'iteraciones': iteraciones,
-            'resultado_final': punto_medio if converged else None,
+            'resultado_final': (punto_medio if converged else None),
             'numero_iteraciones': len(iteraciones)
         })
 
@@ -134,4 +133,4 @@ def biseccion():
         }), 400
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=5800)
+    app.run(host='0.0.0.0', port=5000)

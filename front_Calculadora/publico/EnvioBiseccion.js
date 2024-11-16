@@ -177,9 +177,9 @@ document.addEventListener("DOMContentLoaded", function () {
                     data.Iteraciones.forEach(iteracion => {
                         const newRow = document.createElement('tr');
                         newRow.innerHTML = `
-                            <td>${iteracion.Iteración}</td>
-                            <td>${iteracion.PuntoA.toFixed(4)}</td>
-                            <td>${iteracion.PuntoB.toFixed(4)}</td>
+                            <td>${iteracion.iteracion}</td>
+                            <td>${iteracion.punto_inicial_a.toFixed(4)}</td>
+                            <td>${iteracion.punto_inicial_b.toFixed(4)}</td>
                             <td>${iteracion.PuntoMedio.toFixed(4)}</td>
                             <td>${iteracion.ErrorPorcentual.toFixed(4)}</td>
                         `;
