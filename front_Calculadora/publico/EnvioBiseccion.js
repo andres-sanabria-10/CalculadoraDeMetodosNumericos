@@ -173,19 +173,21 @@ document.addEventListener("DOMContentLoaded", function () {
                 iteracionesTableBody.innerHTML = ''; // Limpiar la tabla antes de llenarla
 
                 // Asegúrate de que `data.Iteraciones` existe y es un array
-                if (Array.isArray(data.Iteraciones)) {
-                    data.Iteraciones.forEach(iteracion => {
-                        const newRow = document.createElement('tr');
-                        newRow.innerHTML = `
-                            <td>${iteracion.iteracion}</td>
-                            <td>${iteracion.punto_inicial_a.toFixed(4)}</td>
-                            <td>${iteracion.punto_inicial_b.toFixed(4)}</td>
-                            <td>${iteracion.PuntoMedio.toFixed(4)}</td>
-                            <td>${iteracion.ErrorPorcentual.toFixed(4)}</td>
-                        `;
-                        iteracionesTableBody.appendChild(newRow);
-                    });
-                }
+if (Array.isArray(data.iteraciones)) {
+    data.iteraciones.forEach(iteracion => {
+        const newRow = document.createElement('tr');
+        newRow.innerHTML = `
+            <td>${iteracion.iteracion || '---'}</td>
+            <td>${iteracion.punto_a !== undefined && !isNaN(iteracion.punto_a) ? iteracion.punto_a.toFixed(4) : '---'}</td>
+            <td>${iteracion.punto_b !== undefined && !isNaN(iteracion.punto_b) ? iteracion.punto_b.toFixed(4) : '---'}</td>
+            <td>${iteracion.punto_medio !== undefined && !isNaN(iteracion.punto_medio) ? iteracion.punto_medio.toFixed(4) : '---'}</td>
+            <td>${iteracion.error !== undefined && iteracion.error !== '---' && !isNaN(iteracion.error) ? iteracion.error.toFixed(4) : iteracion.error || '---'}</td>
+        `;
+        iteracionesTableBody.appendChild(newRow);
+    });
+} else {
+    console.error("La propiedad 'iteraciones' no está definida o no es un array.");
+}
 
                 // Llenar la tabla de resultados finales
                 const resultadoTableBody = document.getElementById('resultadoTabla').querySelector('tbody');
@@ -200,7 +202,7 @@ document.addEventListener("DOMContentLoaded", function () {
                 resultadoTableBody.appendChild(resultadoRow);
 
                 // Renderizar el gráfico de iteraciones
-                const iteracionesData = data.Iteraciones.map(iteracion => ({
+                const iteracionesData = data.iteraciones.map(iteracion => ({
                     x: iteracion.PuntoMedio, // Aquí debes ajustar según lo que quieras graficar
                     y: iteracion.ErrorPorcentual // Aquí también
                 }));

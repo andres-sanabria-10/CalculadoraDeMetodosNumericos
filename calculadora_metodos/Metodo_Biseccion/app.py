@@ -1,136 +1,165 @@
-from flask import Flask, request, jsonify 
+from flask import Flask, request, jsonify
 from flask_cors import CORS
 import sympy as sp
-import math
+import numpy as np
 import re
 
 app = Flask(__name__)
 CORS(app)
 
-def evaluar_funcion_segura(funcion_str, x):
+def es_valido(entrada):
+    """Verifica que la entrada contenga solo caracteres permitidos."""
+    patron = r'^[a-zA-Z0-9+\-*/^(). ]+$'
+    return re.match(patron, entrada) is not None
+
+def es_expresion_valida(expresion_str):
+    """Verifica que la expresión sea válida y tenga solo una variable."""
     try:
-        # Verificar caracteres permitidos
-        if not re.match(r'^[0-9x+\-*/().^ ]+$', funcion_str):
-            return jsonify({
-                'error': 'Las funciones contienen caracteres no permitidos.',
-                'mensaje': 'Solo se permiten letras, números, operadores matemáticos y paréntesis en las funciones.'
-            }), 400
-        
-        x_sym = sp.Symbol('x')
-        expr = sp.sympify(funcion_str)
+        expr = sp.sympify(expresion_str).subs(sp.Symbol('e'), sp.exp(1))
+        variables = expr.free_symbols
+        if len(variables) == 0:
+            return False, "La función no contiene variables."
+        if len(variables) > 1:
+            return False, "La función debe contener exactamente una variable."
+        for variable in variables:
+            if len(str(variable)) > 2:  # Limitar el nombre de la variable a 2 caracteres
+                return False, "Las variables deben tener un nombre de máximo 2 caracteres."
+        return True, ""
+    except (sp.SympifyError, TypeError, ValueError):
+        return False, "La función no es matemáticamente correcta o no contiene variables."
 
-        # Verificar división por cero
-        if x == 0 and '1/x' in funcion_str:
-            raise ValueError("División por cero detectada en la evaluación.")
-        
-        # Verificar raíces negativas
-        if isinstance(expr, sp.Pow) and expr.args[1] % 2 == 0 and expr.args[0] < 0:
-            raise ValueError("Raíz negativa detectada. Se requiere un número no negativo.")
-
-        # Evaluar función
-        return float(expr.subs(x_sym, x))
-    
+def evaluar_funcion_segura(funcion, x):
+    """Evalúa una función matemática de forma segura."""
+    try:
+        resultado = funcion(x)
+        if not isinstance(resultado, (int, float)) or np.isnan(resultado) or np.isinf(resultado):
+            raise ValueError("La función devolvió un valor no numérico o indefinido.")
+        return resultado
     except Exception as e:
-        raise ValueError(f"Error al evaluar la función: {str(e)}")
+        raise ValueError(f"Error al evaluar la función en x = {x}: {str(e)}")
 
-
-@app.route('/biseccion', methods=['POST'])
-def biseccion():
+def biseccion(funcion, Xi, Xu, tolerancia=1e-6, max_iter=1000, umbral=1e10):
+    """Implementación del método de bisección con validaciones avanzadas."""
     try:
-        data = request.get_json()
+        num_puntos = 10
+        puntos = np.linspace(Xi, Xu, num_puntos)
+        f_puntos = [evaluar_funcion_segura(funcion, p) for p in puntos]
 
-        # Validar campos requeridos
-        campos_requeridos = ['punto_inicial_a', 'punto_inicial_b', 'tolerancia', 'funcion']
-        for campo in campos_requeridos:
-            if campo not in data:
-                return jsonify({
-                    'error': f'Falta el campo requerido: {campo}',
-                    'mensaje': f'Por favor, asegúrese de incluir {campo}.'
-                }), 400
-
-        # Validar puntos de inicio
-        try:
-            punto_a = float(data['punto_inicial_a'])
-            punto_b = float(data['punto_inicial_b'])
-        except (ValueError, TypeError):
-            return jsonify({
-                'error': 'Los valores de punto_inicial_a y punto_inicial_b deben ser numéricos.',
-                'mensaje': 'Por favor, proporcione en los puntos iniciales valores numéricos válidos.'
-            }), 400
-
-        tolerancia = float(data['tolerancia'])
-        funcion = data['funcion']
-        max_iteraciones = data.get('max_iteraciones', 1000)
-
-        if punto_a >= punto_b:
-            return jsonify({
-                'error': 'punto_a debe ser menor que punto_b',
-                'mensaje': 'El punto a debe ser menor que el punto b'
-            }), 400
-
-        # Evaluar funciones en los puntos iniciales
-        fa = evaluar_funcion_segura(funcion, punto_a)
-        fb = evaluar_funcion_segura(funcion, punto_b)
+        # Verificar si hay cambio de signo en el intervalo
+        cambio_signo = any(f_puntos[i] * f_puntos[i + 1] < 0 for i in range(len(f_puntos) - 1))
+        if not cambio_signo:
+            return {
+                'error': 'Error, no hay una raíz factible',
+                'mensaje': 'No hay un cambio de signo en el intervalo, no hay una raíz factible.'
+            }, 400
 
         iteraciones = []
-        function_calls = 0
-        converged = False
-        punto_medio_anterior = None
+        contador = 0
 
-        for iteracion in range(1, max_iteraciones + 1):
-            punto_medio = (punto_a + punto_b) / 2
-            valor_funcion_medio = evaluar_funcion_segura(funcion, punto_medio)
-            function_calls += 1
+        while contador < max_iter:
+            Xr = (Xi + Xu) / 2
+            fXr = evaluar_funcion_segura(funcion, Xr)
 
-            # Calcular el error solo a partir de la segunda iteración
-            if iteracion > 1:
-                error = abs((punto_medio - punto_medio_anterior) / punto_medio) * 100
-            else:
-                error = None  # No se calcula error en la primera iteración
+            # Verificar si el valor es demasiado grande o infinito
+            if abs(fXr) > umbral:
+                return {
+                    'error': 'La ecuación diverge. Los valores son demasiado grandes.',
+                    'mensaje': 'Revise la función o proporcione un intervalo diferente.'
+                }, 400
 
-            # Añadir la iteración a la lista
+            # Calcular el error relativo
+            error_relativo = abs((Xu - Xi) / 2)
+
+            # Guardar datos de la iteración actual
             iteraciones.append({
-                'iteracion': iteracion,
-                'punto_a': punto_a,
-                'punto_b': punto_b,
-                'punto_medio': punto_medio,
-                'error': error if error is not None else 'N/A'  # Evitar mostrar el error en la primera iteración
+                'iteracion': contador + 1,
+                'punto_a': round(Xi, 4),
+                'punto_b': round(Xu, 4),
+                'punto_medio': round(Xr, 4),
+                'f(Xr)': round(fXr, 8),
+                'error': round(error_relativo, 8)
             })
 
-            # Verificar convergencia
-            if math.isclose(valor_funcion_medio, 0, abs_tol=tolerancia) or (error is not None and error < tolerancia):
-                converged = True
-                break
+            # Comprobar convergencia
+            if abs(fXr) < tolerancia or error_relativo < tolerancia:
+                return {
+                    'resultado_final': round(Xr, 8),
+                    'numero_iteraciones': len(iteraciones),
+                    'iteraciones': iteraciones,
+                    'mensaje': f"Convergió exitosamente en {len(iteraciones)} iteraciones."
+                }, 200
 
-            # Actualizar los puntos
-            if fa * valor_funcion_medio < 0:
-                punto_b = punto_medio
+            # Actualizar los extremos del intervalo
+            if evaluar_funcion_segura(funcion, Xi) * fXr < 0:
+                Xu = Xr
             else:
-                punto_a = punto_medio
-                fa = valor_funcion_medio
+                Xi = Xr
 
-            punto_medio_anterior = punto_medio
+            contador += 1
 
-        # Verificar si se alcanzó el máximo de iteraciones
-        if iteracion == max_iteraciones:
+        return {
+            'error': 'Se alcanzó el máximo número de iteraciones sin convergencia.',
+            'mensaje': 'El proceso alcanzó el límite de iteraciones sin encontrar una raíz.'
+        }, 400
+    except Exception as e:
+        return {
+            'error': f"Error inesperado: {str(e)}",
+            'mensaje': 'Ocurrió un error inesperado en el cálculo de la bisección.'
+        }, 500
+
+@app.route('/biseccion', methods=['POST'])
+def calcular_biseccion():
+    try:
+        # Obtener datos de la solicitud
+        data = request.get_json()
+
+        if 'punto_inicial_a' not in data or 'punto_inicial_b' not in data or 'tolerancia' not in data or 'funcion' not in data:
             return jsonify({
-                'error': 'Se alcanzó el máximo de iteraciones sin convergencia',
-                'mensaje': 'El proceso alcanzó el límite de iteraciones sin converger. Intente con un valor inicial diferente.'
+                'error': 'Faltan parámetros requeridos.',
+                'mensaje': 'Incluya punto_inicial_a, punto_inicial_b, tolerancia y funcion en la solicitud.'
             }), 400
 
-        return jsonify({
-            'converged': converged,
-            'function_calls': function_calls,
-            'iteraciones': iteraciones,
-            'resultado_final': (punto_medio if converged else None),
-            'numero_iteraciones': len(iteraciones)
-        })
+        try:
+            Xi = float(data['punto_inicial_a'])
+            Xu = float(data['punto_inicial_b'])
+            tolerancia = float(data['tolerancia'])
+        except (ValueError, TypeError):
+            return jsonify({
+                'error': 'Los parámetros deben ser numéricos.',
+                'mensaje': 'Asegúrese de que punto_inicial_a, punto_inicial_b y tolerancia sean números válidos.'
+            }), 400
+
+        funcion_str = data['funcion']
+
+        # Validar que la función sea válida y tenga solo una variable
+        es_valido, mensaje_error = es_expresion_valida(funcion_str)
+        if not es_valido:
+            return jsonify({
+                'error': 'Función inválida.',
+                'mensaje': mensaje_error
+            }), 400
+
+        # Procesar la función
+        expr = sp.sympify(funcion_str).subs(sp.Symbol('e'), sp.exp(1))
+        x = list(expr.free_symbols)[0]
+        try:
+            funcion = sp.lambdify(x, expr, 'numpy')
+        except Exception as e:
+            return jsonify({
+                'error': f'Error al procesar la función: {str(e)}',
+                'mensaje': 'Revise la sintaxis de la función proporcionada.'
+            }), 400
+
+        # Ejecutar el método de bisección
+        resultado, status_code = biseccion(funcion, Xi, Xu, tolerancia)
+        return jsonify(resultado), status_code
 
     except Exception as e:
         return jsonify({
-            'error': str(e),
+            'error': f"Error inesperado: {str(e)}",
             'mensaje': 'Ocurrió un error inesperado en el servidor.'
-        }), 400
+        }), 500
+
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000)

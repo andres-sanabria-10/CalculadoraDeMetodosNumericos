@@ -13,7 +13,7 @@ def es_valido(entrada):
 
 def es_expresion_valida(expresion_str):
     try:
-        expr = sp.sympify(expresion_str)
+        expr = sp.sympify(expresion_str).subs(sp.Symbol('e'), sp.exp(1))
         if len(expr.free_symbols) == 0:
             raise ValueError("La función no contiene variables.")
         for variable in expr.free_symbols:
@@ -25,7 +25,7 @@ def es_expresion_valida(expresion_str):
 
 def verificar_una_variable(funcion_str):
     try:
-        expr = sp.sympify(funcion_str)
+        expr = sp.sympify(funcion_str).subs(sp.Symbol('e'), sp.exp(1))
         variables = list(expr.free_symbols)
         if len(variables) == 1:
             return True, variables[0]
@@ -43,7 +43,7 @@ def is_infinite_or_large(value):
 
 def calcular_derivadas(funcion_str):
     """Calcula la primera y segunda derivada de una función usando SymPy"""
-    expr = sp.sympify(funcion_str)
+    expr = sp.sympify(funcion_str).subs(sp.Symbol('e'), sp.exp(1))
     variable = list(expr.free_symbols)[0]  # Detectar automáticamente la variable
     primera_derivada = sp.diff(expr, variable)
     segunda_derivada = sp.diff(primera_derivada, variable)
@@ -114,7 +114,7 @@ def newton_raphson():
 
         try:
             # Convertir la función a una expresión simbólica y calcular las derivadas
-            funcion_expr = sp.sympify(funcion_str)
+            funcion_expr = sp.sympify(funcion_str).subs(sp.Symbol('e'), sp.exp(1))
             derivada_funcion_str, segunda_derivada_funcion_str, variable = calcular_derivadas(funcion_str)
 
             # Convertir las expresiones de la función y sus derivadas en funciones evaluables
@@ -176,7 +176,7 @@ def newton_raphson():
                 # Cálculo del siguiente valor de x
                 x_i1 = x_i - valor_funcion / valor_derivada
                 diferencia = abs(x_i1 - x_i)
-                error = abs(diferencia / x_i1) if x_i1 != 0 else float('inf')
+                error = abs(diferencia / x_i1) if x_i1 != 0 else "infinito"
                 g_prima = 1 - ((derivada_funcion(x_i) ** 2 - funcion(x_i) * valor_segunda_derivada) / derivada_funcion(x_i) ** 2)
                 estado = "Convergiendo" if abs(g_prima) < 1 else "Divergiendo"
 
@@ -226,7 +226,7 @@ def newton_raphson():
             'numero_iteraciones': len(iteraciones),
             'primera_derivada': derivada_funcion_str,
             'segunda_derivada': segunda_derivada_funcion_str,
-            'mensaje': f"Convergió exitosamente en {len(iteraciones)} iteraciones." if converged else 'No convergió dentro del límite de iteraciones.'
+            'mensaje': f"Convergó exitosamente en {len(iteraciones)} iteraciones." if converged else 'No convergió dentro del límite de iteraciones.'
         })
 
     except Exception as e:
@@ -237,3 +237,5 @@ def newton_raphson():
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5200)
+
+

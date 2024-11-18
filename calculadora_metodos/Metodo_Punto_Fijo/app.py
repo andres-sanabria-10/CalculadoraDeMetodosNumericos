@@ -13,10 +13,15 @@ def es_valido(entrada):
 
 def es_expresion_valida(expresion_str):
     try:
-        expr = sp.sympify(expresion_str)
-        return len(expr.free_symbols) > 0
-    except (sp.SympifyError, TypeError):
-        return False
+        expr = sp.sympify(expresion_str).subs(sp.Symbol('e'), sp.exp(1))
+        if len(expr.free_symbols) == 0:
+            raise ValueError("La función no contiene variables.")
+        for variable in expr.free_symbols:
+            if len(str(variable)) > 2:  # Limitar el nombre de la variable a 2 caracteres como máximo
+                raise ValueError("Las variables deben tener un nombre de máximo 2 caracteres.")
+        return True, ""
+    except (sp.SympifyError, TypeError, ValueError) as e:
+        return False, "La función no es matematicamente correcta o no contiene variables."
 
 def calculo_error(a, b):
     try:
@@ -88,13 +93,13 @@ def calculate_fixed_point():
             }), 400
 
         try:
-            function_expr = sp.sympify(function_str)
-            transformada_expr = sp.sympify(transformada_str)
+            function_expr = sp.sympify(function_str).subs(sp.Symbol('e'), sp.exp(1))
+            transformada_expr = sp.sympify(transformada_str).subs(sp.Symbol('e'), sp.exp(1))
             variables = list(function_expr.free_symbols | transformada_expr.free_symbols)
             if len(variables) != 1:
                 return jsonify({
                     'error': 'Las funciones deben contener exactamente una variable.',
-                    'mensaje': 'Asegúrese de que las funciones sean matematicamente correctas y contenga solo una variable.'
+                    'mensaje': 'Asegúrese de que las funciones sean matemáticamente correctas y contenga solo una variable.'
                 }), 400
             variable = variables[0]
         except Exception as e:
