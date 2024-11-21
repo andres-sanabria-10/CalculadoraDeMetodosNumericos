@@ -10,22 +10,28 @@ document.addEventListener("DOMContentLoaded", function () {
     let yMin = -10;
     let yMax = 12;
 
-
-
-    function renderChart(data, label) {
+    let chartFuncionOriginal;
+    let chartIteraciones;
+    
+    function renderChart(chart, data, label, canvasId) {
         if (chart) {
-            chart.destroy();
+            chart.destroy(); // Eliminar el gráfico anterior
         }
+    
+        const ctx = document.getElementById(canvasId).getContext('2d');
+    
         chart = new Chart(ctx, {
-            type: 'line',
+            type: 'scatter', // Tipo de gráfico scatter (solo puntos)
             data: {
                 datasets: [{
                     label: label,
-                    data: data,
-                    borderColor: 'rgb(208, 46, 11)',
-                    tension: 0.1,
-                    pointRadius: 0,
-                    borderWidth: 2
+                    data: data, // Los puntos de iteración (coordenadas x, y)
+                    backgroundColor: label === 'Función Original' ? 'orange' : 'blue', // Diferenciar los colores
+                    borderColor: label === 'Función Original' ? 'orange' : 'blue',
+                    pointRadius: 5, // Tamaño de los puntos
+                    pointHoverRadius: 7, // Tamaño de los puntos al pasar el cursor (opcional)
+                    showLine: false, // Asegurarse de que no haya líneas entre los puntos
+                    borderWidth: 2 // Ancho del borde de los puntos
                 }]
             },
             options: {
@@ -34,7 +40,7 @@ document.addEventListener("DOMContentLoaded", function () {
                 scales: {
                     x: {
                         type: 'linear',
-                        position: 'center',
+                        position: 'bottom',
                         min: xMin,
                         max: xMax,
                         grid: {
@@ -50,7 +56,7 @@ document.addEventListener("DOMContentLoaded", function () {
                     },
                     y: {
                         type: 'linear',
-                        position: 'center',
+                        position: 'left',
                         min: yMin,
                         max: yMax,
                         grid: {
@@ -74,6 +80,7 @@ document.addEventListener("DOMContentLoaded", function () {
             }
         });
     }
+    
 
     // Evento para zoom con la rueda del mouse
     document.getElementById('grafico').addEventListener('wheel', function (event) {
@@ -101,10 +108,9 @@ document.addEventListener("DOMContentLoaded", function () {
     function generarPuntosFuncionOriginal(funcion, min, max, puntos = 100) {
         const datos = [];
         const paso = (max - min) / puntos;
-
+    
         for (let x = min; x <= max; x += paso) {
             try {
-                // Usar math.js o una biblioteca similar para evaluar la función
                 const y = eval(funcion.replace(/x/g, `(${x})`));
                 datos.push({ x: x, y: y });
             } catch (error) {
@@ -113,6 +119,7 @@ document.addEventListener("DOMContentLoaded", function () {
         }
         return datos;
     }
+
 
     enviarButton.addEventListener('click', function () {
         const equationInput = document.getElementById('equation-input').value;
@@ -148,7 +155,7 @@ document.addEventListener("DOMContentLoaded", function () {
         };
         console.log('Data a enviar:', data);
 
-        fetch('http://localhost:5000/biseccion', {
+        fetch('http://localhost:5800/biseccion', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
@@ -213,12 +220,17 @@ document.addEventListener("DOMContentLoaded", function () {
 
     // Evento para el botón de Función Original
     document.getElementById('btnFuncionOriginal').addEventListener('click', function () {
-        if (dataGlobal) {
-            const equationInput = document.getElementById('equation-input').value;
-            const puntosFuncion = generarPuntosFuncionOriginal(equationInput, xMin, xMax);
-            renderChart(puntosFuncion, 'Función Original');
+        const equationInput = document.getElementById('equation-input').value;
+    
+        if (!equationInput) {
+            alert('Por favor, ingrese una ecuación válida.');
+            return;
         }
+    
+        const puntosFuncion = generarPuntosFuncionOriginal(equationInput, xMin, xMax);
+        renderChart(puntosFuncion, 'Función Original');
     });
+    
 
 
 });
