@@ -12,16 +12,23 @@ def es_valido(entrada):
     return re.match(patron, entrada) is not None
 
 def es_expresion_valida(expresion_str):
+    """Verifica que la expresión sea válida y tenga solo una variable."""
     try:
+        # Procesamos la expresión usando sympy
         expr = sp.sympify(expresion_str).subs(sp.Symbol('e'), sp.exp(1))
-        if len(expr.free_symbols) == 0:
-            raise ValueError("La función no contiene variables.")
-        for variable in expr.free_symbols:
-            if len(str(variable)) > 2:  # Limitar el nombre de la variable a 2 caracteres como máximo
-                raise ValueError("Las variables deben tener un nombre de máximo 2 caracteres.")
+        # Obtener las variables en la expresión
+        variables = expr.free_symbols
+        # Verificar que la expresión contenga exactamente una variable
+        if len(variables) == 0:
+            return False, "La función no contiene variables."
+        if len(variables) > 1:
+            return False, "La función debe contener solo la variable x"
+        # Verificar que la única variable sea 'x'
+        if str(variables.pop()) != 'x':
+            return False, "La función debe contener solo la variable 'x'."        
         return True, ""
-    except (sp.SympifyError, TypeError, ValueError) as e:
-        return False, "La función no es matematicamente correcta o no contiene variables."
+    except (sp.SympifyError, TypeError, ValueError):
+        return False, "La función no es matemáticamente correcta o no contiene variables."
 
 def verificar_una_variable(funcion_str):
     try:
@@ -32,7 +39,7 @@ def verificar_una_variable(funcion_str):
         elif len(variables) == 0:
             return False, "No hay variables en la expresión."
         else:
-            return False, "Hay múltiples variables en la expresión."
+            return False, "La función debe contener solo la variable x"
     except Exception as e:
         return False, str(e)
 
