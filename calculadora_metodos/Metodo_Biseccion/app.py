@@ -15,18 +15,22 @@ def es_valido(entrada):
 def es_expresion_valida(expresion_str):
     """Verifica que la expresión sea válida y tenga solo una variable."""
     try:
+        # Procesamos la expresión usando sympy
         expr = sp.sympify(expresion_str).subs(sp.Symbol('e'), sp.exp(1))
+        # Obtener las variables en la expresión
         variables = expr.free_symbols
+        # Verificar que la expresión contenga exactamente una variable
         if len(variables) == 0:
             return False, "La función no contiene variables."
         if len(variables) > 1:
-            return False, "La función debe contener exactamente una variable."
-        for variable in variables:
-            if len(str(variable)) > 2:  # Limitar el nombre de la variable a 2 caracteres
-                return False, "Las variables deben tener un nombre de máximo 2 caracteres."
+            return False, "La función debe contener solo la variable x"
+        # Verificar que la única variable sea 'x'
+        if str(variables.pop()) != 'x':
+            return False, "La función debe contener solo la variable 'x'."        
         return True, ""
     except (sp.SympifyError, TypeError, ValueError):
         return False, "La función no es matemáticamente correcta o no contiene variables."
+
 
 def evaluar_funcion_segura(funcion, x):
     """Evalúa una función matemática de forma segura."""
@@ -163,3 +167,4 @@ def calcular_biseccion():
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000)
+
