@@ -13,15 +13,18 @@ def es_valido(entrada):
 
 def es_expresion_valida(expresion_str):
     try:
+        # Convertir la cadena en una expresión de sympy
         expr = sp.sympify(expresion_str).subs(sp.Symbol('e'), sp.exp(1))
+        # Verificar que la expresión contiene solo la variable 'x'
         if len(expr.free_symbols) == 0:
             raise ValueError("La función no contiene variables.")
         for variable in expr.free_symbols:
-            if len(str(variable)) > 2:  # Limitar el nombre de la variable a 2 caracteres como máximo
-                raise ValueError("Las variables deben tener un nombre de máximo 2 caracteres.")
+            if str(variable) != 'x':  # Si la variable no es 'x'
+                raise ValueError("Solo se permite la variable 'x'.")
         return True, ""
     except (sp.SympifyError, TypeError, ValueError) as e:
-        return False, "La función no es matematicamente correcta o no contiene variables."
+        return False, f"La función no es matemáticamente correcta o no contiene solo la variable 'x'. Error: {str(e)}"
+
 
 def calculo_error(a, b):
     try:
@@ -89,24 +92,40 @@ def calculate_fixed_point():
         if not es_expresion_valida(function_str) or not es_expresion_valida(transformada_str):
             return jsonify({
                 'error': 'Las funciones deben ser expresiones matemáticas válidas.',
-                'mensaje': 'Por favor, asegúrese de que las funciones sean matemáticamente correctas y contenga solo una variable'
+                'mensaje': 'Por favor, asegúrese de que las funciones sean matemáticamente correctas y contenga solo la variable x'
             }), 400
 
         try:
+            # Procesar las expresiones
             function_expr = sp.sympify(function_str).subs(sp.Symbol('e'), sp.exp(1))
             transformada_expr = sp.sympify(transformada_str).subs(sp.Symbol('e'), sp.exp(1))
+            
+            # Obtener las variables de ambas expresiones
             variables = list(function_expr.free_symbols | transformada_expr.free_symbols)
-            if len(variables) != 1:
+
+            # Validar que haya exactamente una variable y que sea 'x'
+            if len(variables) != 1 or str(variables[0]) != 'x':
                 return jsonify({
-                    'error': 'Las funciones deben contener exactamente una variable.',
-                    'mensaje': 'Asegúrese de que las funciones sean matemáticamente correctas y contenga solo una variable.'
+                    'error': 'Las funciones deben contener exactamente una variable, y esa debe ser "x".',
+                    'mensaje': 'Asegúrese de que las funciones sean matemáticamente correctas y contengan solo la variable "x".'
                 }), 400
+
+            # Asegurarse de que la expresión no sea solo un número (es decir, que contenga variables)
+            if function_expr.is_number or transformada_expr.is_number:
+                return jsonify({
+                    'error': 'Las funciones no pueden ser solo números.',
+                    'mensaje': 'Asegúrese de que las funciones contengan al menos una variable "x".'
+                }), 400
+
             variable = variables[0]
+
         except Exception as e:
             return jsonify({
                 'error': 'Error al procesar las funciones: ' + str(e),
-                'mensaje': 'Ocurrió un error al procesar las funciones dadas.'
+                'mensaje': 'Ocurrió un error al procesar las funciones dadas: Asegúrese de que las funciones sean matemáticamente correctas'
             }), 400
+
+
 
         X0 = initial_guess
         error = 1.0
