@@ -63,12 +63,21 @@ services:
     networks:
       - app-network
 
-  metodo_gauss:
+  metodo_trapecio:
     build:
       context: ./calculadora_metodos/Metodo_Trapecio
       dockerfile: Dockerfile
     ports:
       - "5503:5503"
+    networks:
+      - app-network
+  
+  metodo_simpson:
+    build:
+      context: ./calculadora_metodos/Metodo_Simpson
+      dockerfile: Dockerfile
+    ports:
+      - "5504:5504"
     networks:
       - app-network
 
@@ -86,6 +95,8 @@ services:
       - metodo_secante
       - metodo_jacobi
       - metodo_gauss
+      - metodo_trapecio
+      - metodo_simpson
     networks:
       - app-network
 
