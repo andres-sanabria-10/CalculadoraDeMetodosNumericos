@@ -63,6 +63,15 @@ services:
     networks:
       - app-network
 
+  metodo_gauss:
+    build:
+      context: ./calculadora_metodos/Metodo_Trapecio
+      dockerfile: Dockerfile
+    ports:
+      - "5503:5503"
+    networks:
+      - app-network
+
   frontend:
     build:
       context: ./front_Calculadora
