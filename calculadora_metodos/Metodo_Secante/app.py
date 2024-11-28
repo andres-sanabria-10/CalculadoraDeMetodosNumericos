@@ -132,7 +132,6 @@ def metodo_secante():
 
         return jsonify({
             'converged': True,
-            'function_calls': function_calls,
             'iteraciones': iteraciones,
             'resultado_final': x2,
             'numero_iteraciones': len(iteraciones),
