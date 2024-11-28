@@ -4,43 +4,58 @@ import sympy as sp
 import numpy as np
 
 app = Flask(__name__)
-CORS(app)  # Habilita CORS para toda la aplicaciónn
+CORS(app)  # Habilita CORS para toda la aplicación
+
 
 def es_diagonal_dominante(A):
+    """Verifica si la matriz A es diagonalmente dominante."""
     for i in range(len(A)):
         suma = sum(abs(A[i, j]) for j in range(len(A)) if j != i)
         if abs(A[i, i]) <= suma:
             return False
     return True
 
+
 def parse_ecuaciones(ecuaciones):
-    exprs = []
-    for ecuacion in ecuaciones:
-        lhs, rhs = ecuacion.split("=")
-        expr = sp.sympify(lhs) - sp.sympify(rhs)
-        exprs.append(expr)
-    
-    variables = sorted(list(set().union(*[expr.free_symbols for expr in exprs])), key=lambda x: str(x))
-    n = len(variables)
-    
-    A = np.zeros((n, n))
-    b = np.zeros(n)
-    
-    for i, expr in enumerate(exprs):
-        for j, var in enumerate(variables):
-            coef = expr.coeff(var)
-            A[i, j] = float(coef)
-        b[i] = -float(expr.as_coeff_add()[0])
-    
-    return A, b, variables
+    """Convierte un sistema de ecuaciones en la forma Ax = b."""
+    try:
+        exprs = []
+        for ecuacion in ecuaciones:
+            if "=" not in ecuacion:
+                raise ValueError("Cada ecuación debe contener el símbolo '='.")
+            lhs, rhs = ecuacion.split("=")
+            expr = sp.sympify(lhs) - sp.sympify(rhs)
+            exprs.append(expr)
+
+        variables = sorted(list(set().union(*[expr.free_symbols for expr in exprs])), key=lambda x: str(x))
+        n = len(variables)
+
+        A = np.zeros((n, n))
+        b = np.zeros(n)
+
+        for i, expr in enumerate(exprs):
+            for j, var in enumerate(variables):
+                coef = expr.coeff(var)
+                A[i, j] = float(coef)
+            b[i] = -float(expr.as_coeff_add()[0])
+
+        return A, b, variables
+
+    except Exception:
+        raise ValueError("Error al procesar las ecuaciones. Verifique que estén correctamente definidas.")
+
 
 def jacobi_method(A, b, variables, tolerancia, max_iter):
+    """Implementa el método de Jacobi."""
     n = len(b)
-    if not es_diagonal_dominante(A):
-        return {'error': "La matriz no es diagonalmente dominante. El método de Jacobi puede no converger."}
 
+    # Verificar ceros en la diagonal principal
     if any(A[i, i] == 0 for i in range(n)):
-        return {'error': "La matriz tiene ceros en la diagonal. Esto impide la resolución del sistema con el método de Jacobi."}
+        return {'error': "Validación fallida.", 'mensaje': "La matriz tiene ceros en la diagonal principal. Esto impide la resolución del sistema."}
+    
+    # Verificar si la matriz es diagonalmente dominante
+    if not es_diagonal_dominante(A):
+        return {'error': "Validación fallida.", 'mensaje': "La matriz no es diagonalmente dominante. El método de Jacobi puede no converger."}
 
     X0 = np.zeros(n)
     X = np.zeros(n)
@@ -55,7 +70,7 @@ def jacobi_method(A, b, variables, tolerancia, max_iter):
             if A[i, i] != 0:
                 X[i] = (b[i] - suma) / A[i, i]
             else:
-                return {'error': f"División por cero en la posición {i}, {i}."}
+                return {'error': "Validación fallida.", 'mensaje': f"División por cero en la posición {i}, {i}."}
 
         norma = np.max(np.abs(X0 - X))
         iteraciones.append({
@@ -65,7 +80,7 @@ def jacobi_method(A, b, variables, tolerancia, max_iter):
         })
 
         if norma > 10**10:
-            return {'error': "Divergencia detectada. Los valores están creciendo excesivamente."}
+            return {'error': "Divergencia detectada.", 'mensaje': "Los valores están creciendo excesivamente."}
 
         X0 = X.copy()
 
@@ -82,7 +97,8 @@ def jacobi_method(A, b, variables, tolerancia, max_iter):
             'converged': True,
             'resultado_final': X.tolist(),
             'numero_iteraciones': K,
-            'iteraciones': iteraciones
+            'iteraciones': iteraciones,
+            'mensaje': f"Convergió exitosamente en {len(iteraciones)} iteraciones."
         }
 
 @app.route('/jacobi', methods=['POST'])
@@ -93,23 +109,40 @@ def jacobi():
         tolerancia = data.get('tolerancia', 1e-4)
         max_iteraciones = data.get('max_iteraciones', 100)
 
-        # Validar y procesar ecuaciones
+        # Validar que las ecuaciones se proporcionaron
         if not ecuaciones_str:
-            return jsonify({'error': "No se proporcionaron ecuaciones."}), 400
+            return jsonify({
+                'error': 'Validación fallida.',
+                'mensaje': 'No se proporcionaron ecuaciones.'
+            }), 400
 
-        ecuaciones = ecuaciones_str.split(",")
-        A, b, variables = parse_ecuaciones(ecuaciones)
+        try:
+            # Procesar ecuaciones
+            ecuaciones = ecuaciones_str.split(",")
+            A, b, variables = parse_ecuaciones(ecuaciones)
+        except ValueError as e:
+            return jsonify({
+                'error': 'Error al procesar las ecuaciones.',
+                'mensaje': str(e)
+            }), 400
 
         # Ejecutar el método de Jacobi
         resultado = jacobi_method(A, b, variables, tolerancia, max_iteraciones)
-        
+
         if 'error' in resultado:
-            return jsonify(resultado), 400
+            return jsonify({
+                'error': 'Validación fallida.',
+                'mensaje': resultado['mensaje']
+            }), 400
 
         return jsonify(resultado)
 
     except Exception as e:
-        return jsonify({'error': str(e)}), 400
+        return jsonify({
+            'error': 'Error del servidor.',
+            'mensaje': str(e)
+        }), 500
+
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5501)
