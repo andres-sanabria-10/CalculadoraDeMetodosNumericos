@@ -55,7 +55,7 @@ services:
       - app-network
 
   metodo_gauss:
-  build:
+    build:
       context: ./calculadora_metodos/Metodo_Gauss_Seidel
       dockerfile: Dockerfile
     ports:
