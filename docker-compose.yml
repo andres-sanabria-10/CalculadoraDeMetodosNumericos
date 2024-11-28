@@ -54,6 +54,15 @@ services:
     networks:
       - app-network
 
+  metodo_gauss:
+  build:
+      context: ./calculadora_metodos/Metodo_Gauss_Seidel
+      dockerfile: Dockerfile
+    ports:
+      - "5502:5502"
+    networks:
+      - app-network
+
   frontend:
     build:
       context: ./front_Calculadora
@@ -67,6 +76,7 @@ services:
       - metodo_punto_fijo
       - metodo_secante
       - metodo_jacobi
+      - metodo_gauss
     networks:
       - app-network
 
