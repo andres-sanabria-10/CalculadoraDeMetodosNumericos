@@ -2,9 +2,17 @@ from flask import Flask, request, jsonify
 from flask_cors import CORS  # Importa CORS
 import sympy as sp
 import numpy as np
+import re  # Para validar las variables
 
 app = Flask(__name__)
 CORS(app)  # Habilita CORS para toda la aplicación
+
+
+def validar_variables(variables):
+    """Valida que las variables sigan el formato permitido: x, x1, x2, ..., xn."""
+    for var in variables:
+        if not re.match(r'^x\d*$', str(var)):
+            raise ValueError(f"Se ha utilizado una variable no permitida: {var}. Solo se permiten variables del tipo x, x1, x2,... xn.")
 
 
 def es_diagonal_dominante(A):
@@ -27,35 +35,48 @@ def parse_ecuaciones(ecuaciones):
             expr = sp.sympify(lhs) - sp.sympify(rhs)
             exprs.append(expr)
 
+        # Extraer variables
         variables = sorted(list(set().union(*[expr.free_symbols for expr in exprs])), key=lambda x: str(x))
-        n = len(variables)
 
+        # Validar formato de las variables
+        validar_variables(variables)
+
+        # Inicializar matrices A y b
+        n = len(variables)
         A = np.zeros((n, n))
         b = np.zeros(n)
 
+        # Llenar matrices
         for i, expr in enumerate(exprs):
             for j, var in enumerate(variables):
                 coef = expr.coeff(var)
                 A[i, j] = float(coef)
-            b[i] = -float(expr.as_coeff_add()[0])
+            # Obtener término independiente
+            term_indep = expr.as_coeff_add()[0]
+            b[i] = -float(term_indep)
 
         return A, b, variables
 
-    except Exception:
-        raise ValueError("Error al procesar las ecuaciones. Verifique que estén correctamente definidas.")
+    except ValueError as e:
+        # Error específico de validación
+        raise ValueError(f"Error al procesar las ecuaciones: {str(e)}")
+    except Exception as e:
+        # Error general
+        raise ValueError("Error inesperado al procesar las ecuaciones.")
+
 
 
 def jacobi_method(A, b, variables, tolerancia, max_iter):
     """Implementa el método de Jacobi."""
     n = len(b)
 
-    # Verificar ceros en la diagonal principal
-    if any(A[i, i] == 0 for i in range(n)):
-        return {'error': "Validación fallida.", 'mensaje': "La matriz tiene ceros en la diagonal principal. Esto impide la resolución del sistema."}
-    
     # Verificar si la matriz es diagonalmente dominante
     if not es_diagonal_dominante(A):
         return {'error': "Validación fallida.", 'mensaje': "La matriz no es diagonalmente dominante. El método de Jacobi puede no converger."}
+
+    # Verificar ceros en la diagonal principal
+    if any(A[i, i] == 0 for i in range(n)):
+        return {'error': "Validación fallida.", 'mensaje': "La matriz tiene ceros en la diagonal principal. Esto impide la resolución del sistema."}
 
     X0 = np.zeros(n)
     X = np.zeros(n)
@@ -101,6 +122,7 @@ def jacobi_method(A, b, variables, tolerancia, max_iter):
             'mensaje': f"Convergió exitosamente en {len(iteraciones)} iteraciones."
         }
 
+
 @app.route('/jacobi', methods=['POST'])
 def jacobi():
     try:
@@ -116,8 +138,8 @@ def jacobi():
                 'mensaje': 'No se proporcionaron ecuaciones.'
             }), 400
 
+        # Procesar ecuaciones
         try:
-            # Procesar ecuaciones
             ecuaciones = ecuaciones_str.split(",")
             A, b, variables = parse_ecuaciones(ecuaciones)
         except ValueError as e:
@@ -142,6 +164,7 @@ def jacobi():
             'error': 'Error del servidor.',
             'mensaje': str(e)
         }), 500
+
 
 
 if __name__ == '__main__':
