@@ -15,21 +15,22 @@
             border-collapse: collapse;
             margin: 0 auto;
         }
+
         #matrix-input {
             width: 60px;
-         
+
         }
-        
+
         .matrix-table th,
         .matrix-table td {
             padding: 5px;
             text-align: center;
         }
-        
+
         .matrix-row-label {
             font-weight: bold;
         }
-        
+
         .form-control {
             width: 60px;
             text-align: center;
@@ -37,13 +38,14 @@
             border-radius: 4px;
             padding: 0.375rem 0.75rem;
         }
+
         .matrix-input-control {
             text-align: center;
             border: 1px solid #ced4da;
             border-radius: 4px;
             padding: 0.375rem 0.75rem;
         }
-        
+
         .matrix-input-size {
             width: 80px;
         }
@@ -63,8 +65,8 @@
                         <li><a class="btn btn-outline-danger" href="/Broyden">Broyden</a></li>
                         <li><a class="btn btn-outline-danger">Secante</a></li>
 
-                        <li><a class="btn btn-outline-danger" href="/Jacobi" >Jacobi</a></li>
-                        <li><a class="btn btn-outline-danger" href="/Gauss-Seidel">Gauss</a></li>
+                        <li><a class="btn btn-outline-danger" href="/Jacobi">Jacobi</a></li>
+                        <li><a class="btn btn-outline-danger">Gauss</a></li>
                         <li><a class="btn btn-outline-danger">Trapecio</a></li>
                         <li><a class="btn btn-outline-danger">Simpson</a></li>
                     </ul>
@@ -103,15 +105,15 @@
         </div>
         <div class="center-container">
             <div class="calculator">
-                <div class="contenedor_de_grafico"   >
+                <div class="contenedor_de_grafico">
                     <div class="scrollable-container">
                         <!-- Aquí se generará la tabla -->
                     </div>
-                   
-                   
+
+
                 </div>
-                
-                
+
+
 
                 <div class="container mb-2">
                     <div class="row">
@@ -119,23 +121,25 @@
                             <h5>Tamaño del sistema de ecuaciones </h5>
                         </div>
                         <div class="col-6">
-                            <input style="width: 100%;" type="number" class="form-control mb-3 calculator-input" id="num_filas" placeholder="Ecuaciones">
+                            <input style="width: 100%;" type="number" class="form-control mb-3 calculator-input"
+                                id="num_filas" placeholder="Ecuaciones">
                         </div>
                         <div class="col-6">
-                            <input style="width: 100%;"  type="number" class="form-control mb-3 calculator-input" id="num_columnas" placeholder="Variables">
+                            <input style="width: 100%;" type="number" class="form-control mb-3 calculator-input"
+                                id="num_columnas" placeholder="Variables">
                         </div>
                         <div class="col-4 ">
                             <a class="btn btn-outline-primary" id="crear"> Crear</a>
                         </div>
-                        
+
                         <div class="col-4 ">
                             <a class="btn btn-outline-danger" id="limpiar"> Limpiar </a>
                         </div>
-                        
+
                     </div>
                 </div>
 
-                
+
 
 
                 <div className="custom-keyboard">
@@ -305,7 +309,7 @@
         </div>
         <div class="right-container">
             <div class="input-container">
-               
+
 
                 <div class="right-container " style="max-height: 300px; overflow-y: auto;">
                     <h3>Resultados</h3>
@@ -321,7 +325,7 @@
                             <!-- Las filas de la tabla se llenarán dinámicamente -->
                         </tbody>
                     </table>
-                   
+
                 </div>
                 <table class="table table-bordered table-striped-columns" id="resultadoTabla">
                     <thead>
@@ -363,7 +367,7 @@
         <script src="EnvioBroyden.js"></script>
 
 
-  
+
 
 </body>
 
