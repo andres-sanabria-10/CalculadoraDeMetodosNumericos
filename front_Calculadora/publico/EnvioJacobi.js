@@ -231,7 +231,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
             if (!response.ok) {
                 const errorData = await response.json();
-                throw new Error(errorData.error || 'Error en la respuesta del servidor');
+                alert(`Error del servidor ${errorData.mensaje}`);
             }
 
             const resultado = await response.json();
@@ -243,6 +243,9 @@ document.addEventListener("DOMContentLoaded", function () {
                     mensaje += `x${index + 1} = ${valor.toFixed(6)}\n`;
                 });
                 alert(mensaje);
+                // Renderizar iteraciones y resultados
+                llenarTablaIteraciones(resultado.iteraciones);
+                llenarTablaResultados(resultado.resultado_final, resultado.numero_iteraciones);
 
 
             } else {
@@ -255,40 +258,50 @@ document.addEventListener("DOMContentLoaded", function () {
         }
     });
 
-    // Función para llenar la tabla de iteraciones
-    function llenarTablaIteraciones(iteraciones) {
-        const iteracionesTabla = document.getElementById('iteracionesTabla');
-        iteracionesTabla.innerHTML = '';
+ 
+// Función para llenar la tabla de iteraciones
+function llenarTablaIteraciones(iteraciones) {
+    const iteracionesTablaBody = document.querySelector('#iteracionesTabla tbody');
+    iteracionesTablaBody.innerHTML = ''; // Limpiar únicamente el cuerpo de la tabla
 
-        if (Array.isArray(iteraciones)) {
-            iteraciones.forEach(iteracion => {
-                const newRow = document.createElement('tr');
-                newRow.innerHTML = `
-                    <td>${iteracion.iteracion || '---'}</td>
-                    <td>${iteracion.V.map(v => v.toFixed(4)).join(', ') || '---'}</td>
-                    <td>${!isNaN(iteracion.error) ? iteracion.error.toFixed(4) : '---'}</td>
-                `;
-                iteracionesTabla.appendChild(newRow);
-            });
-        } else {
-            console.error("La propiedad 'iteraciones' no está definida o no es un array.");
-        }
-    }
-
-    // Función para llenar la tabla de resultados
-    function llenarTablaResultados(resultadoFinal, numeroIteraciones) {
-        const resultadoTabla = document.getElementById('resultadoTabla');
-        resultadoTabla.innerHTML = '';
-
-        if (resultadoFinal && typeof numeroIteraciones !== 'undefined') {
-            const resultadoRow = document.createElement('tr');
-            resultadoRow.innerHTML = `
-                <td>${resultadoFinal.map(v => v.toFixed(4)).join(', ')}</td>
-                <td>${numeroIteraciones}</td>
+    if (Array.isArray(iteraciones)) {
+        iteraciones.forEach(iteracion => {
+            const newRow = document.createElement('tr');
+            newRow.innerHTML = `
+                <td>${iteracion.iteracion || '---'}</td>
+                <td>${iteracion.valores.map(v => v.toFixed(6)).join('<br> ') || '---'}</td>
+                <td>${!isNaN(iteracion.norma) ? iteracion.norma.toFixed(6) : '---'}</td>
             `;
-            resultadoTabla.appendChild(resultadoRow);
-        } else {
-            console.error("Los datos de 'resultado_final' o 'numero_iteraciones' no están definidos.");
-        }
+            iteracionesTablaBody.appendChild(newRow);
+        });
+    } else {
+        console.error("La propiedad 'iteraciones' no está definida o no es un array.");
     }
+}
+
+
+// Función para llenar la tabla de resultados
+function llenarTablaResultados(resultadoFinal, numeroIteraciones) {
+    const resultadoTablaBody = document.querySelector('#resultadoTabla tbody');
+    resultadoTablaBody.innerHTML = ''; // Limpiar únicamente el cuerpo de la tabla
+
+    if (resultadoFinal && typeof numeroIteraciones !== 'undefined') {
+        const resultadoRow = document.createElement('tr');
+        resultadoRow.innerHTML = `
+            <td>${resultadoFinal.map(v => v.toFixed(6)).join('<br>')}</td>
+            <td>${numeroIteraciones}</td>
+        `;
+        resultadoTablaBody.appendChild(resultadoRow);
+    } else {
+        console.error("Los datos de 'resultado_final' o 'numero_iteraciones' no están definidos.");
+    }
+}
+
+
+
+
+
+
+
+   
 });
