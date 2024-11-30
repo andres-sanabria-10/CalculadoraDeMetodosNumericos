@@ -55,31 +55,35 @@ def gauss_seidel_method(A, b, tolerancia, max_iter):
 
 # Función para procesar las ecuaciones
 def parse_ecuaciones(ecuaciones):
-    exprs = []
-    for ecuacion in ecuaciones:
-        if '=' not in ecuacion:
-            raise ValueError(f"Formato incorrecto: falta el '=' en la ecuación '{ecuacion}'.")
-        
-        lhs, rhs = ecuacion.split("=")
-        expr = sp.sympify(lhs) - sp.sympify(rhs)
-        exprs.append(expr)
+    try:
+        exprs = []
+        for ecuacion in ecuaciones:
+            if "=" not in ecuacion:
+                raise ValueError("Cada ecuación debe contener el símbolo '='.")
+            lhs, rhs = ecuacion.split("=")
+            expr = sp.sympify(lhs) - sp.sympify(rhs)
+            exprs.append(expr)
 
-    variables = sorted(list(set().union(*[expr.free_symbols for expr in exprs])), key=lambda x: str(x))
-    n = len(variables)
+        variables = sorted(list(set().union(*[expr.free_symbols for expr in exprs])), key=lambda x: str(x))
+        n = len(variables)
 
-    if len(exprs) != n:
-        raise ValueError(f"El sistema debe tener {n} ecuaciones para ser cuadrado, pero se encontraron {len(exprs)}.")
+        if len(exprs) != n:
+             raise ValueError(f"El sistema debe tener {n} ecuaciones para ser cuadrado, pero se encontraron {len(exprs)}.")
 
-    A = np.zeros((n, n))
-    b = np.zeros(n)
+        A = np.zeros((n, n))
+        b = np.zeros(n)
 
-    for i, expr in enumerate(exprs):
-        for j, var in enumerate(variables):
-            coef = expr.coeff(var)
-            A[i, j] = float(coef)
-        b[i] = -float(expr.as_coeff_add()[0])
+        for i, expr in enumerate(exprs):
+            for j, var in enumerate(variables):
+                coef = expr.coeff(var)
+                A[i, j] = float(coef)
+            b[i] = -float(expr.as_coeff_add()[0])
 
-    return A, b, variables
+        return A, b, variables
+
+    except Exception:
+        raise ValueError("Error al procesar las ecuaciones. Verifique que estén correctamente definidas.")
+
 
 @app.route('/gauss-seidel', methods=['POST'])
 def gauss_seidel():
