@@ -4,6 +4,13 @@ const numColumnasInput = document.getElementById('num_columnas');
 const matrixContainer = document.getElementById('matrixContainer');
 const contenedorGrafico = document.querySelector('.scrollable-container');
 
+// Obtener el valor seleccionado
+const selectedOption = document.querySelector('input[name="options"]:checked');
+
+// Verificar si hay una opción seleccionada
+const selectedValue = selectedOption ? selectedOption.value : null;
+
+
 
 const iteracionesTabla = document.querySelector('#iteracionesTabla tbody');
 const resultadoTabla = document.querySelector('#resultadoTabla tbody');
@@ -58,15 +65,17 @@ function generarMatriz(filas, columnas) {
         headerRow.appendChild(th);
     }
 
+    // Encabezado del símbolo "="
+    const thIgual = document.createElement('th');
+    thIgual.innerText = '=';
+    headerRow.appendChild(thIgual);
+
     // Encabezado "Término Independiente"
     const thTerminoIndependiente = document.createElement('th');
     thTerminoIndependiente.innerText = 'Constante';
     headerRow.appendChild(thTerminoIndependiente);
 
-    // Encabezado "Puntos"
-    const thPuntos = document.createElement('th');
-    thPuntos.innerText = 'Valores\niniciales';
-    headerRow.appendChild(thPuntos);
+
 
 
 
@@ -94,6 +103,13 @@ function generarMatriz(filas, columnas) {
             td.appendChild(input);
             tr.appendChild(td);
         }
+
+        // Celda del símbolo "="
+        const tdIgual = document.createElement('td');
+        tdIgual.className = 'matrix-symbol';
+        tdIgual.innerText = '=';
+        tr.appendChild(tdIgual);
+
         // Input para "Término Independiente"
         const tdTerminoIndependiente = document.createElement('td');
         const inputTerminoIndependiente = document.createElement('input');
@@ -104,14 +120,7 @@ function generarMatriz(filas, columnas) {
         tr.appendChild(tdTerminoIndependiente);
         registerCalculatorInputs();
 
-        // Input para "Puntos"
-        const tdPuntos = document.createElement('td');
-        const inputPuntos = document.createElement('input');
-        inputPuntos.type = 'text';
-        inputPuntos.className = 'matrix-input-control matrix-input-size calculator-input';
-        inputPuntos.placeholder = 'Inicial';
-        tdPuntos.appendChild(inputPuntos);
-        tr.appendChild(tdPuntos);
+
 
 
 
@@ -148,6 +157,16 @@ document.addEventListener("DOMContentLoaded", function () {
 
     enviarButton.addEventListener('click', async function () {
         try {
+            // Obtener el valor seleccionado para la tolerancia
+            const selectedOption = document.querySelector('input[name="options"]:checked');
+            const selectedValue = selectedOption ? selectedOption.value : null;
+
+            // Verificar si se ha seleccionado una opción de tolerancia
+            if (!selectedValue) {
+                alert("Por favor, selecciona una tolerancia.");
+                return; // Salir de la función si no se ha seleccionado una opción
+            }
+
             const filas = document.querySelectorAll('.matrix-table tbody tr');
             if (!filas.length) {
                 alert('Por favor, crea una matriz primero');
@@ -155,60 +174,54 @@ document.addEventListener("DOMContentLoaded", function () {
             }
 
             let ecuaciones = [];
-            let valoresIniciales = [];
 
-            // Recolectar valores iniciales primero
-            filas.forEach((fila) => {
-                const inputs = fila.querySelectorAll('.matrix-input-control');
-                const valorInicial = inputs[inputs.length - 1].value.trim() || '0';
-                if (isNaN(valorInicial)) {
-                    throw new Error('Valor inicial no válido en una de las filas');
-                }
-                valoresIniciales.push(parseFloat(valorInicial));
-            });
-
-            // Recolectar ecuaciones (excluyendo el valor inicial)
+            // Recolectar ecuaciones y valores iniciales
             filas.forEach((fila) => {
                 const inputs = fila.querySelectorAll('.matrix-input-control');
                 let ecuacion = '';
+                const constante = inputs[inputs.length - 1].value.trim();
 
-                // Excluir el último input (valor inicial)
+                // Validar constante
+                if (isNaN(constante) || constante === '') {
+                    throw new Error('Constante no válida en una de las filas.');
+                }
+
+                // Construir ecuación
                 inputs.forEach((input, index) => {
                     if (index < inputs.length - 1) {
                         const valor = input.value.trim();
                         if (valor) {
-                            if (ecuacion) ecuacion += ' + '; // Separador entre términos
-                            ecuacion += valor;
+                            const signo = valor.startsWith('-') ? '' : '+ ';
+                            ecuacion += `${signo}${valor} `;
                         }
                     }
                 });
 
-                // Añadir la ecuación solo si no está vacía
-                if (ecuacion) {
-                    ecuaciones.push(ecuacion);
-                }
+                ecuacion += `= ${constante}`;
+                ecuaciones.push(ecuacion.trim());
             });
+            const ecuacionesUnidas = ecuaciones.join(", ");
 
-            // Limpiar las ecuaciones recolectadas
-            ecuaciones = ecuaciones.map(limpiarEcuacion);
+            const toleranciaAca = parseFloat(selectedValue);
 
-            if (ecuaciones.length !== valoresIniciales.length) {
-                throw new Error(`Número de ecuaciones (${ecuaciones.length}) no coincide con los valores iniciales (${valoresIniciales.length}).`);
+            // Verificar si la conversión fue exitosa
+            if (isNaN(toleranciaAca)) {
+                alert("El valor de tolerancia debe ser un número válido.");
+                return; // Salir de la función si el valor de tolerancia no es un número
             }
 
+            // Datos para enviar al backend
             const datos = {
-                ecuaciones: ecuaciones.join(','), // Se envían las ecuaciones como texto separado por comas
-                valores_iniciales: valoresIniciales,
-                tolerancia: 1e-6,
-                max_iteraciones: 100
+                ecuaciones: ecuacionesUnidas, // Lista de ecuaciones unidas
+                tolerancia: toleranciaAca, // Valor de la tolerancia seleccionado
+                max_iteraciones: 100 // Número máximo de iteraciones
             };
 
-            console.log('Datos a enviar:', datos);
-            ecuaciones.forEach((ecuacion, index) => {
-                console.log(`Ecuación ${index + 1}:`, ecuacion);
-            });
 
-            const response = await fetch('http://localhost:5100/broyden', {
+            console.log('Datos a enviar:', datos);
+
+            // Enviar datos al backend
+            const response = await fetch('http://localhost:5501/jacobi', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
@@ -225,46 +238,15 @@ document.addEventListener("DOMContentLoaded", function () {
             console.log('Respuesta del servidor:', resultado);
 
             if (resultado.converged) {
-                let mensaje = 'El método converge';
+                let mensaje = 'El método converge:\n';
                 resultado.resultado_final.forEach((valor, index) => {
                     mensaje += `x${index + 1} = ${valor.toFixed(6)}\n`;
                 });
                 alert(mensaje);
-                iteracionesTabla.innerHTML = '';
-                resultadoTabla.innerHTML = '';
-
-                // Llenar la tabla de iteraciones
-                if (Array.isArray(data.iteraciones)) {
-                    data.iteraciones.forEach(iteracion => {
-                        const newRow = document.createElement('tr');
-                        newRow.innerHTML = `
-            <td>${iteracion.iteracion || '---'}</td>
-            <td>${iteracion.V !== undefined ? iteracion.V.map(v => v.toFixed(4)).join(', ') : '---'}</td>
-            <td>${iteracion.error !== undefined && !isNaN(iteracion.error) ? iteracion.error.toFixed(4) : '---'}</td>
-        `;
-                        iteracionesTabla.appendChild(newRow);
-                    });
-                } else {
-                    console.error("La propiedad 'iteraciones' no está definida o no es un array.");
-                }
-
-                // Llenar la tabla de resultados finales
-                if (data.resultado_final && typeof data.numero_iteraciones !== 'undefined') {
-                    const resultadoRow = document.createElement('tr');
-                    resultadoRow.innerHTML = `
-        <td>${data.resultado_final.map(v => v.toFixed(4)).join(', ')}</td>
-        <td>${data.numero_iteraciones}</td>
-    `;
-                    resultadoTabla.appendChild(resultadoRow);
-                } else {
-                    console.error("Los datos de 'resultado_final' o 'numero_iteraciones' no están definidos.");
-                }
-
-
 
 
             } else {
-                alert('El método no convergió después del máximo número de iteraciones');
+                alert('El método no convergió después del máximo número de iteraciones.');
             }
 
         } catch (error) {
@@ -272,4 +254,41 @@ document.addEventListener("DOMContentLoaded", function () {
             alert('Error al procesar la solicitud: ' + error.message);
         }
     });
+
+    // Función para llenar la tabla de iteraciones
+    function llenarTablaIteraciones(iteraciones) {
+        const iteracionesTabla = document.getElementById('iteracionesTabla');
+        iteracionesTabla.innerHTML = '';
+
+        if (Array.isArray(iteraciones)) {
+            iteraciones.forEach(iteracion => {
+                const newRow = document.createElement('tr');
+                newRow.innerHTML = `
+                    <td>${iteracion.iteracion || '---'}</td>
+                    <td>${iteracion.V.map(v => v.toFixed(4)).join(', ') || '---'}</td>
+                    <td>${!isNaN(iteracion.error) ? iteracion.error.toFixed(4) : '---'}</td>
+                `;
+                iteracionesTabla.appendChild(newRow);
+            });
+        } else {
+            console.error("La propiedad 'iteraciones' no está definida o no es un array.");
+        }
+    }
+
+    // Función para llenar la tabla de resultados
+    function llenarTablaResultados(resultadoFinal, numeroIteraciones) {
+        const resultadoTabla = document.getElementById('resultadoTabla');
+        resultadoTabla.innerHTML = '';
+
+        if (resultadoFinal && typeof numeroIteraciones !== 'undefined') {
+            const resultadoRow = document.createElement('tr');
+            resultadoRow.innerHTML = `
+                <td>${resultadoFinal.map(v => v.toFixed(4)).join(', ')}</td>
+                <td>${numeroIteraciones}</td>
+            `;
+            resultadoTabla.appendChild(resultadoRow);
+        } else {
+            console.error("Los datos de 'resultado_final' o 'numero_iteraciones' no están definidos.");
+        }
+    }
 });

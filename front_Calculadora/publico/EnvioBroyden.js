@@ -9,7 +9,18 @@ const iteracionesTabla = document.querySelector('#iteracionesTabla tbody');
 const resultadoTabla = document.querySelector('#resultadoTabla tbody');
 
 
-// Evento para crear y mostrar el modal con los inputs
+// Obtener el valor seleccionado
+const selectedOption = document.querySelector('input[name="options"]:checked');
+
+// Verificar si hay una opción seleccionada
+const selectedValue = selectedOption ? selectedOption.value : null;
+
+
+
+
+
+
+
 crearButton.addEventListener('click', function (event) {
     event.preventDefault();
     // Obtén los valores de filas y columnas
@@ -148,6 +159,18 @@ document.addEventListener("DOMContentLoaded", function () {
 
     enviarButton.addEventListener('click', async function () {
         try {
+
+           // Obtener el valor seleccionado para la tolerancia
+            const selectedOption = document.querySelector('input[name="options"]:checked');
+            const selectedValue = selectedOption ? selectedOption.value : null;
+
+            // Verificar si se ha seleccionado una opción de tolerancia
+            if (!selectedValue) {
+                alert("Por favor, selecciona una tolerancia.");
+                return; // Salir de la función si no se ha seleccionado una opción
+            }
+
+
             const filas = document.querySelectorAll('.matrix-table tbody tr');
             if (!filas.length) {
                 alert('Por favor, crea una matriz primero');
@@ -196,10 +219,12 @@ document.addEventListener("DOMContentLoaded", function () {
                 throw new Error(`Número de ecuaciones (${ecuaciones.length}) no coincide con los valores iniciales (${valoresIniciales.length}).`);
             }
 
+
+            
             const datos = {
                 ecuaciones: ecuaciones.join(','), // Se envían las ecuaciones como texto separado por comas
                 valores_iniciales: valoresIniciales,
-                tolerancia: 1e-6,
+                tolerancia: 1e-4,
                 max_iteraciones: 100
             };
 
@@ -218,7 +243,8 @@ document.addEventListener("DOMContentLoaded", function () {
 
             if (!response.ok) {
                 const errorData = await response.json();
-                throw new Error(errorData.error || 'Error en la respuesta del servidor');
+                alert(`Error del servidor: ${errorData.mensaje}`);
+                return
             }
 
             const resultado = await response.json();
