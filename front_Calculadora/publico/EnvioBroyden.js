@@ -233,33 +233,32 @@ document.addEventListener("DOMContentLoaded", function () {
                 iteracionesTabla.innerHTML = '';
                 resultadoTabla.innerHTML = '';
 
-                // Llenar la tabla de iteraciones
-                if (Array.isArray(data.iteraciones)) {
-                    data.iteraciones.forEach(iteracion => {
+                // Asegúrate de usar el objeto `resultado`, no `data`
+                if (Array.isArray(resultado.iteraciones)) {
+                    resultado.iteraciones.forEach(iteracion => {
                         const newRow = document.createElement('tr');
                         newRow.innerHTML = `
             <td>${iteracion.iteracion || '---'}</td>
-            <td>${iteracion.V !== undefined ? iteracion.V.map(v => v.toFixed(4)).join(', ') : '---'}</td>
+            <td>${iteracion.V !== undefined ? iteracion.V.map(v => v.toFixed(4)).join('<br> ') : '---'}</td>
             <td>${iteracion.error !== undefined && !isNaN(iteracion.error) ? iteracion.error.toFixed(4) : '---'}</td>
         `;
                         iteracionesTabla.appendChild(newRow);
                     });
                 } else {
-                    console.error("La propiedad 'iteraciones' no está definida o no es un array.");
+                    console.error("La propiedad 'iteraciones' no está definida o no es un array en el objeto 'resultado'.");
                 }
 
                 // Llenar la tabla de resultados finales
-                if (data.resultado_final && typeof data.numero_iteraciones !== 'undefined') {
+                if (resultado.resultado_final && typeof resultado.numero_iteraciones !== 'undefined') {
                     const resultadoRow = document.createElement('tr');
                     resultadoRow.innerHTML = `
-        <td>${data.resultado_final.map(v => v.toFixed(4)).join(', ')}</td>
-        <td>${data.numero_iteraciones}</td>
+        <td>${resultado.resultado_final.map(v => v.toFixed(4)).join('<br> ')}</td>
+        <td>${resultado.numero_iteraciones}</td>
     `;
                     resultadoTabla.appendChild(resultadoRow);
                 } else {
-                    console.error("Los datos de 'resultado_final' o 'numero_iteraciones' no están definidos.");
+                    console.error("Los datos de 'resultado_final' o 'numero_iteraciones' no están definidos en el objeto 'resultado'.");
                 }
-
 
 
 
