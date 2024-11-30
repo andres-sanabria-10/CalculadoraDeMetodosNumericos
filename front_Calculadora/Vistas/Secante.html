@@ -76,11 +76,9 @@
 
                 <div class="input-container">
                     <h5>Ecuación original</h5>
-                    <input type="text" id="equation-input" class="calculator-input"
+                    <input type="text" class="calculator-input" id="equation-input"
                         placeholder="Ingrese la ecuación original">
-                    <h5>Ecuación despejada</h5>
-                    <input type="text" id="calculator-input" class="calculator-input"
-                        placeholder="Ingrese la ecuación despejada">
+
 
                 </div>
                 <div className="custom-keyboard">
@@ -250,25 +248,28 @@
         </div>
         <div class="right-container">
             <div class="input-container">
-                <h3>Punto Inicial</h3>
-                <input type="text" class="calculator-input" id="initial-point" placeholder="Ingrese el punto inicial">
+                <h3>Punto Inicial 1</h3>
+                <input type="text" class="calculator-input" id="initial-point" placeholder="Ingrese el punto inicial1">
+                <h3>Punto Inicial 2</h3>
+                <input type="text" class="calculator-input" id="initial-point2" placeholder="Ingrese el punto inicial2">
             </div>
             <div class="right-container" style="max-height: 300px; overflow-y: auto;">
                 <h3>Resultados</h3>
-                <table class="table table-bordered table-striped-columns">
+                <table class="table table-bordered table-striped-columns" id="iteracionesTabla">
                     <thead>
                         <tr class="table-Success ">
                             <th>Iteración</th>
-                            <th>X0</th>
-                            <th>X0 Nuevo</th>
-                            <th>Error</th>
-                            <th>Valor de la Función</th>
+                            <th>Punto A</th>
+                            <th>Punto B</th>
+                            <th>Punto Medio</th>
+                            <th>Error Porcentual</th>
                         </tr>
                     </thead>
                     <tbody>
                         <!-- Las filas de la tabla se llenarán dinámicamente -->
                     </tbody>
                 </table>
+
             </div>
             <table class="table table-bordered table-striped-columns" id="resultadoTabla">
                 <thead>
@@ -306,16 +307,13 @@
         crossorigin="anonymous"></script>
 
     <script src="script.js"></script>
-    <script src="EnvioPuntoFijo.js"> </script>
+
+    <script src="EnvioSecante.js"> </script>
+
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/hammerjs@2.0.8"></script>
     <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-zoom@2.0.1"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjs/11.8.0/math.min.js"></script>
-
-    <script>
-
-
-    </script>
 
 </body>
 
