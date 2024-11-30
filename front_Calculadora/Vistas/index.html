@@ -253,7 +253,7 @@
                 <h3>Punto Inicial</h3>
                 <input type="text" class="calculator-input" id="initial-point" placeholder="Ingrese el punto inicial">
             </div>
-            <div class="right-container">
+            <div class="right-container" style="max-height: 300px; overflow-y: auto;">
                 <h3>Resultados</h3>
                 <table class="table table-bordered table-striped-columns">
                     <thead>
@@ -269,20 +269,19 @@
                         <!-- Las filas de la tabla se llenarán dinámicamente -->
                     </tbody>
                 </table>
-                <table class="table table-bordered table-striped-columns" id="resultadoTabla">
-                    <thead>
-                        <tr class="table-Success">
-                            <th>Resultado</th>
-                            <th>Numero de Iteraciones</th>
-
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <!-- Las filas de la tabla se llenarán dinámicamente -->
-                    </tbody>
-                </table>
-
             </div>
+            <table class="table table-bordered table-striped-columns" id="resultadoTabla">
+                <thead>
+                    <tr class="table-Success">
+                        <th>Resultado</th>
+                        <th>Numero de Iteraciones</th>
+
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- Las filas de la tabla se llenarán dinámicamente -->
+                </tbody>
+            </table>
         </div>
     </div>
 
