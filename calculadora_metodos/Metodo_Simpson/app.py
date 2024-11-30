@@ -65,8 +65,8 @@ def simpson(a, b, n, funcion_str):
     area_n2 = simpson_error(a, b, n + 2, funcion_str)
     error_relativo = abs(area - area_n2) / abs(area_n2)
     
-    # Determinar convergencia/ divergencia
-    convergencia = "Converge" if error_relativo < 1e-6 else "Diverge"
+    # Determinar convergencia/ divergencia con un umbral más relajado
+    convergencia = "Converge" if error_relativo < 1e-4 else "Diverge"
     
     # Resultados organizados
     resultados = {
