@@ -12,11 +12,18 @@ function registerCalculatorInputs() {
         input.inputMode = 'decimal';
         input.pattern = '[0-9]*';
         
-        input.addEventListener('focus', () => {
-            activeInput = input;
-        });
+        input.removeEventListener('focus', inputFocusHandler);
+        input.addEventListener('focus', inputFocusHandler);
+        
     });
 }
+function inputFocusHandler(event) {
+    activeInput = event.target;
+}
+// Registrar inputs al cargar la página
+document.addEventListener('DOMContentLoaded', () => {
+    registerCalculatorInputs();
+});
 
 // Llamar a la función cuando se cargue la página
 document.addEventListener('DOMContentLoaded', registerCalculatorInputs);

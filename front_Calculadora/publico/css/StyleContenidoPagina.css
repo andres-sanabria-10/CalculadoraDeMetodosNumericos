@@ -124,15 +124,7 @@ body {
   }
 }
 
-.calculator-container {
-  width: 70%;
-  height: 75%;
-  display: flex;
-  flex-direction: column;
-  box-sizing: border-box;
-  margin: 0 auto;
 
-}
 
 .graph-area {
   flex: 0 0 50%;
@@ -156,12 +148,7 @@ body {
   padding: 10px;
 }
 
-.calculator {
-  background-color: #f0f0f0;
-  border-radius: 10px;
-  padding: 10px;
-  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-}
+
 
 .calculator-row {
   display: flex;
