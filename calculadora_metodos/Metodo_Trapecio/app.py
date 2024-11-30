@@ -19,10 +19,10 @@ def trapecio(a, b, n, funcion_str):
     f_a = evaluar_funcion(funcion_str, a)
     f_b = evaluar_funcion(funcion_str, b)
 
-    # Caso n = 1
+    # Caso n = 1 (un solo trapecio)
     if n == 1:
         area = (b - a) * (f_a + f_b) / 2
-    # Caso n > 1
+    # Caso n > 1 (más trapecios)
     elif n > 1:
         h = (b - a) / n
         suma_intermedia = 0
@@ -35,12 +35,10 @@ def trapecio(a, b, n, funcion_str):
     # Cálculo del error relativo
     error_relativo = abs((area - (b - a) * (f_a + f_b) / 2) / area) if area != 0 else 0
 
-    # Verificación de la convergencia: Se asume que siempre converge con una n suficientemente grande
-    # Si n es muy pequeño o la aproximación de los valores es muy grande, podría considerarse divergente
-    if n < 2:
-        return area, "Diverge", error_relativo
+    # Determinación de convergencia
+    convergencia = "Converge" if area != 0 else "Diverge"
 
-    return area, "Converge", error_relativo
+    return area, convergencia, error_relativo
 
 @app.route('/trapecio', methods=['POST'])
 def metodo_trapecio():
@@ -56,7 +54,7 @@ def metodo_trapecio():
 
         if 'n' not in data:
             return jsonify({'error': "Falta el valor de 'n'. Ingrese el número de subintervalos."}), 400
-        
+
         if 'funcion' not in data:
             return jsonify({'error': "Falta el valor de 'funcion'. Ingrese la expresión de la función."}), 400
 
@@ -80,8 +78,8 @@ def metodo_trapecio():
         return jsonify({
             'area_bajo_la_curva': area_trapecio,
             'convergencia': convergencia,
-            'error_relativo': error_relativo,
-         })
+            'error_relativo': error_relativo
+        })
 
     except Exception as e:
         return jsonify({'error': str(e)}), 400
