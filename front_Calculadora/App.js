@@ -20,4 +20,8 @@ app.get('/Newton-Rapson',(req,res)=>{
   res.sendFile(path.join(__dirname,'/Vistas/Newton-Rapson.html'))
 })
 
+app.get('/Broyden',(req,res)=>{
+  res.sendFile(path.join(__dirname,'/Vistas/Broyden.html'))
+})
+
 app.listen(app.get('PORT'),()=>console.log(`Server front in port ${app.get('PORT')}`))
