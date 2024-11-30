@@ -53,13 +53,24 @@ def broyden():
 
         # Validación de la estructura del JSON recibido
         if not data:
-            return jsonify({'error': "Validación fallida.", 'mensaje': "El cuerpo de la solicitud está vacío."}), 400
-        if 'ecuaciones' not in data or 'valores_iniciales' not in data:
-            return jsonify({'error': "Validación fallida.", 'mensaje': "Faltan parámetros requeridos: 'ecuaciones' o 'valores_iniciales'."}), 400
+            return jsonify({'error': "Validación fallida.", 'mensaje': "El cuerpo de la solicitud está vacío."}), 400        
+        # Validación de parámetros faltantes
+        if 'ecuaciones' not in data or not data['ecuaciones']:
+            return jsonify({'error': "Falta el valor de 'ecuaciones'. Ingrese las ecuaciones del sistema."}), 400
+        
+        # Validación de parámetros faltantes
+        if 'valores_iniciales' not in data:
+            return jsonify({'error': "Faltan los valores iniciales. Ingrese valores iniciales"}), 400
+
+        if 'tolerancia' not in data:
+            return jsonify({'error': "Falta el valor de 'tolerancia'. Ingrese una tolerancia válida."}), 400
+
+        if 'max_iteraciones' not in data:
+            return jsonify({'error': "Falta el valor de 'max_iteraciones'. Ingrese un número válido de iteraciones."}), 400
 
         ecuaciones_str = data['ecuaciones']
         valores_iniciales = data['valores_iniciales']
-        tolerancia = data.get('tolerancia', 1e-6)
+        tolerancia = float(data['tolerancia'])
         max_iteraciones = data.get('max_iteraciones', 100)
 
         # Validar que las ecuaciones no estén vacías
@@ -164,5 +175,4 @@ def broyden():
     except Exception as e:
         return jsonify({'error': "Error interno del servidor.", 'mensaje': str(e)}), 400
 
-if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=5100)
+if __name__ == '__main__':app.run(host='0.0.0.0', port=5100)
