@@ -4,6 +4,11 @@ const numColumnasInput = document.getElementById('num_columnas');
 const matrixContainer = document.getElementById('matrixContainer');
 const contenedorGrafico = document.querySelector('.scrollable-container');
 
+
+const iteracionesTabla = document.querySelector('#iteracionesTabla tbody');
+const resultadoTabla = document.querySelector('#resultadoTabla tbody');
+
+
 // Evento para crear y mostrar el modal con los inputs
 crearButton.addEventListener('click', function (event) {
     event.preventDefault();
@@ -28,7 +33,6 @@ crearButton.addEventListener('click', function (event) {
     }
 
     generarMatriz(numFilas, numColumnas);
-
 });
 
 // Generar la matriz de inputs dinámicamente
@@ -47,8 +51,6 @@ function generarMatriz(filas, columnas) {
     const cornerCell = document.createElement('th');
     headerRow.appendChild(cornerCell);
 
-    
-
     // Encabezados X1, X2, etc.
     for (let j = 1; j <= columnas; j++) {
         const th = document.createElement('th');
@@ -56,10 +58,17 @@ function generarMatriz(filas, columnas) {
         headerRow.appendChild(th);
     }
 
-    // Encabezado b
-    const thB = document.createElement('th');
-    thB.innerText = 'puntos';
-    headerRow.appendChild(thB);
+    // Encabezado "Término Independiente"
+    const thTerminoIndependiente = document.createElement('th');
+    thTerminoIndependiente.innerText = 'Constante';
+    headerRow.appendChild(thTerminoIndependiente);
+
+    // Encabezado "Puntos"
+    const thPuntos = document.createElement('th');
+    thPuntos.innerText = 'Valores\niniciales';
+    headerRow.appendChild(thPuntos);
+
+
 
     thead.appendChild(headerRow);
     tabla.appendChild(thead);
@@ -75,19 +84,37 @@ function generarMatriz(filas, columnas) {
         rowLabel.innerText = i + 1;
         tr.appendChild(rowLabel);
 
-        // Inputs para X1, X2, etc. y b
-        for (let j = 0; j <= columnas; j++) {
+        // Inputs para X1, X2, etc.
+        for (let j = 0; j < columnas; j++) {
             const td = document.createElement('td');
             const input = document.createElement('input');
             input.type = 'text';
-            input.className = 'matrix-input-control matrix-input-size calculator-input'; // Asegúrate de mantener calculator-input
-            input.placeholder = j === columnas ? 'puntos' : `X${j + 1}`;
+            input.className = 'matrix-input-control matrix-input-size calculator-input';
+            input.placeholder = `X${j + 1}`;
             td.appendChild(input);
             tr.appendChild(td);
         }
-        
-        // Llamar a registerCalculatorInputs() directamente después de crear los inputs
+        // Input para "Término Independiente"
+        const tdTerminoIndependiente = document.createElement('td');
+        const inputTerminoIndependiente = document.createElement('input');
+        inputTerminoIndependiente.type = 'text';
+        inputTerminoIndependiente.className = 'matrix-input-control matrix-input-size calculator-input';
+        inputTerminoIndependiente.placeholder = 'Constante';
+        tdTerminoIndependiente.appendChild(inputTerminoIndependiente);
+        tr.appendChild(tdTerminoIndependiente);
         registerCalculatorInputs();
+
+        // Input para "Puntos"
+        const tdPuntos = document.createElement('td');
+        const inputPuntos = document.createElement('input');
+        inputPuntos.type = 'text';
+        inputPuntos.className = 'matrix-input-control matrix-input-size calculator-input';
+        inputPuntos.placeholder = 'Inicial';
+        tdPuntos.appendChild(inputPuntos);
+        tr.appendChild(tdPuntos);
+
+
+
 
         tbody.appendChild(tr);
     }
@@ -95,11 +122,13 @@ function generarMatriz(filas, columnas) {
 
     // Insertar tabla en el nuevo contenedor
     contenedorGrafico.appendChild(tabla);
+
     setTimeout(() => {
         registerCalculatorInputs();
         console.log('Inputs registrados después de generar matriz:', document.querySelectorAll('.calculator-input').length);
     }, 0);
 }
+
 // Limpiar filas y columnas en el formulario inicial
 document.getElementById('limpiar').addEventListener('click', function () {
     numFilasInput.value = '';
@@ -107,14 +136,17 @@ document.getElementById('limpiar').addEventListener('click', function () {
 });
 document.addEventListener('DOMContentLoaded', () => {
     console.log('Función registerCalculatorInputs existe:', typeof registerCalculatorInputs === 'function');
-    
+
     const inputs = document.querySelectorAll('.calculator-input');
     console.log('Inputs encontrados:', inputs.length);
 });
+// Función para limpiar ecuaciones
+const limpiarEcuacion = (ecuacion) => ecuacion.replace(/\s+/g, '');
+
 document.addEventListener("DOMContentLoaded", function () {
     const enviarButton = document.querySelector('.key img[data-funcion="enviar"]').parentElement;
 
-    enviarButton.addEventListener('click', async function() {
+    enviarButton.addEventListener('click', async function () {
         try {
             const filas = document.querySelectorAll('.matrix-table tbody tr');
             if (!filas.length) {
@@ -125,36 +157,28 @@ document.addEventListener("DOMContentLoaded", function () {
             let ecuaciones = [];
             let valoresIniciales = [];
 
-            filas.forEach((fila, index) => {
+            // Recolectar valores iniciales primero
+            filas.forEach((fila) => {
+                const inputs = fila.querySelectorAll('.matrix-input-control');
+                const valorInicial = inputs[inputs.length - 1].value.trim() || '0';
+                if (isNaN(valorInicial)) {
+                    throw new Error('Valor inicial no válido en una de las filas');
+                }
+                valoresIniciales.push(parseFloat(valorInicial));
+            });
+
+            // Recolectar ecuaciones (excluyendo el valor inicial)
+            filas.forEach((fila) => {
                 const inputs = fila.querySelectorAll('.matrix-input-control');
                 let ecuacion = '';
-                
-                // Construir la ecuación para cada fila
-                inputs.forEach((input, colIndex) => {
-                    if (colIndex < inputs.length - 1) { // Coeficientes
-                        let valor = input.value.trim();
-                        // Limpiar el valor de cualquier 'x' o 'y' que pueda contener
-                        valor = valor.replace(/[xy]/g, '');
-                        
+
+                // Excluir el último input (valor inicial)
+                inputs.forEach((input, index) => {
+                    if (index < inputs.length - 1) {
+                        const valor = input.value.trim();
                         if (valor) {
-                            // Si el valor es 1, no lo incluimos explícitamente
-                            if (valor === '1') {
-                                ecuacion += `x${colIndex + 1}`;
-                            } else {
-                                ecuacion += `${valor}*x${colIndex + 1}`;
-                            }
-                            
-                            if (colIndex < inputs.length - 2) {
-                                ecuacion += '+';
-                            }
-                        } else if (colIndex < inputs.length - 2) {
-                            ecuacion = ecuacion.slice(0, -1); // Remover el último '+'
-                        }
-                    } else { // Término independiente
-                        let terminoIndependiente = input.value.trim();
-                        terminoIndependiente = terminoIndependiente.replace(/[xy]/g, '');
-                        if (terminoIndependiente) {
-                            ecuacion += `-${terminoIndependiente}`;
+                            if (ecuacion) ecuacion += ' + '; // Separador entre términos
+                            ecuacion += valor;
                         }
                     }
                 });
@@ -165,18 +189,24 @@ document.addEventListener("DOMContentLoaded", function () {
                 }
             });
 
-            // Obtener valores iniciales
-            const numVariables = filas[0].querySelectorAll('.matrix-input-control').length - 1;
-            valoresIniciales = Array(numVariables).fill(1);
+            // Limpiar las ecuaciones recolectadas
+            ecuaciones = ecuaciones.map(limpiarEcuacion);
+
+            if (ecuaciones.length !== valoresIniciales.length) {
+                throw new Error(`Número de ecuaciones (${ecuaciones.length}) no coincide con los valores iniciales (${valoresIniciales.length}).`);
+            }
 
             const datos = {
-                ecuaciones: ecuaciones.join(','),
+                ecuaciones: ecuaciones.join(','), // Se envían las ecuaciones como texto separado por comas
                 valores_iniciales: valoresIniciales,
                 tolerancia: 1e-6,
                 max_iteraciones: 100
             };
 
             console.log('Datos a enviar:', datos);
+            ecuaciones.forEach((ecuacion, index) => {
+                console.log(`Ecuación ${index + 1}:`, ecuacion);
+            });
 
             const response = await fetch('http://localhost:5100/broyden', {
                 method: 'POST',
@@ -195,11 +225,44 @@ document.addEventListener("DOMContentLoaded", function () {
             console.log('Respuesta del servidor:', resultado);
 
             if (resultado.converged) {
-                let mensaje = 'Solución encontrada:\n';
+                let mensaje = 'El método converge';
                 resultado.resultado_final.forEach((valor, index) => {
                     mensaje += `x${index + 1} = ${valor.toFixed(6)}\n`;
                 });
                 alert(mensaje);
+                iteracionesTabla.innerHTML = '';
+                resultadoTabla.innerHTML = '';
+
+                // Llenar la tabla de iteraciones
+                if (Array.isArray(data.iteraciones)) {
+                    data.iteraciones.forEach(iteracion => {
+                        const newRow = document.createElement('tr');
+                        newRow.innerHTML = `
+            <td>${iteracion.iteracion || '---'}</td>
+            <td>${iteracion.V !== undefined ? iteracion.V.map(v => v.toFixed(4)).join(', ') : '---'}</td>
+            <td>${iteracion.error !== undefined && !isNaN(iteracion.error) ? iteracion.error.toFixed(4) : '---'}</td>
+        `;
+                        iteracionesTabla.appendChild(newRow);
+                    });
+                } else {
+                    console.error("La propiedad 'iteraciones' no está definida o no es un array.");
+                }
+
+                // Llenar la tabla de resultados finales
+                if (data.resultado_final && typeof data.numero_iteraciones !== 'undefined') {
+                    const resultadoRow = document.createElement('tr');
+                    resultadoRow.innerHTML = `
+        <td>${data.resultado_final.map(v => v.toFixed(4)).join(', ')}</td>
+        <td>${data.numero_iteraciones}</td>
+    `;
+                    resultadoTabla.appendChild(resultadoRow);
+                } else {
+                    console.error("Los datos de 'resultado_final' o 'numero_iteraciones' no están definidos.");
+                }
+
+
+
+
             } else {
                 alert('El método no convergió después del máximo número de iteraciones');
             }
