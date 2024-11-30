@@ -232,6 +232,7 @@ document.addEventListener("DOMContentLoaded", function () {
             if (!response.ok) {
                 const errorData = await response.json();
                 alert(`Error del servidor ${errorData.mensaje}`);
+                return
             }
 
             const resultado = await response.json();
