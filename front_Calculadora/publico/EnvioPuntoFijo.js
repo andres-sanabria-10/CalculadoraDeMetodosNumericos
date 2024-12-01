@@ -27,70 +27,21 @@ document.addEventListener("DOMContentLoaded", function () {
         }
     }
 
-
-
-    function renderChart(data, label) {
-        if (chart) {
-            chart.destroy();
-        }
-        chart = new Chart(ctx, {
-            type: 'line',
-            data: {
-                datasets: [{
-                    label: label,
-                    data: data,
-                    borderColor: 'rgb(208, 46, 11)',
-                    tension: 0.1,
-                    pointRadius: 0,
-                    borderWidth: 2
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                scales: {
-                    x: {
-                        type: 'linear',
-                        position: 'center',
-                        min: xMin,
-                        max: xMax,
-                        grid: {
-                            color: 'rgba(0, 0, 0, 0.1)',
-                            drawTicks: true
-                        },
-                        ticks: {
-                            stepSize: 2,
-                            callback: function (value) {
-                                return value.toString();
-                            }
-                        }
-                    },
-                    y: {
-                        type: 'linear',
-                        position: 'center',
-                        min: yMin,
-                        max: yMax,
-                        grid: {
-                            color: 'rgba(0, 0, 0, 0.1)',
-                            drawTicks: true
-                        },
-                        ticks: {
-                            stepSize: 2,
-                            callback: function (value) {
-                                return value.toString();
-                            }
-                        }
-                    }
-                },
-                plugins: {
-                    legend: {
-                        display: true,
-                        position: 'top'
-                    }
-                }
+    // Agrega una función a GeoGebra
+    function graficarFuncion(func) {
+        try {
+            if (ggbAPI) {
+                ggbAPI.reset(); // Limpia el canvas antes de graficar
+                ggbAPI.evalCommand(func);
+                console.log(`Función graficada: ${func}`);
+            } else {
+                console.error("GeoGebra aún no está inicializado.");
             }
-        });
+        } catch (error) {
+            console.error("Error al graficar la función en GeoGebra:", error);
+        }
     }
+
 
     // Evento para zoom con la rueda del mouse
     document.getElementById('grafico').addEventListener('wheel', function (event) {
