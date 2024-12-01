@@ -29,7 +29,7 @@ app.get('/Jacobi', (req, res) => {
 })
 
 app.get('/Gauss-Seidel', (req, res) => {
-  res.sendFile(path.join(__dirname, '/Vistas/Jacobi.html'))
+  res.sendFile(path.join(__dirname, '/Vistas/Gauss-Seidel.html'))
 })
 
 app.get('/Secante', (req, res) => {
