@@ -19,6 +19,13 @@ document.addEventListener("DOMContentLoaded", function () {
                         console.log("GeoGebra cargado correctamente.");
                     }
                 },
+                true
+            );
+            ggbApp.inject('ggb-element');
+        } catch (error) {
+            console.error("Error al inicializar GeoGebra:", error);
+        }
+    }
 
 
 
