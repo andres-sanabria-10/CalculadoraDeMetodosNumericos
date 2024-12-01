@@ -75,9 +75,9 @@
                 </div>
 
                 <div class="input-container">
-                    <h5>Ecuación original</h5>
+                    <h5>Función</h5>
                     <input type="text" class="calculator-input" id="equation-input"
-                        placeholder="Ingrese la ecuación original">
+                        placeholder="Ingrese la Funcion para resolver la integral">
 
 
                 </div>
@@ -250,12 +250,15 @@
         </div>
         <div class="right-container">
             <div class="input-container">
-                <h3>Intervalo (a,)</h3>
-                <input type="text" class="calculator-input" id="initial-point" placeholder="Ingrese el punto inicial1">
-                <h3>Intervalo (,b)</h3>
-                <input type="text" class="calculator-input" id="initial-point2" placeholder="Ingrese el punto inicial2">
-                <h3>Subintervalos (n)</h3>
-                <input type="text" class="calculator-input" id="initial-point3" placeholder="Ingrese el punto inicial2">
+                <h4>Intervalo a</h4>
+                <input type="text" class="calculator-input" id="initial-point"
+                    placeholder="Ingrese el valor (a) del intervalo">
+                <h4>Intervalo b</h4>
+                <input type="text" class="calculator-input" id="initial-point2"
+                    placeholder="Ingrese el valor (b) del intervalo">
+                <h4>Subintervalos </h4>
+                <input type="text" class="calculator-input" id="initial-point3"
+                    placeholder="Ingrese el numero de subintervalos (n)">
 
 
             </div>
@@ -265,7 +268,6 @@
             <table class="table table-bordered table-striped-columns" id="resultadoTabla">
                 <thead>
                     <tr class="table-Success">
-                        <th>Resultado</th>
                         <th>Area bajo la curva</th>
                         <th>convergencia</th>
                         <th>Error Relativo</th>

@@ -114,17 +114,11 @@ document.addEventListener("DOMContentLoaded", function () {
         return datos;
     }
 
-
-
-
     enviarButton.addEventListener('click', function () {
         const equationInput = document.getElementById('equation-input').value;
-
         const initialPointInput = document.getElementById('initial-point').value;
         const initialPointInput2 = document.getElementById('initial-point2').value;
         const initialPointInput3 = document.getElementById('initial-point3').value;
-        const selectedOption = document.querySelector('input[name="options"]:checked');
-        const selectedValue = selectedOption ? selectedOption.value : null;
 
 
         // Validaciones
@@ -134,7 +128,7 @@ document.addEventListener("DOMContentLoaded", function () {
         }
         if (!initialPointInput3) {
             alert('Por favor, ingrese el numero de subintervalos (n).');
-            return;
+            return; b
         }
 
         if (!initialPointInput2) {
@@ -146,16 +140,12 @@ document.addEventListener("DOMContentLoaded", function () {
             return;
         }
 
-        if (!selectedValue) {
-            alert('Por favor, seleccione una tolerancia.');
-            return;
-        }
+
         const data = {
             a: initialPointInput,
             b: initialPointInput2,
             n: initialPointInput3,
-            tolerancia: selectedValue,
-            funcion: equationInput
+            funcion_str: equationInput
         };
         console.log('Data a enviar:', data);
 
@@ -187,10 +177,12 @@ document.addEventListener("DOMContentLoaded", function () {
                 // Asegúrate de que `data["Resultado Final"]` y `data["Número de iteraciones"]` existen
                 const resultadoRow = document.createElement('tr');
                 resultadoRow.innerHTML = `
-                    <td>${data["resultado_final"].toFixed(4)}</td>
-                    <td>${data["numero_iteraciones"]}</td>
-                `;
+                <td>${data["area_bajo_la_curva"].toFixed(4)}</td>
+                <td>${data["convergencia"]}</td>
+                <td>${data["error_relativo"]}</td>
+            `;
                 resultadoTableBody.appendChild(resultadoRow);
+
 
                 // Renderizar el gráfico de iteraciones
                 const iteracionesData = data.iteraciones.map(iteracion => ({
