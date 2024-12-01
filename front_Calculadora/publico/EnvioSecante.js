@@ -141,8 +141,8 @@ document.addEventListener("DOMContentLoaded", function () {
             return;
         }
         const data = {
-            punto_inicial_a: initialPointInput,
-            punto_inicial_b: initialPointInput2,
+            x0: initialPointInput,
+            x1: initialPointInput2,
             tolerancia: selectedValue,
             funcion: equationInput
         };
@@ -178,9 +178,9 @@ document.addEventListener("DOMContentLoaded", function () {
                         const newRow = document.createElement('tr');
                         newRow.innerHTML = `
             <td>${iteracion.iteracion || '---'}</td>
-            <td>${iteracion.punto_a !== undefined && !isNaN(iteracion.punto_a) ? iteracion.punto_a.toFixed(4) : '---'}</td>
-            <td>${iteracion.punto_b !== undefined && !isNaN(iteracion.punto_b) ? iteracion.punto_b.toFixed(4) : '---'}</td>
-            <td>${iteracion.punto_medio !== undefined && !isNaN(iteracion.punto_medio) ? iteracion.punto_medio.toFixed(4) : '---'}</td>
+            <td>${iteracion.x0 !== undefined && !isNaN(iteracion.x0) ? iteracion.x0.toFixed(4) : '---'}</td>
+            <td>${iteracion.x1 !== undefined && !isNaN(iteracion.x1) ? iteracion.x1.toFixed(4) : '---'}</td>
+            <td>${iteracion.x2 !== undefined && !isNaN(iteracion.x2) ? iteracion.x2.toFixed(4) : '---'}</td>
             <td>${iteracion.error !== undefined && iteracion.error !== '---' && !isNaN(iteracion.error) ? iteracion.error.toFixed(4) : iteracion.error || '---'}</td>
         `;
                         iteracionesTableBody.appendChild(newRow);
