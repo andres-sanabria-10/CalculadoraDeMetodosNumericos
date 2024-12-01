@@ -1,13 +1,14 @@
 from flask import Flask, request, jsonify
 from flask_cors import CORS
 import sympy as sp
+
 app = Flask(__name__)
 CORS(app)
 
 def evaluar_funcion_segura(funcion_str, x):
     try:
         x_sym = sp.Symbol('x')
-        expr = sp.sympify(funcion_str)
+        expr = sp.sympify(funcion_str).subs(sp.Symbol('e'), sp.exp(1))  # Sustituir 'e' por exp(1)
         resultado = expr.subs(x_sym, x)
         if sp.im(resultado) != 0:  # Verifica si el resultado tiene una parte imaginaria
             raise ValueError("La función generó un número complejo.")
@@ -19,16 +20,15 @@ def evaluar_funcion_segura(funcion_str, x):
 
 def validar_funcion(funcion_str):
     try:
-        expr = sp.sympify(funcion_str)  # Convierte la cadena en una expresión simbólica
+        expr = sp.sympify(funcion_str).subs(sp.Symbol('e'), sp.exp(1))  # Convierte la cadena en una expresión simbólica
         variables = expr.free_symbols   # Obtiene las variables simbólicas libres
         if len(variables) != 1 or str(next(iter(variables))) != 'x':
             raise ValueError("La función debe contener exactamente una variable, y debe ser 'x'.")
         return True
     except sp.SympifyError as e:  # Errores relacionados con la conversión de sympy
         raise ValueError("La función proporcionada no es una expresión válida.")
-    except ValueError as e: 
+    except ValueError as e:
         raise e  
-
 
 @app.route('/secante', methods=['POST'])
 def metodo_secante():
@@ -41,7 +41,7 @@ def metodo_secante():
                 'mensaje': 'Debe enviar los datos requeridos en formato JSON.'
             }), 400
 
-        campos_requeridos = ['x0', 'x1', 'tolerancia', 'funcion']
+        campos_requeridos = ['punto_inicial_a', 'punto_inicial_b', 'tolerancia', 'funcion']
         for campo in campos_requeridos:
             if campo not in data:
                 return jsonify({
@@ -50,13 +50,13 @@ def metodo_secante():
                 }), 400
 
         try:
-            x0 = float(data['x0'])
-            x1 = float(data['x1'])
+            punto_inicial_a = float(data['punto_inicial_a'])
+            punto_inicial_b = float(data['punto_inicial_b'])
             tolerancia = float(data['tolerancia'])
         except (ValueError, TypeError):
             return jsonify({
-                'error': 'Los valores de x0, x1 y tolerancia deben ser numéricos.',
-                'mensaje': 'Los valores de x0, x1 y tolerancia deben ser numéricos.'
+                'error': 'Los valores de punto_inicial_a, punto_inicial_b y tolerancia deben ser numéricos.',
+                'mensaje': 'Los valores de punto_inicial_a, punto_inicial_b y tolerancia deben ser numéricos.'
             }), 400
 
         if tolerancia <= 0:
@@ -72,7 +72,7 @@ def metodo_secante():
         except ValueError as e:
             return jsonify({
                 'error': 'Validación fallida.',
-                'mensaje': str(e)  
+                'mensaje': str(e)
             }), 400
 
         max_iteraciones = data.get('max_iteraciones', 100)
@@ -80,12 +80,12 @@ def metodo_secante():
         iteraciones = []
         function_calls = 0
         converged = False
-        x2 = None
+        x_siguiente = None
 
         for iteracion in range(1, max_iteraciones + 1):
             try:
-                fx0 = evaluar_funcion_segura(funcion, x0)
-                fx1 = evaluar_funcion_segura(funcion, x1)
+                fx0 = evaluar_funcion_segura(funcion, punto_inicial_a)
+                fx1 = evaluar_funcion_segura(funcion, punto_inicial_b)
                 function_calls += 2
             except ValueError as e:
                 return jsonify({
@@ -95,24 +95,24 @@ def metodo_secante():
 
             if fx1 == fx0:
                 return jsonify({
-                    'error': f'División por cero: f(x0) = f(x1) en la iteración {iteracion}.',
-                    'mensaje':f'División por cero: f(x0) = f(x1) en la iteración {iteracion}.'
+                    'error': f'División por cero: f(punto_inicial_a) = f(punto_inicial_b) en la iteración {iteracion}.',
+                    'mensaje': f'División por cero: f(punto_inicial_a) = f(punto_inicial_b) en la iteración {iteracion}.'
                 }), 400
 
-            x2 = x1 - fx1 * (x1 - x0) / (fx1 - fx0)
-            if abs(x2) > 1e10:
+            x_siguiente = punto_inicial_b - fx1 * (punto_inicial_b - punto_inicial_a) / (fx1 - fx0)
+            if abs(x_siguiente) > 1e10:
                 return jsonify({
-                    'error': f'El valor de x2 se volvió demasiado grande en la iteración {iteracion}.',
+                    'error': f'El valor de x_siguiente se volvió demasiado grande en la iteración {iteracion}.',
                     'mensaje': 'Esto puede indicar divergencia. Intente con valores iniciales diferentes.'
                 }), 400
 
-            error = abs((x2 - x1) / x2) * 100 if x2 != 0 else float('inf')
+            error = abs((x_siguiente - punto_inicial_b) / x_siguiente) * 100 if x_siguiente != 0 else float('inf')
 
             iteraciones.append({
                 'iteracion': iteracion,
-                'x0': x0,
-                'x1': x1,
-                'x2': x2,
+                'punto_a': punto_inicial_a,
+                'punto_b': punto_inicial_b,
+                'x_siguiente': x_siguiente,
                 'error': error
             })
 
@@ -120,7 +120,7 @@ def metodo_secante():
                 converged = True
                 break
 
-            x0, x1 = x1, x2
+            punto_inicial_a, punto_inicial_b = punto_inicial_b, x_siguiente
 
         if not converged:
             return jsonify({
@@ -133,7 +133,7 @@ def metodo_secante():
         return jsonify({
             'converged': True,
             'iteraciones': iteraciones,
-            'resultado_final': x2,
+            'resultado_final': x_siguiente,
             'numero_iteraciones': len(iteraciones),
             'mensaje': f'El método convergió exitosamente en {len(iteraciones)} iteraciones.'
         })
