@@ -3,12 +3,10 @@ document.addEventListener("DOMContentLoaded", function () {
     let ggbAPI = null;
     let dataGlobal;
 
-
-    // Límites iniciales para los ejes
-    let xMin = -14;
-    let xMax = 18;
-    let yMin = -10;
-    let yMax = 12;
+    // Inicializa GeoGebra sin ninguna gráfica
+    function inicializarGeoGebra() {
+        try {
+            const ggbApp = new GGBApplet(
 
     function renderChart(data, label) {
         if (chart) {
