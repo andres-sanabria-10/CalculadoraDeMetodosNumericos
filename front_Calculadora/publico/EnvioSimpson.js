@@ -41,16 +41,29 @@ document.addEventListener("DOMContentLoaded", function () {
                 resultadoTableBody.innerHTML = '';
                 const resultadoRow = document.createElement('tr');
                 resultadoRow.innerHTML = `
-                    <td>${data.area_bajo_la_curva}</td>
+                    <td>${typeof data.area_bajo_la_curva === 'number' ? data.area_bajo_la_curva.toFixed(4) : '---'}</td>
                     <td>${data.convergencia}</td>
-                    <td>${data.error_relativo}</td>
-                    <td>${data.puntos.join('<br> ')}</td>
-                    <td>${data.puntos_medios.join('<br> ')}</td>
-                    <td>${data.imagenes_puntos_medios.join('<br> ')}</td>
-                    <td>${data.funcion_evaluada_en_puntos.join('<br> ')}</td>
+                    <td>${typeof data.error_relativo === 'number' ? data.error_relativo.toFixed(4) : '---'}</td>
+                    <td>${Array.isArray(data.puntos) ? data.puntos.map(p => typeof p === 'number' ? p.toFixed(4) : '---').join('<br> ') : '---'}</td>
+                    <td>${Array.isArray(data.puntos_medios) ? data.puntos_medios.map(p => typeof p === 'number' ? p.toFixed(4) : '---').join('<br> ') : '---'}</td>
+                    <td>${Array.isArray(data.imagenes_puntos_medios) ? data.imagenes_puntos_medios.map(p => typeof p === 'number' ? p.toFixed(4) : '---').join('<br> ') : '---'}</td>
+                    <td>
+                        ${Array.isArray(data.funcion_evaluada_en_puntos) && data.funcion_evaluada_en_puntos.length > 0
+                        ? data.funcion_evaluada_en_puntos.map(tuple => {
+                            const num = Number(tuple[0]);  // Accedemos al primer valor de la tupla
+                            return !isNaN(num)
+                                ? num.toFixed(4)  // Redondeamos el número a 4 decimales
+                                : '---';  // Si no es un número, mostramos '---'
+                        }).join('<br> ')
+                        : '---'  // Si no es un array o está vacío, mostramos '---'
+                    }
+                    </td>
                 `;
                 resultadoTableBody.appendChild(resultadoRow);
 
+                // Abrir el modal automáticamente después de agregar los resultados
+                const myModal = new bootstrap.Modal(document.getElementById('resultadoModal'));
+                myModal.show();
 
             })
             .catch(error => {
