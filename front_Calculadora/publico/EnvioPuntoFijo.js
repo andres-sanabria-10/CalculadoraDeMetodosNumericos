@@ -54,6 +54,16 @@ document.addEventListener("DOMContentLoaded", function () {
         graficarFuncion(equationInput);
     });
 
+    // Manejar clic en el botón "Función Original"
+    document.getElementById('btnFuncionOriginal').addEventListener('click', function () {
+        const equationInput = document.getElementById('equation-input').value;
+        if (!equationInput) {
+            alert("Por favor, ingrese una función válida.");
+            return;
+        }
+        graficarFuncion(equationInput);
+    });
+
     document.getElementById('btnIteraciones').addEventListener('click', function () {
         const equationInput = document.getElementById('equation-input').value;
         if (!equationInput) {
@@ -90,22 +100,10 @@ document.addEventListener("DOMContentLoaded", function () {
                 ggbAPI.evalCommand(`SetColor(${lineName}, 128, 128, 128)`); 
                 console.log(`Línea punteada creada entre ${pointNameX0} y ${pointNameX0Nuevo}`);
 
-
-    function generarPuntosFuncionOriginal(funcion, min, max, puntos = 100) {
-        const datos = [];
-        const paso = (max - min) / puntos;
-
-        for (let x = min; x <= max; x += paso) {
-            try {
-                // Usar math.js o una biblioteca similar para evaluar la función
-                const y = eval(funcion.replace(/x/g, `(${x})`));
-                datos.push({ x: x, y: y });
-            } catch (error) {
-                console.error('Error al evaluar la función:', error);
             }
-        }
-        return datos;
-    }
+        )}        
+                
+    });
 
     enviarButton.addEventListener('click', function () {
         const equationInput = document.getElementById('equation-input').value;
@@ -190,15 +188,6 @@ document.addEventListener("DOMContentLoaded", function () {
                 `;
                 resultadoTableBody.appendChild(resultadoRow);
 
-
-
-
-                // Mostrar inicialmente el gráfico de iteraciones
-                const iteracionesData = data.Iteraciones.map(iteracion => ({
-                    x: iteracion.X0,
-                    y: iteracion.valor_funcion
-                }));
-                renderChart(iteracionesData, 'Iteraciones');
             })
             .catch((error) => {
                 console.error('Error:', error);
