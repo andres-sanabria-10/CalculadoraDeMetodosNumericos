@@ -221,7 +221,7 @@ document.addEventListener("DOMContentLoaded", function () {
             console.log('Datos a enviar:', datos);
 
             // Enviar datos al backend
-            const response = await fetch('http://localhost:5501/jacobi', {
+            const response = await fetch('http://localhost:5502//gauss-seidel', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
