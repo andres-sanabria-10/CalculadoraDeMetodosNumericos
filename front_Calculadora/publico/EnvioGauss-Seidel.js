@@ -200,7 +200,6 @@ document.addEventListener("DOMContentLoaded", function () {
                 ecuacion += `= ${constante}`;
                 ecuaciones.push(ecuacion.trim());
             });
-            const ecuacionesUnidas = ecuaciones.join(", ");
 
             const toleranciaAca = parseFloat(selectedValue);
 
@@ -212,7 +211,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
             // Datos para enviar al backend
             const datos = {
-                ecuaciones: ecuacionesUnidas, // Lista de ecuaciones unidas
+                ecuaciones: ecuaciones, // Lista de ecuaciones unidas
                 tolerancia: toleranciaAca, // Valor de la tolerancia seleccionado
                 max_iteraciones: 100 // Número máximo de iteraciones
             };
@@ -221,7 +220,7 @@ document.addEventListener("DOMContentLoaded", function () {
             console.log('Datos a enviar:', datos);
 
             // Enviar datos al backend
-            const response = await fetch('http://localhost:5502//gauss-seidel', {
+            const response = await fetch('http://localhost:5502/gauss-seidel', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
@@ -262,15 +261,15 @@ document.addEventListener("DOMContentLoaded", function () {
 // Función para llenar la tabla de iteraciones
 function llenarTablaIteraciones(iteraciones) {
     const iteracionesTablaBody = document.querySelector('#iteracionesTabla tbody');
-    iteracionesTablaBody.innerHTML = ''; // Limpiar únicamente el cuerpo de la tabla
+    iteracionesTablaBody.innerHTML = ''; // Limpiar la tabla de iteraciones
 
     if (Array.isArray(iteraciones)) {
         iteraciones.forEach(iteracion => {
             const newRow = document.createElement('tr');
             newRow.innerHTML = `
                 <td>${iteracion.iteracion || '---'}</td>
-                <td>${iteracion.valores.map(v => v.toFixed(6)).join('<br> ') || '---'}</td>
-                <td>${!isNaN(iteracion.norma) ? iteracion.norma.toFixed(6) : '---'}</td>
+                <td>${iteracion.solucion.map(v => v.toFixed(6)).join('<br>') || '---'}</td>
+                <td>${iteracion.error !== undefined ? (iteracion.error * 100).toFixed(6) + '%' : '---'}</td>
             `;
             iteracionesTablaBody.appendChild(newRow);
         });
@@ -279,11 +278,10 @@ function llenarTablaIteraciones(iteraciones) {
     }
 }
 
-
-// Función para llenar la tabla de resultados
+// Función para llenar la tabla de resultados finales
 function llenarTablaResultados(resultadoFinal, numeroIteraciones) {
     const resultadoTablaBody = document.querySelector('#resultadoTabla tbody');
-    resultadoTablaBody.innerHTML = ''; // Limpiar únicamente el cuerpo de la tabla
+    resultadoTablaBody.innerHTML = ''; // Limpiar la tabla de resultados
 
     if (resultadoFinal && typeof numeroIteraciones !== 'undefined') {
         const resultadoRow = document.createElement('tr');
