@@ -160,15 +160,17 @@ document.addEventListener("DOMContentLoaded", function () {
     enviarButton.addEventListener('click', async function () {
         try {
 
-           // Obtener el valor seleccionado para la tolerancia
-            const selectedOption = document.querySelector('input[name="options"]:checked');
-            const selectedValue = selectedOption ? selectedOption.value : null;
+            // Obtener el valor seleccionado para la tolerancia
+        const selectedOption = document.querySelector('input[name="options"]:checked');
+        const selectedValue = selectedOption ? selectedOption.value : null;
 
-            // Verificar si se ha seleccionado una opción de tolerancia
-            if (!selectedValue) {
-                alert("Por favor, selecciona una tolerancia.");
-                return; // Salir de la función si no se ha seleccionado una opción
-            }
+        // Verificar si se ha seleccionado una opción de tolerancia
+        if (!selectedValue) {
+            alert("Por favor, selecciona una tolerancia.");
+            return;
+        }
+
+           
 
 
             const filas = document.querySelectorAll('.matrix-table tbody tr');
@@ -224,7 +226,7 @@ document.addEventListener("DOMContentLoaded", function () {
             const datos = {
                 ecuaciones: ecuaciones.join(','), // Se envían las ecuaciones como texto separado por comas
                 valores_iniciales: valoresIniciales,
-                tolerancia: 1e-4,
+                tolerancia: parseFloat(selectedValue),
                 max_iteraciones: 100
             };
 
