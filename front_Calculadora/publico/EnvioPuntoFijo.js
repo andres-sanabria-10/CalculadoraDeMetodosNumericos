@@ -7,7 +7,14 @@ document.addEventListener("DOMContentLoaded", function () {
     function inicializarGeoGebra() {
         try {
             const ggbApp = new GGBApplet(
-
+                {
+                    appName: "graphing",
+                    width: 400,
+                    height: 200,
+                    showToolBar: false,
+                    showAlgebraInput: false,
+                    showMenuBar: false,
+                    
     function renderChart(data, label) {
         if (chart) {
             chart.destroy();
