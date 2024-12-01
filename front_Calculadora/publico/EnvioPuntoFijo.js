@@ -78,6 +78,12 @@ document.addEventListener("DOMContentLoaded", function () {
                 ggbAPI.evalCommand(`${pointNameX0} = (${x0}, ${y0})`);
                 ggbAPI.evalCommand(`${pointNameX0Nuevo} = (${x0Nuevo}, 0)`);
 
+                // Hacer visuales los puntos
+                ggbAPI.evalCommand(`SetPointSize(${pointNameX0}, 4)`);
+                ggbAPI.evalCommand(`SetColor(${pointNameX0}, 255, 0, 0)`); 
+                ggbAPI.evalCommand(`SetPointSize(${pointNameX0Nuevo}, 4)`);
+                ggbAPI.evalCommand(`SetColor(${pointNameX0Nuevo}, 0, 0, 255)`); 
+
 
     function generarPuntosFuncionOriginal(funcion, min, max, puntos = 100) {
         const datos = [];
