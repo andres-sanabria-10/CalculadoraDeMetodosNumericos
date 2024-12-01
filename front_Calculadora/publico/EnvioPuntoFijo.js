@@ -42,6 +42,18 @@ document.addEventListener("DOMContentLoaded", function () {
         }
     }
 
+    inicializarGeoGebra();
+
+    // Manejar clic en el botón "Función Original"
+    document.getElementById('btnFuncionOriginal').addEventListener('click', function () {
+        const equationInput = document.getElementById('equation-input').value;
+        if (!equationInput) {
+            alert("Por favor, ingrese una función válida.");
+            return;
+        }
+        graficarFuncion(equationInput);
+    });
+
 
     // Evento para zoom con la rueda del mouse
     document.getElementById('grafico').addEventListener('wheel', function (event) {
