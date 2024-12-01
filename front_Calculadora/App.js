@@ -28,6 +28,10 @@ app.get('/Jacobi', (req, res) => {
   res.sendFile(path.join(__dirname, '/Vistas/Jacobi.html'))
 })
 
+app.get('/Gauss-Seidel', (req, res) => {
+  res.sendFile(path.join(__dirname, '/Vistas/Jacobi.html'))
+})
+
 app.get('/Secante', (req, res) => {
   res.sendFile(path.join(__dirname, '/Vistas/Secante.html'))
 })
