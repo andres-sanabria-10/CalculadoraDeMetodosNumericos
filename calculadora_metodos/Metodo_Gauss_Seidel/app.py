@@ -1,8 +1,10 @@
 import numpy as np
 import sympy as sp
 from flask import Flask, request, jsonify
+from flask_cors import CORS
 
 app = Flask(__name__)
+CORS(app)  
 
 # Función para verificar si la matriz es diagonal dominante
 def es_diagonal_dominante(A):
