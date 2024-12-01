@@ -40,7 +40,7 @@ app.get('/Trapecio', (req, res) => {
   res.sendFile(path.join(__dirname, '/Vistas/Trapecio.html'))
 })
 
-app.get('/Trapecio', (req, res) => {
+app.get('/Simpson', (req, res) => {
   res.sendFile(path.join(__dirname, '/Vistas/Simpson.html'))
 })
 

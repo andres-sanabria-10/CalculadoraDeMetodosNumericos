@@ -44,6 +44,10 @@ document.addEventListener("DOMContentLoaded", function () {
                     <td>${data.area_bajo_la_curva}</td>
                     <td>${data.convergencia}</td>
                     <td>${data.error_relativo}</td>
+                    <td>${data.puntos.join('<br> ')}</td>
+                    <td>${data.puntos_medios.join('<br> ')}</td>
+                    <td>${data.imagenes_puntos_medios.join('<br> ')}</td>
+                    <td>${data.funcion_evaluada_en_puntos.join('<br> ')}</td>
                 `;
                 resultadoTableBody.appendChild(resultadoRow);
 
