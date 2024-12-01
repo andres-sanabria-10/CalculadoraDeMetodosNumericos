@@ -14,7 +14,14 @@ document.addEventListener("DOMContentLoaded", function () {
                     showToolBar: false,
                     showAlgebraInput: false,
                     showMenuBar: false,
-                    
+                    appletOnLoad: function () {
+                        ggbAPI = window["ggbApplet"];
+                        console.log("GeoGebra cargado correctamente.");
+                    }
+                },
+
+
+
     function renderChart(data, label) {
         if (chart) {
             chart.destroy();
