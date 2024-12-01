@@ -54,16 +54,6 @@ document.addEventListener("DOMContentLoaded", function () {
         graficarFuncion(equationInput);
     });
 
-    // Manejar clic en el botón "Función Original"
-    document.getElementById('btnFuncionOriginal').addEventListener('click', function () {
-        const equationInput = document.getElementById('equation-input').value;
-        if (!equationInput) {
-            alert("Por favor, ingrese una función válida.");
-            return;
-        }
-        graficarFuncion(equationInput);
-    });
-
     document.getElementById('btnIteraciones').addEventListener('click', function () {
         const equationInput = document.getElementById('equation-input').value;
         if (!equationInput) {
@@ -194,23 +184,4 @@ document.addEventListener("DOMContentLoaded", function () {
             });
     });
 
-    // Evento para el botón de Función Original
-    document.getElementById('btnFuncionOriginal').addEventListener('click', function () {
-        if (dataGlobal) {
-            const equationInput = document.getElementById('equation-input').value;
-            const puntosFuncion = generarPuntosFuncionOriginal(equationInput, xMin, xMax);
-            renderChart(puntosFuncion, 'Función Original');
-        }
-    });
-
-    // Evento para el botón de Iteraciones
-    document.getElementById('btnIteraciones').addEventListener('click', function () {
-        if (dataGlobal && dataGlobal.Iteraciones) {
-            const iteracionesData = dataGlobal.Iteraciones.map(iteracion => ({
-                x: iteracion.X0,
-                y: iteracion.valor_funcion
-            }));
-            renderChart(iteracionesData, 'Iteraciones');
-        }
-    });
 });
