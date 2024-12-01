@@ -70,6 +70,7 @@ document.addEventListener("DOMContentLoaded", function () {
                 const x0 = iteracion.X0;
                 const x0Nuevo = iteracion.X0_nuevo;
                 const y0 = iteracion.valor_funcion;
+                const lineName = `Linea_${index}`;
             
                 const pointNameX0 = `PuntoX0_${index}`;
                 const pointNameX0Nuevo = `PuntoX0Nuevo_${index}`;
@@ -83,6 +84,11 @@ document.addEventListener("DOMContentLoaded", function () {
                 ggbAPI.evalCommand(`SetColor(${pointNameX0}, 255, 0, 0)`); 
                 ggbAPI.evalCommand(`SetPointSize(${pointNameX0Nuevo}, 4)`);
                 ggbAPI.evalCommand(`SetColor(${pointNameX0Nuevo}, 0, 0, 255)`); 
+
+                ggbAPI.evalCommand(`${lineName} = Line(${pointNameX0}, ${pointNameX0Nuevo})`);
+                ggbAPI.evalCommand(`SetLineStyle(${lineName}, 2)`); 
+                ggbAPI.evalCommand(`SetColor(${lineName}, 128, 128, 128)`); 
+                console.log(`Línea punteada creada entre ${pointNameX0} y ${pointNameX0Nuevo}`);
 
 
     function generarPuntosFuncionOriginal(funcion, min, max, puntos = 100) {
