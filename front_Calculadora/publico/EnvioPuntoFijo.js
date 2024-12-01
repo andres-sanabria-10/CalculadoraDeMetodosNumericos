@@ -63,7 +63,20 @@ document.addEventListener("DOMContentLoaded", function () {
 
         // Grafica la función original
         graficarFuncion(equationInput);
-        
+
+        // Luego, agregar los puntos de iteración al gráfico
+        if (dataGlobal && dataGlobal.Iteraciones) {
+            dataGlobal.Iteraciones.forEach((iteracion, index) => {
+                const x0 = iteracion.X0;
+                const x0Nuevo = iteracion.X0_nuevo;
+                const y0 = iteracion.valor_funcion;
+            
+                const pointNameX0 = `PuntoX0_${index}`;
+                const pointNameX0Nuevo = `PuntoX0Nuevo_${index}`;
+            
+                // Crear los puntos
+                ggbAPI.evalCommand(`${pointNameX0} = (${x0}, ${y0})`);
+                ggbAPI.evalCommand(`${pointNameX0Nuevo} = (${x0Nuevo}, 0)`);
 
 
     function generarPuntosFuncionOriginal(funcion, min, max, puntos = 100) {
