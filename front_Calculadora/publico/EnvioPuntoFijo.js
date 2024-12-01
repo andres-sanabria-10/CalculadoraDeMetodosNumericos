@@ -87,8 +87,6 @@ document.addEventListener("DOMContentLoaded", function () {
 
                 ggbAPI.evalCommand(`${lineName} = Line(${pointNameX0}, ${pointNameX0Nuevo})`);
                 ggbAPI.evalCommand(`SetLineStyle(${lineName}, 2)`); 
-                ggbAPI.evalCommand(`SetColor(${lineName}, 128, 128, 128)`); 
-                console.log(`Línea punteada creada entre ${pointNameX0} y ${pointNameX0Nuevo}`);
 
             }
         )}        
