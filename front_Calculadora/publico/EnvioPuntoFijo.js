@@ -54,28 +54,16 @@ document.addEventListener("DOMContentLoaded", function () {
         graficarFuncion(equationInput);
     });
 
-
-    // Evento para zoom con la rueda del mouse
-    document.getElementById('grafico').addEventListener('wheel', function (event) {
-        event.preventDefault(); // Evita el desplazamiento de la página al hacer zoom
-
-        const zoomFactor = 0.1; // Factor de zoom
-        const delta = event.deltaY;
-
-        if (delta < 0) { // Zoom in
-            xMin += zoomFactor;
-            xMax -= zoomFactor;
-            yMin += zoomFactor;
-            yMax -= zoomFactor;
-        } else { // Zoom out
-            xMin -= zoomFactor;
-            xMax += zoomFactor;
-            yMin -= zoomFactor;
-            yMax += zoomFactor;
+    document.getElementById('btnIteraciones').addEventListener('click', function () {
+        const equationInput = document.getElementById('equation-input').value;
+        if (!equationInput) {
+            alert("Por favor, ingrese una función válida.");
+            return;
         }
 
-        renderChart(chart.data.datasets[0].data, chart.data.datasets[0].label);
-    });
+        // Grafica la función original
+        graficarFuncion(equationInput);
+        
 
 
     function generarPuntosFuncionOriginal(funcion, min, max, puntos = 100) {
