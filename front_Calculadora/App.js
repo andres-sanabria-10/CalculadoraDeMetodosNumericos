@@ -36,4 +36,8 @@ app.get('/Secante', (req, res) => {
   res.sendFile(path.join(__dirname, '/Vistas/Secante.html'))
 })
 
+app.get('/Trapecio', (req, res) => {
+  res.sendFile(path.join(__dirname, '/Vistas/Trapecio.html'))
+})
+
 app.listen(app.get('PORT'), () => console.log(`Server front in port ${app.get('PORT')}`))

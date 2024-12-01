@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <link rel="icon" type="image/svg+xml" href="/img/icon.png" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+    <link rel="stylesheet" href="css/stylePrincipal.css">
+    <link rel="stylesheet" href="css/StyleContenidoPagina.css">
+    <title>Calculadora</title>
+</head>
+
+<body>
+    <header>
+        <div class="container">
+            <div class="header-content">
+                <a href="/" class="logo">Calculadora</a>
+                <nav>
+                    <ul class="nav-pills">
+                        <li><a class="btn btn-outline-primary" href="/">Punto Fijo</a></li>
+                        <li><a class="btn btn-outline-primary" href="/MetodoBiseccion">Bisección</a></li>
+                        <li><a class="btn btn-outline-danger" href="/Newton-Rapson">Newton-Raphson</a></li>
+                        <li><a class="btn btn-outline-danger" href="/Broyden">Broyden</a></li>
+                        <li><a class="btn btn-outline-danger" href="/Secante">Secante</a></li>
+
+                        <li><a class="btn btn-outline-danger" href="/Jacobi">Jacobi</a></li>
+                        <li><a class="btn btn-outline-danger" href="/Gauss-Seidel">Gauss</a></li>
+                        <li><a class="btn btn-outline-danger" href="/Trapecio">Trapecio</a></li>
+                        <li><a class="btn btn-outline-danger">Simpson</a></li>
+                    </ul>
+                </nav>
+            </div>
+        </div>
+    </header>
+    <div class="main-container">
+        <div class="left-container">
+            <div class="checkbox-container">
+                <h3>Error relativo</h3>
+                <ul class="radio-list">
+                    <li><input type="radio" name="options" id="option1" value="0.1"><label
+                            for="option1">*10^(-1)</label></li>
+                    <li><input type="radio" name="options" id="option2" value="0.01"><label
+                            for="option2">*10^(-2)</label></li>
+                    <li><input type="radio" name="options" id="option3" value="0.001"><label
+                            for="option3">*10^(-3)</label></li>
+                    <li><input type="radio" name="options" id="option4" value="0.0001"><label
+                            for="option4">*10^(-4)</label></li>
+                    <li><input type="radio" name="options" id="option5" value="0.00001"><label
+                            for="option5">*10^(-5)</label></li>
+                    <li><input type="radio" name="options" id="option6" value="0.000001"><label
+                            for="option6">*10^(-6)</label></li>
+                    <li><input type="radio" name="options" id="option7" value="0.0000001"><label
+                            for="option7">*10^(-7)</label></li>
+                    <li><input type="radio" name="options" id="option8" value="0.00000001"><label
+                            for="option8">*10^(-8)</label></li>
+                    <li><input type="radio" name="options" id="option9" value="0.000000001"><label
+                            for="option9">*10^(-9)</label></li>
+                    <li><input type="radio" name="options" id="option10" value="0.0000000001"><label
+                            for="option10">*10^(-10)</label></li>
+                </ul>
+            </div>
+
+        </div>
+        <div class="center-container">
+            <div class="calculator">
+                <div class="contenedor_de_grafico">
+                    <div class="botones_Grafico">
+                        <button type="button" class="btn btn-outline-secondary" id="btnFuncionOriginal">Función
+                            original</button>
+                        <button type="button" class="btn btn-outline-secondary" id="btnIteraciones">Iteraciones</button>
+                    </div>
+                    <canvas id="grafico"></canvas>
+                </div>
+
+                <div class="input-container">
+                    <h5>Ecuación original</h5>
+                    <input type="text" class="calculator-input" id="equation-input"
+                        placeholder="Ingrese la ecuación original">
+
+
+                </div>
+                <div className="custom-keyboard">
+                    <div className="calculator-row">
+                        <button class="key function " onclick="showKeyboard('numericKeyboard')">123</button>
+                        <button class="key function" onclick="showKeyboard('functionKeyboard')">f(x)</button>
+                        <button class="key function" onclick="showKeyboard('alphaKeyboard')">ABC</button>
+                        <button class="key function" onclick="showKeyboard('symbolKeyboard')">#&</button>
+                    </div>
+
+
+                    <div id="numericKeyboard" class="calculator-keypad">
+                        <button class="key">x</button>
+                        <button class="key">y</button>
+                        <button class="key">z</button>
+                        <button class="key">π</button>
+                        <button class="key">7</button>
+                        <button class="key">8</button>
+                        <button class="key">9</button>
+                        <button class="key ">×</button>
+                        <button class="key ">÷</button>
+                        <button class="key"> <img
+                                src="data:image/svg+xml;base64,PHN2ZyBpZD0ic3F1YXJlIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCI+PGRlZnM+PHN0eWxlPi5jbHMtMXtmb250LXNpemU6MTJweDtmb250LWZhbWlseTpnZW9nZWJyYS1zYW5zLXNlcmlmLCBzYW5zLXNlcmlmO308L3N0eWxlPjwvZGVmcz48dGl0bGU+c3F1YXJlPC90aXRsZT48cmVjdCB4PSIxIiB5PSI2IiB3aWR0aD0iMiIgaGVpZ2h0PSIyIi8+PHJlY3QgeD0iNSIgeT0iNiIgd2lkdGg9IjIiIGhlaWdodD0iMiIvPjxyZWN0IHg9IjkiIHk9IjYiIHdpZHRoPSIyIiBoZWlnaHQ9IjIiLz48cmVjdCB4PSIxMyIgeT0iNiIgd2lkdGg9IjIiIGhlaWdodD0iMiIvPjxyZWN0IHg9IjEiIHk9IjEwIiB3aWR0aD0iMiIgaGVpZ2h0PSIyIi8+PHJlY3QgeD0iMTMiIHk9IjE4IiB3aWR0aD0iMiIgaGVpZ2h0PSIyIi8+PHJlY3QgeD0iMTMiIHk9IjE0IiB3aWR0aD0iMiIgaGVpZ2h0PSIyIi8+PHJlY3QgeD0iMTMiIHk9IjEwIiB3aWR0aD0iMiIgaGVpZ2h0PSIyIi8+PHJlY3QgeD0iMSIgeT0iMTQiIHdpZHRoPSIyIiBoZWlnaHQ9IjIiLz48cmVjdCB4PSIxIiB5PSIxOCIgd2lkdGg9IjIiIGhlaWdodD0iMiIvPjxyZWN0IHg9IjUiIHk9IjE4IiB3aWR0aD0iMiIgaGVpZ2h0PSIyIi8+PHJlY3QgeD0iOSIgeT0iMTgiIHdpZHRoPSIyIiBoZWlnaHQ9IjIiLz48dGV4dCBjbGFzcz0iY2xzLTEiIHRyYW5zZm9ybT0idHJhbnNsYXRlKDE2LjY5IDguOTQpIj4yPC90ZXh0Pjwvc3ZnPg=="
+                                data-funcion="exponente_cuadrado" alt="" /> </button>
+                        <button class="key"> <img
+                                src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCI+PHBhdGggZD0iTTIyIDBoMnYyaC0yek0xOCAwaDJ2MmgtMnpNMTggNGgydjJoLTJ6TTIyIDRoMnYyaC0yeiIvPjxnPjxwYXRoIGQ9Ik0xIDZoMnYySDF6TTUgNmgydjJINXpNOSA2aDJ2Mkg5ek0xMyA2aDJ2MmgtMnpNMSAxMGgydjJIMXpNMTMgMThoMnYyaC0yek0xMyAxNGgydjJoLTJ6TTEzIDEwaDJ2MmgtMnpNMSAxNGgydjJIMXpNMSAxOGgydjJIMXpNNSAxOGgydjJINXpNOSAxOGgydjJIOXoiLz48L2c+PC9zdmc+"
+                                alt="" data-funcion="base_exponente" /> </button>
+                        <button class="key"> <img
+                                src="data:image/svg+xml;base64,PHN2ZyBpZD0ic3FydF9yb290IiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCI+PHRpdGxlPnNxcnQ8L3RpdGxlPjxyZWN0IHg9IjE0IiB5PSIxMCIgd2lkdGg9IjIiIGhlaWdodD0iMiIvPjxyZWN0IHg9IjE4IiB5PSIxMCIgd2lkdGg9IjIiIGhlaWdodD0iMiIvPjxyZWN0IHg9IjIyIiB5PSIxMCIgd2lkdGg9IjIiIGhlaWdodD0iMiIvPjxyZWN0IHg9IjIyIiB5PSIxNCIgd2lkdGg9IjIiIGhlaWdodD0iMiIvPjxyZWN0IHg9IjE0IiB5PSIxNCIgd2lkdGg9IjIiIGhlaWdodD0iMiIvPjxyZWN0IHg9IjE0IiB5PSIxOCIgd2lkdGg9IjIiIGhlaWdodD0iMiIvPjxyZWN0IHg9IjE4IiB5PSIxOCIgd2lkdGg9IjIiIGhlaWdodD0iMiIvPjxyZWN0IHg9IjIyIiB5PSIxOCIgd2lkdGg9IjIiIGhlaWdodD0iMiIvPjxwb2x5Z29uIHBvaW50cz0iMCAxMy41IDQgMTMuNSA2Ljc1IDE4IDEyIDUgMjQgNSAyNCA2LjUgMTMgNi41IDcuNSAyMCA2IDIwIDMgMTUgMCAxNSAwIDEzLjUiLz48L3N2Zz4="
+                                alt="" data-funcion="raiz_cuadrada" /> </button>
+                        <button class="key">e</button>
+                        <button class="key">4</button>
+                        <button class="key">5</button>
+                        <button class="key">6</button>
+                        <button class="key">+</button>
+                        <button class="key">−</button>
+                        <button class="key">&lt;</button>
+                        <button class="key">&gt;</button>
+                        <button class="key"><img
+                                src="data:image/svg+xml;base64,PHN2ZyBpZD0iZV90b190aGVfcG93ZXJfS29waWUiIGRhdGEtbmFtZT0iZV90b190aGVfcG93ZXIgS29waWUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgdmlld0JveD0iMCAwIDI0IDI0Ij48ZGVmcz48c3R5bGU+LmNscy0xe2ZvbnQtc2l6ZToxOXB4O2ZvbnQtZmFtaWx5Omdlb2dlYnJhLXNhbnMtc2VyaWYsIHNhbnMtc2VyaWY7fTwvc3R5bGU+PC9kZWZzPjx0aXRsZT5lX3Bvd2VyPC90aXRsZT48dGV4dCBjbGFzcz0iY2xzLTEiIHRyYW5zZm9ybT0idHJhbnNsYXRlKDMgMTkuNzUpIj5lPC90ZXh0PjxyZWN0IHg9IjE0IiB3aWR0aD0iMiIgaGVpZ2h0PSIyIi8+PHJlY3QgeD0iMTgiIHdpZHRoPSIyIiBoZWlnaHQ9IjIiLz48cmVjdCB4PSIyMiIgd2lkdGg9IjIiIGhlaWdodD0iMiIvPjxyZWN0IHg9IjIyIiB5PSI0IiB3aWR0aD0iMiIgaGVpZ2h0PSIyIi8+PHJlY3QgeD0iMTQiIHk9IjQiIHdpZHRoPSIyIiBoZWlnaHQ9IjIiLz48cmVjdCB4PSIxNCIgeT0iOCIgd2lkdGg9IjIiIGhlaWdodD0iMiIvPjxyZWN0IHg9IjE4IiB5PSI4IiB3aWR0aD0iMiIgaGVpZ2h0PSIyIi8+PHJlY3QgeD0iMjIiIHk9IjgiIHdpZHRoPSIyIiBoZWlnaHQ9IjIiLz48L3N2Zz4="
+                                alt="" data-funcion="euler_Exponente" /></button>
+                        <button class="key"> <img
+                                src="data:image/svg+xml;base64,PHN2ZyBpZD0ibl9yb290IiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCI+PHRpdGxlPm5fcm9vdDwvdGl0bGU+PHJlY3QgeD0iMTQiIHk9IjEwIiB3aWR0aD0iMiIgaGVpZ2h0PSIyIi8+PHJlY3QgeD0iMTgiIHk9IjEwIiB3aWR0aD0iMiIgaGVpZ2h0PSIyIi8+PHJlY3QgeD0iMjIiIHk9IjEwIiB3aWR0aD0iMiIgaGVpZ2h0PSIyIi8+PHJlY3QgeD0iMjIiIHk9IjE0IiB3aWR0aD0iMiIgaGVpZ2h0PSIyIi8+PHJlY3QgeD0iMTQiIHk9IjE0IiB3aWR0aD0iMiIgaGVpZ2h0PSIyIi8+PHJlY3QgeD0iMTQiIHk9IjE4IiB3aWR0aD0iMiIgaGVpZ2h0PSIyIi8+PHJlY3QgeD0iMTgiIHk9IjE4IiB3aWR0aD0iMiIgaGVpZ2h0PSIyIi8+PHJlY3QgeD0iMjIiIHk9IjE4IiB3aWR0aD0iMiIgaGVpZ2h0PSIyIi8+PHJlY3QgeD0iNCIgeT0iNCIgd2lkdGg9IjIiIGhlaWdodD0iMiIvPjxyZWN0IHk9IjQiIHdpZHRoPSIyIiBoZWlnaHQ9IjIiLz48cmVjdCB5PSI4IiB3aWR0aD0iMiIgaGVpZ2h0PSIyIi8+PHJlY3QgeD0iNCIgeT0iOCIgd2lkdGg9IjIiIGhlaWdodD0iMiIvPjxwb2x5Z29uIHBvaW50cz0iMCAxMy41IDQgMTMuNSA2Ljc1IDE4IDEyIDUgMjQgNSAyNCA2LjUgMTMgNi41IDcuNSAyMCA2IDIwIDMgMTUgMCAxNSAwIDEzLjUiLz48L3N2Zz4="
+                                alt="" data-funcion="raiz_indicar_radical" /></button>
+
+                        <button class="key">1</button>
+                        <button class="key">2</button>
+                        <button class="key">3</button>
+                        <button class="key">=</button>
+                        <button class="key"> <img
+                                src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCI+PHBhdGggZmlsbD0ibm9uZSIgZD0iTTAgMGgyNHYyNEgwVjB6Ii8+PHBhdGggZD0iTTIyIDNIN2MtLjY5IDAtMS4yMy4zNS0xLjU5Ljg4TDAgMTJsNS40MSA4LjExYy4zNi41My45Ljg5IDEuNTkuODloMTVjMS4xIDAgMi0uOSAyLTJWNWMwLTEuMS0uOS0yLTItMnptMCAxNkg3LjA3TDIuNCAxMmw0LjY2LTdIMjJ2MTR6bS0xMS41OS0yTDE0IDEzLjQxIDE3LjU5IDE3IDE5IDE1LjU5IDE1LjQxIDEyIDE5IDguNDEgMTcuNTkgNyAxNCAxMC41OSAxMC40MSA3IDkgOC40MSAxMi41OSAxMiA5IDE1LjU5eiIvPjwvc3ZnPg=="
+                                alt="" data-funcion="Borrar" /> </button>
+                        <button class="key">(</button>
+                        <button class="key">)</button>
+                        <button class="key"> <img
+                                src="data:image/svg+xml;base64,PHN2ZyBpZD0iYWJzIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCI+PHRpdGxlPmFiczwvdGl0bGU+PHJlY3QgeD0iNSIgeT0iNSIgd2lkdGg9IjIiIGhlaWdodD0iMiIvPjxyZWN0IHg9IjkiIHk9IjUiIHdpZHRoPSIyIiBoZWlnaHQ9IjIiLz48cmVjdCB4PSIxMyIgeT0iNSIgd2lkdGg9IjIiIGhlaWdodD0iMiIvPjxyZWN0IHg9IjE3IiB5PSI1IiB3aWR0aD0iMiIgaGVpZ2h0PSIyIi8+PHJlY3QgeD0iNSIgeT0iOSIgd2lkdGg9IjIiIGhlaWdodD0iMiIvPjxyZWN0IHg9IjE3IiB5PSIxNyIgd2lkdGg9IjIiIGhlaWdodD0iMiIvPjxyZWN0IHg9IjE3IiB5PSIxMyIgd2lkdGg9IjIiIGhlaWdodD0iMiIvPjxyZWN0IHg9IjE3IiB5PSI5IiB3aWR0aD0iMiIgaGVpZ2h0PSIyIi8+PHJlY3QgeD0iNSIgeT0iMTMiIHdpZHRoPSIyIiBoZWlnaHQ9IjIiLz48cmVjdCB4PSI1IiB5PSIxNyIgd2lkdGg9IjIiIGhlaWdodD0iMiIvPjxyZWN0IHg9IjkiIHk9IjE3IiB3aWR0aD0iMiIgaGVpZ2h0PSIyIi8+PHJlY3QgeD0iMTMiIHk9IjE3IiB3aWR0aD0iMiIgaGVpZ2h0PSIyIi8+PHJlY3QgeT0iMyIgd2lkdGg9IjIiIGhlaWdodD0iMTgiLz48cmVjdCB4PSIyMiIgeT0iMyIgd2lkdGg9IjIiIGhlaWdodD0iMTgiLz48L3N2Zz4="
+                                data-funcion="valor_absoluto" />
+                        </button>
+                        <button class="key">,</button>
+                        <button class="key">0</button>
+                        <button class="key">.</button>
+                        <button class="key"> <img
+                                src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCI+PHBhdGggZmlsbD0ibm9uZSIgZD0iTTAgMGgyNHYyNEgwVjB6Ii8+PHBhdGggZD0iTTE1LjQxIDE2LjU5IDEwLjgzIDEybDQuNTgtNC41OUwxNCA2bC02IDYgNiA2IDEuNDEtMS40MXoiLz48L3N2Zz4="
+                                alt="ohh ! no aparecio" data-funcion="izquierda" /> </button>
+                        <button class="key"> <img
+                                src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCI+PHBhdGggZmlsbD0ibm9uZSIgZD0iTTAgMGgyNHYyNEgwVjB6Ii8+PHBhdGggZD0iTTguNTkgMTYuNTkgMTMuMTcgMTIgOC41OSA3LjQxIDEwIDZsNiA2LTYgNi0xLjQxLTEuNDF6Ii8+PC9zdmc+"
+                                alt="" data-funcion="derecha" /> </button>
+                        <button class="key"> <img
+                                src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCI+PHBhdGggZmlsbD0ibm9uZSIgZD0iTTAgMGgyNHYyNEgwVjB6Ii8+PHBhdGggZD0iTTE5IDd2NEg1LjgzbDMuNTgtMy41OUw4IDZsLTYgNiA2IDYgMS40MS0xLjQxTDUuODMgMTNIMjFWN2gtMnoiLz48L3N2Zz4="
+                                alt="" data-funcion="enviar" /> </button>
+                    </div>
+
+                    <!-- Teclado funciones-->
+                    <div id="functionKeyboard" class="calculator-keypad" style="display: none;">
+                        <!-- Primera fila -->
+                        <button class="key">sen</button>
+                        <button class="key">cos</button>
+                        <button class="key">tg</button>
+                        <button class="key">%</button>
+                        <button class="key">!</button>
+                        <button class="key">$</button>
+                        <button class="key">°</button>
+                        <button class="key">{</button>
+                        <button class="key">}</button>
+                        <button class="key">sen⁻¹</button>
+                        <button class="key">cos⁻¹</button>
+                        <button class="key">tg⁻¹</button>
+                        <button class="key">10ˣ</button>
+                        <button class="key">𝑑/𝑑𝑥</button>
+                        <button class="key">∫</button>
+                        <button class="key">𝑖</button>
+                        <button class="key"> <img
+                                src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCI+PHBhdGggZmlsbD0ibm9uZSIgZD0iTTAgMGgyNHYyNEgwVjB6Ii8+PHBhdGggZD0iTTIyIDNIN2MtLjY5IDAtMS4yMy4zNS0xLjU5Ljg4TDAgMTJsNS40MSA4LjExYy4zNi41My45Ljg5IDEuNTkuODloMTVjMS4xIDAgMi0uOSAyLTJWNWMwLTEuMS0uOS0yLTItMnptMCAxNkg3LjA3TDIuNCAxMmw0LjY2LTdIMjJ2MTR6bS0xMS41OS0yTDE0IDEzLjQxIDE3LjU5IDE3IDE5IDE1LjU5IDE1LjQxIDEyIDE5IDguNDEgMTcuNTkgNyAxNCAxMC41OSAxMC40MSA3IDkgOC40MSAxMi41OSAxMiA5IDE1LjU5eiIvPjwvc3ZnPg=="
+                                alt="" data-funcion="Borrar" /> </button>
+                        <button class="key">ln</button>
+                        <button class="key">log₁₀</button>
+                        <button class="key">logₑ</button>
+                        <button class="key">e</button>
+                        <button class="key">≤</button>
+                        <button class="key">≥</button>
+
+                    </div>
+
+                    <!-- Teclado alfabético -->
+                    <div id="alphaKeyboard" class="calculator-keypad" style="display: none;">
+                        <button class="key">q</button>
+                        <button class="key">w</button>
+                        <button class="key">e</button>
+                        <button class="key">r</button>
+                        <button class="key">t</button>
+                        <button class="key">y</button>
+                        <button class="key">u</button>
+                        <button class="key">i</button>
+                        <button class="key">o</button>
+                        <button class="key">p</button>
+
+                        <button class="key">a</button>
+                        <button class="key">s</button>
+                        <button class="key">d</button>
+                        <button class="key">f</button>
+                        <button class="key">g</button>
+                        <button class="key">h</button>
+                        <button class="key">j</button>
+                        <button class="key">k</button>
+
+                        <button class="key">l</button>
+                        <button class="key special">ñ</button>
+
+                        <button class="key">z</button>
+                        <button class="key">x</button>
+                        <button class="key">c</button>
+                        <button class="key">v</button>
+                        <button class="key">b</button>
+                        <button class="key">n</button>
+                        <button class="key">m</button>
+
+                        <button class="key special" data-funcion="shift">shift</button>
+
+
+
+                        <button class="key ">,</button>
+                        <button class="key space" data-funcion="espacio"> </button>
+                        <button class="key">(</button>
+                        <button class="key">)</button>
+                        <button class="key"> <img
+                                src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCI+PHBhdGggZmlsbD0ibm9uZSIgZD0iTTAgMGgyNHYyNEgwVjB6Ii8+PHBhdGggZD0iTTIyIDNIN2MtLjY5IDAtMS4yMy4zNS0xLjU5Ljg4TDAgMTJsNS40MSA4LjExYy4zNi41My45Ljg5IDEuNTkuODloMTVjMS4xIDAgMi0uOSAyLTJWNWMwLTEuMS0uOS0yLTItMnptMCAxNkg3LjA3TDIuNCAxMmw0LjY2LTdIMjJ2MTR6bS0xMS41OS0yTDE0IDEzLjQxIDE3LjU5IDE3IDE5IDE1LjU5IDE1LjQxIDEyIDE5IDguNDEgMTcuNTkgNyAxNCAxMC41OSAxMC40MSA3IDkgOC40MSAxMi41OSAxMiA5IDE1LjU5eiIvPjwvc3ZnPg=="
+                                alt="" data-funcion="Borrar" /> </button>
+
+
+                        <button class="key">≤</button>
+                        <button class="key">≥</button>
+
+
+
+                    </div>
+
+                    <!-- Teclado de símbolos -->
+                    <div id="symbolKeyboard" class="calculator-keypad" style="display: none;">
+                        <button class="key">@</button>
+                        <button class="key">#</button>
+                        <button class="key">$</button>
+                        <button class="key">%</button>
+                        <button class="key">&</button>
+                        <button class="key">*</button>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+        <div class="right-container">
+            <div class="input-container">
+                <h3>Intervalo (a,)</h3>
+                <input type="text" class="calculator-input" id="initial-point" placeholder="Ingrese el punto inicial1">
+                <h3>Intervalo (,b)</h3>
+                <input type="text" class="calculator-input" id="initial-point2" placeholder="Ingrese el punto inicial2">
+                <h3>Subintervalos (n)</h3>
+                <input type="text" class="calculator-input" id="initial-point3" placeholder="Ingrese el punto inicial2">
+
+
+            </div>
+            <div class="right-container" style="max-height: 300px; overflow-y: auto;">
+                <h3>Resultados</h3>
+            </div>
+            <table class="table table-bordered table-striped-columns" id="resultadoTabla">
+                <thead>
+                    <tr class="table-Success">
+                        <th>Resultado</th>
+                        <th>Area bajo la curva</th>
+                        <th>convergencia</th>
+                        <th>Error Relativo</th>
+
+
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- Las filas de la tabla se llenarán dinámicamente -->
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Script para recargar las imágenes y gráficos -->
+    <script>
+        function showKeyboard(keyboard) {
+            const keyboards = document.querySelectorAll('.calculator-keypad');
+            keyboards.forEach(kb => {
+                kb.style.display = 'none';
+            });
+            const selectedKeyboard = document.getElementById(keyboard);
+            if (selectedKeyboard) {
+                selectedKeyboard.style.display = 'grid';
+            }
+        }
+    </script>
+
+
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
+        crossorigin="anonymous"></script>
+
+    <script src="script.js"></script>
+
+    <script src="EnvioTrapecio.js"> </script>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/hammerjs@2.0.8"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-zoom@2.0.1"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjs/11.8.0/math.min.js"></script>
+
+</body>
+
+</html>
