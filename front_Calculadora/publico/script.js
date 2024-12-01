@@ -4,17 +4,17 @@ let activeInput = null;
 // Función para registrar todos los inputs que usarán el teclado
 function registerCalculatorInputs() {
     const calculatorInputs = document.querySelectorAll('.calculator-input');
-    
+
     calculatorInputs.forEach(input => {
         // Cambiar el tipo de input a text para permitir selección
         input.type = 'text';
         // Agregar atributos para simular comportamiento numérico
         input.inputMode = 'decimal';
         input.pattern = '[0-9]*';
-        
+
         input.removeEventListener('focus', inputFocusHandler);
         input.addEventListener('focus', inputFocusHandler);
-        
+
     });
 }
 function inputFocusHandler(event) {
@@ -130,6 +130,24 @@ function handleBackspace() {
         }
     }
 }
+
+// Función para mover el cursor
+function handleMoveCursor(direction) {
+    if (activeInput) {
+        try {
+            const currentPosition = activeInput.selectionStart || 0;
+            const newPosition = direction === 'left'
+                ? Math.max(currentPosition - 1, 0)  // Mover a la izquierda
+                : Math.min(currentPosition + 1, activeInput.value.length); // Mover a la derecha
+
+            activeInput.setSelectionRange(newPosition, newPosition);
+            activeInput.focus(); // Mantener el foco
+        } catch (error) {
+            console.warn('Error al mover el cursor:', error);
+        }
+    }
+}
+
 
 // Función para agregar el evento de retroceso a todos los botones
 function addBackspaceEventListeners() {
