@@ -1,8 +1,10 @@
 import numpy as np
 from flask import Flask, request, jsonify
+from flask_cors import CORS
 import sympy as sp
 
 app = Flask(__name__)
+CORS(app)
 
 # Función para evaluar la función en un valor x
 def evaluar_funcion(funcion_str, x):
