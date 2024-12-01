@@ -1,8 +1,8 @@
 document.addEventListener("DOMContentLoaded", function () {
     const enviarButton = document.querySelector('.key img[data-funcion="enviar"]').parentElement;
-    const ctx = document.getElementById('grafico').getContext('2d');
-    let chart;
+    let ggbAPI = null;
     let dataGlobal;
+
 
     // Límites iniciales para los ejes
     let xMin = -14;
