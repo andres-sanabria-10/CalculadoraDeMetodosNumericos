@@ -85,6 +85,9 @@ document.addEventListener("DOMContentLoaded", function () {
                 ggbAPI.evalCommand(`SetPointSize(${pointNameX0Nuevo}, 4)`);
                 ggbAPI.evalCommand(`SetColor(${pointNameX0Nuevo}, 0, 0, 255)`); 
 
+                ggbAPI.evalCommand(`ShowLabel(${pointNameX0}, false)`);
+                ggbAPI.evalCommand(`ShowLabel(${pointNameX0Nuevo}, false)`);         
+
                 ggbAPI.evalCommand(`${lineName} = Line(${pointNameX0}, ${pointNameX0Nuevo})`);
                 ggbAPI.evalCommand(`SetLineStyle(${lineName}, 2)`); 
 
