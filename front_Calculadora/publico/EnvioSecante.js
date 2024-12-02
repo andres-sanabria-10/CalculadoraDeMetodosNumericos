@@ -1,118 +1,107 @@
 document.addEventListener("DOMContentLoaded", function () {
     const enviarButton = document.querySelector('.key img[data-funcion="enviar"]').parentElement;
-    const ctx = document.getElementById('grafico').getContext('2d');
-    let chart;
+    let ggbAPI = null;
     let dataGlobal;
 
-    // Límites iniciales para los ejes
-    let xMin = -14;
-    let xMax = 18;
-    let yMin = -10;
-    let yMax = 12;
-
-
-
-    function renderChart(data, label) {
-        if (chart) {
-            chart.destroy();
-        }
-        chart = new Chart(ctx, {
-            type: 'line',
-            data: {
-                datasets: [{
-                    label: label,
-                    data: data,
-                    borderColor: 'rgb(208, 46, 11)',
-                    tension: 0.1,
-                    pointRadius: 0,
-                    borderWidth: 2
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                scales: {
-                    x: {
-                        type: 'linear',
-                        position: 'center',
-                        min: xMin,
-                        max: xMax,
-                        grid: {
-                            color: 'rgba(0, 0, 0, 0.1)',
-                            drawTicks: true
-                        },
-                        ticks: {
-                            stepSize: 2,
-                            callback: function (value) {
-                                return value.toString();
-                            }
-                        }
-                    },
-                    y: {
-                        type: 'linear',
-                        position: 'center',
-                        min: yMin,
-                        max: yMax,
-                        grid: {
-                            color: 'rgba(0, 0, 0, 0.1)',
-                            drawTicks: true
-                        },
-                        ticks: {
-                            stepSize: 2,
-                            callback: function (value) {
-                                return value.toString();
-                            }
-                        }
+    // Inicializa GeoGebra sin ninguna gráfica
+    function inicializarGeoGebra() {
+        try {
+            const ggbApp = new GGBApplet(
+                {
+                    appName: "graphing",
+                    width: 400,
+                    height: 300,
+                    showToolBar: false,
+                    showAlgebraInput: false,
+                    showMenuBar: false,
+                    appletOnLoad: function () {
+                        ggbAPI = window["ggbApplet"];
+                        console.log("GeoGebra cargado correctamente.");
                     }
                 },
-                plugins: {
-                    legend: {
-                        display: true,
-                        position: 'top'
-                    }
-                }
-            }
-        });
+                true
+            );
+            ggbApp.inject('ggb-element');
+        } catch (error) {
+            console.error("Error al inicializar GeoGebra:", error);
+        }
     }
 
-    // Evento para zoom con la rueda del mouse
-    document.getElementById('grafico').addEventListener('wheel', function (event) {
-        event.preventDefault(); // Evita el desplazamiento de la página al hacer zoom
-
-        const zoomFactor = 0.1; // Factor de zoom
-        const delta = event.deltaY;
-
-        if (delta < 0) { // Zoom in
-            xMin += zoomFactor;
-            xMax -= zoomFactor;
-            yMin += zoomFactor;
-            yMax -= zoomFactor;
-        } else { // Zoom out
-            xMin -= zoomFactor;
-            xMax += zoomFactor;
-            yMin -= zoomFactor;
-            yMax += zoomFactor;
+    // Agrega una función a GeoGebra
+    function graficarFuncion(func) {
+        try {
+            if (ggbAPI) {
+                ggbAPI.reset(); // Limpia el canvas antes de graficar
+                ggbAPI.evalCommand(func);
+                console.log(`Función graficada: ${func}`);
+            } else {
+                console.error("GeoGebra aún no está inicializado.");
+            }
+        } catch (error) {
+            console.error("Error al graficar la función en GeoGebra:", error);
         }
+    }
 
-        renderChart(chart.data.datasets[0].data, chart.data.datasets[0].label);
+    inicializarGeoGebra();
+
+    // Manejar clic en el botón "Función Original"
+    document.getElementById('btnFuncionOriginal').addEventListener('click', function () {
+        const equationInput = document.getElementById('equation-input').value;
+        if (!equationInput) {
+            alert("Por favor, ingrese una función válida.");
+            return;
+        }
+        graficarFuncion(equationInput);
     });
 
-
-    function generarPuntosFuncionOriginal(funcion, min, max, puntos = 100) {
-        const datos = [];
-        const paso = (max - min) / puntos;
-
-        for (let x = min; x <= max; x += paso) {
-            try {
-                // Usar math.js o una biblioteca similar para evaluar la función
-                const y = eval(funcion.replace(/x/g, `(${x})`));
-                datos.push({ x: x, y: y });
-            } catch (error) {
-                console.error('Error al evaluar la función:', error);
-            }
+    document.getElementById('btnIteraciones').addEventListener('click', function () {
+        const equationInput = document.getElementById('equation-input').value;
+        if (!equationInput) {
+            alert("Por favor, ingrese una función válida.");
+            return;
         }
-        return datos;
-    }
+
+        graficarFuncion(equationInput);
+
+        if (dataGlobal && dataGlobal.iteraciones) {
+
+            // Obtener los valores de punto_a y punto_b
+            const puntoA = dataGlobal.iteraciones[0].punto_a;
+            const puntoB = dataGlobal.iteraciones[0].punto_b;
+
+            // Graficar el punto A
+            const pointNameA = "PuntoA_0";
+            ggbAPI.evalCommand(`${pointNameA} = (${puntoA}, 0)`);
+            ggbAPI.evalCommand(`SetPointSize(${pointNameA}, 4)`);
+            ggbAPI.evalCommand(`SetColor(${pointNameA}, 255, 0, 0)`);  
+            ggbAPI.evalCommand(`ShowLabel(${pointNameA}, false)`); 
+
+            // Graficar el punto B
+            const pointNameB = "PuntoB_0";
+            ggbAPI.evalCommand(`${pointNameB} = (${puntoB}, 0)`);  
+            ggbAPI.evalCommand(`SetPointSize(${pointNameB}, 4)`);
+            ggbAPI.evalCommand(`SetColor(${pointNameB}, 255, 0, 0)`); 
+            ggbAPI.evalCommand(`ShowLabel(${pointNameB}, false)`); 
+
+            // Graficar los puntos medios 
+            dataGlobal.iteraciones.forEach((iteracion, index) => {
+                const puntoMedio = iteracion.punto_medio;
+                const pointNameMedio = `PuntoMedio_${index}`;
+
+                // Graficar el punto medio
+                ggbAPI.evalCommand(`${pointNameMedio} = (${puntoMedio}, 0)`);  
+                ggbAPI.evalCommand(`SetPointSize(${pointNameMedio}, 4)`);
+                ggbAPI.evalCommand(`SetColor(${pointNameMedio}, 0, 0, 255)`);  
+                ggbAPI.evalCommand(`ShowLabel(${pointNameMedio}, false)`);
+
+                console.log(`Iteración ${index}: Punto Medio (${puntoMedio})`);
+            });
+
+
+            console.log("Puntos añadidos");
+        }
+        
+    });
 
     enviarButton.addEventListener('click', function () {
         const equationInput = document.getElementById('equation-input').value;
@@ -167,6 +156,8 @@ document.addEventListener("DOMContentLoaded", function () {
             .then(data => {
                 console.log('Éxito:', data);
                 alert(data.mensaje);
+
+                dataGlobal = data;
 
                 // Llenar la tabla de iteraciones
                 const iteracionesTableBody = document.querySelector('.table tbody');
