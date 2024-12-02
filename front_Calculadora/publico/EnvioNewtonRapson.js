@@ -58,6 +58,7 @@ document.addEventListener("DOMContentLoaded", function () {
         graficarFuncion(equationInput);
     });
 
+
     document.getElementById('btnIteraciones').addEventListener('click', function () {
         const equationInput = document.getElementById('equation-input').value;
         if (!equationInput) {
@@ -68,45 +69,55 @@ document.addEventListener("DOMContentLoaded", function () {
         graficarFuncion(equationInput);
 
         if (dataGlobal && dataGlobal.iteraciones) {
+            
+            // Graficar las iteraciones
+            const colors = [
+                [255, 0, 0],   // Rojo
+                [0, 255, 0],   // Verde
+                [0, 0, 255],   // Azul
+                [255, 165, 0], // Naranja
+                [128, 0, 128], // Púrpura
+                [0, 255, 255], // Cian
+                [255, 255, 0]  // Amarillo
+            ];
+            
 
-            // Obtener los valores de punto_a y punto_b
-            const puntoA = dataGlobal.iteraciones[0].punto_a;
-            const puntoB = dataGlobal.iteraciones[0].punto_b;
-
-            // Graficar el punto A
-            const pointNameA = "PuntoA_0";
-            ggbAPI.evalCommand(`${pointNameA} = (${puntoA}, 0)`);
-            ggbAPI.evalCommand(`SetPointSize(${pointNameA}, 4)`);
-            ggbAPI.evalCommand(`SetColor(${pointNameA}, 255, 0, 0)`);  
-            ggbAPI.evalCommand(`ShowLabel(${pointNameA}, false)`); 
-
-            // Graficar el punto B
-            const pointNameB = "PuntoB_0";
-            ggbAPI.evalCommand(`${pointNameB} = (${puntoB}, 0)`);  
-            ggbAPI.evalCommand(`SetPointSize(${pointNameB}, 4)`);
-            ggbAPI.evalCommand(`SetColor(${pointNameB}, 255, 0, 0)`); 
-            ggbAPI.evalCommand(`ShowLabel(${pointNameB}, false)`); 
-
-            // Graficar los puntos medios 
+            // Iterar sobre las iteraciones y graficar los puntos
             dataGlobal.iteraciones.forEach((iteracion, index) => {
-                const puntoMedio = iteracion.punto_medio;
-                const pointNameMedio = `PuntoMedio_${index}`;
+                const x_i = iteracion.x_i;
+                const pointName = `Punto_${index}`;
 
-                // Graficar el punto medio
-                ggbAPI.evalCommand(`${pointNameMedio} = (${puntoMedio}, 0)`);  
-                ggbAPI.evalCommand(`SetPointSize(${pointNameMedio}, 4)`);
-                ggbAPI.evalCommand(`SetColor(${pointNameMedio}, 0, 0, 255)`);  
-                ggbAPI.evalCommand(`ShowLabel(${pointNameMedio}, false)`);
+                // Graficar el punto 
+                ggbAPI.evalCommand(`${pointName} = (${x_i}, 0)`);
+                ggbAPI.evalCommand(`SetPointSize(${pointName}, 4)`);
+                ggbAPI.evalCommand(`SetColor(${pointName}, ${colors[index % colors.length].join(', ')})`);
+                ggbAPI.evalCommand(`ShowLabel(${pointName}, false)`);
 
-                console.log(`Iteración ${index}: Punto Medio (${puntoMedio})`);
+                // Graficar la línea vertical 
+                const lineName = `Linea_${index}`;
+                ggbAPI.evalCommand(`${lineName}: x = ${x_i}`);
+                const color = colors[index % colors.length];
+                ggbAPI.setLabelVisible(lineName, false);
+                ggbAPI.setColor(lineName, ...color);                              
+                ggbAPI.setLineThickness(lineName, 2);
+
+                // Crear texto de información (iteración)
+                const labelName = `Label_${index}`;
+                const label = `I: ${index + 1}`;
+                ggbAPI.evalCommand(`${labelName} = Text("${label}", (${x_i}, 0))`);
+                ggbAPI.setVisible(labelName, true);
+
+                // Hacer visible la etiqueta al pasar el mouse por encima de la línea
+                ggbAPI.registerObjectUpdateListener(lineName, () => {
+                    const isMouseOver = ggbAPI.isObjectUnderMouse(lineName);
+                    ggbAPI.setVisible(labelName, isMouseOver);
+                });
             });
-
 
             console.log("Puntos añadidos");
         }
         
     });
-
 
     enviarButton.addEventListener('click', function () {
         const equationInput = document.getElementById('equation-input').value;
