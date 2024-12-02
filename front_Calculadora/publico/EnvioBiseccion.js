@@ -10,7 +10,7 @@ document.addEventListener("DOMContentLoaded", function () {
                 {
                     appName: "graphing",
                     width: 400,
-                    height: 200,
+                    height: 300,
                     showToolBar: false,
                     showAlgebraInput: false,
                     showMenuBar: false,
@@ -61,41 +61,46 @@ document.addEventListener("DOMContentLoaded", function () {
             return;
         }
 
-        // Primero, graficar la función original
         graficarFuncion(equationInput);
 
-        // Luego, agregar los puntos de iteración al gráfico
-        if (dataGlobal && dataGlobal.Iteraciones) {
-            dataGlobal.Iteraciones.forEach((iteracion, index) => {
-                const x0 = iteracion.X0;
-                const x0Nuevo = iteracion.X0_nuevo;
-                const y0 = iteracion.valor_funcion;
+        if (dataGlobal && dataGlobal.iteraciones) {
 
-                // Poner el punto X0 sobre la función original
-                const pointNameX0 = `PuntoX0_${index}`;
-                ggbAPI.evalCommand(`${pointNameX0} = (${x0}, ${y0})`); // Punto en la función
-                ggbAPI.evalCommand(`SetPointSize(${pointNameX0}, 5)`); // Tamaño del punto
-                ggbAPI.evalCommand(`SetColor(${pointNameX0}, 255, 0, 0)`); // Rojo
-                ggbAPI.evalCommand(`SetLabelMode(${pointNameX0}, 0)`); // Ocultar nombre
+            // Obtener los valores de punto_a y punto_b
+            const puntoA = dataGlobal.iteraciones[0].punto_a;
+            const puntoB = dataGlobal.iteraciones[0].punto_b;
 
-                // Poner el punto X0 nuevo sobre el eje Y
-                const pointNameX0Nuevo = `PuntoX0Nuevo_${index}`;
-                ggbAPI.evalCommand(`${pointNameX0Nuevo} = (${x0Nuevo}, 0)`); // Punto en Y=0
-                ggbAPI.evalCommand(`SetPointSize(${pointNameX0Nuevo}, 5)`); // Tamaño del punto
-                ggbAPI.evalCommand(`SetColor(${pointNameX0Nuevo}, 0, 0, 255)`); // Azul
-                ggbAPI.evalCommand(`SetLabelMode(${pointNameX0Nuevo}, 0)`); // Ocultar nombre
+            // Graficar el punto A
+            const pointNameA = "PuntoA_0";
+            ggbAPI.evalCommand(`${pointNameA} = (${puntoA}, 0)`);
+            ggbAPI.evalCommand(`SetPointSize(${pointNameA}, 4)`);
+            ggbAPI.evalCommand(`SetColor(${pointNameA}, 255, 0, 0)`);  
+            ggbAPI.evalCommand(`ShowLabel(${pointNameA}, false)`); 
 
+            // Graficar el punto B
+            const pointNameB = "PuntoB_0";
+            ggbAPI.evalCommand(`${pointNameB} = (${puntoB}, 0)`);  
+            ggbAPI.evalCommand(`SetPointSize(${pointNameB}, 4)`);
+            ggbAPI.evalCommand(`SetColor(${pointNameB}, 255, 0, 0)`); 
+            ggbAPI.evalCommand(`ShowLabel(${pointNameB}, false)`); 
 
-                // Crear línea entre X0 y X0Nuevo (Línea infinita)
-                const lineName = `LineaIteracion_${index}`;
-                ggbAPI.evalCommand(`${lineName} = Line(${pointNameX0}, (${x0Nuevo}, 0))`);
-                ggbAPI.evalCommand(`SetColor(${lineName}, 0, 255, 0)`); // Color verde
-                ggbAPI.evalCommand(`SetLineThickness(${lineName}, 1)`); // Grosor de la línea
+            // Graficar los puntos medios 
+            dataGlobal.iteraciones.forEach((iteracion, index) => {
+                const puntoMedio = iteracion.punto_medio;
+                const pointNameMedio = `PuntoMedio_${index}`;
 
+                // Graficar el punto medio
+                ggbAPI.evalCommand(`${pointNameMedio} = (${puntoMedio}, 0)`);  
+                ggbAPI.evalCommand(`SetPointSize(${pointNameMedio}, 4)`);
+                ggbAPI.evalCommand(`SetColor(${pointNameMedio}, 0, 0, 255)`);  
+                ggbAPI.evalCommand(`ShowLabel(${pointNameMedio}, false)`);
+
+                console.log(`Iteración ${index}: Punto Medio (${puntoMedio})`);
             });
 
-            console.log("Puntos de iteración añadidos.");
+
+            console.log("Puntos añadidos");
         }
+        
     });
 
 
@@ -154,12 +159,14 @@ document.addEventListener("DOMContentLoaded", function () {
                 console.log('Éxito:', data);
                 alert(data.mensaje);
 
+                dataGlobal = data;
+
                 // Llenar la tabla de iteraciones
                 const iteracionesTableBody = document.querySelector('.table tbody');
                 iteracionesTableBody.innerHTML = ''; // Limpiar la tabla antes de llenarla
 
                 // Asegúrate de que `data.Iteraciones` existe y es un array
-if (Array.isArray(data.iteraciones)) {
+    if (Array.isArray(data.iteraciones)) {
     data.iteraciones.forEach(iteracion => {
         const newRow = document.createElement('tr');
         newRow.innerHTML = `
