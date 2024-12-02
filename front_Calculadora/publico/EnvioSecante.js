@@ -34,6 +34,7 @@ document.addEventListener("DOMContentLoaded", function () {
                 ggbAPI.reset(); // Limpia el canvas antes de graficar
                 ggbAPI.evalCommand(func);
                 console.log(`Función graficada: ${func}`);
+                
             } else {
                 console.error("GeoGebra aún no está inicializado.");
             }
@@ -65,41 +66,61 @@ document.addEventListener("DOMContentLoaded", function () {
 
         if (dataGlobal && dataGlobal.iteraciones) {
 
-            // Obtener los valores de punto_a y punto_b
-            const puntoA = dataGlobal.iteraciones[0].punto_a;
-            const puntoB = dataGlobal.iteraciones[0].punto_b;
+            // Graficar las iteraciones
+            const colors = [
+                [255, 0, 0],   // Rojo
+                [0, 255, 0],   // Verde
+                [0, 0, 255],   // Azul
+                [255, 165, 0], // Naranja
+                [128, 0, 128], // Púrpura
+                [0, 255, 255], // Cian
+                [255, 255, 0]  // Amarillo
+            ];
 
-            // Graficar el punto A
-            const pointNameA = "PuntoA_0";
-            ggbAPI.evalCommand(`${pointNameA} = (${puntoA}, 0)`);
-            ggbAPI.evalCommand(`SetPointSize(${pointNameA}, 4)`);
-            ggbAPI.evalCommand(`SetColor(${pointNameA}, 255, 0, 0)`);  
-            ggbAPI.evalCommand(`ShowLabel(${pointNameA}, false)`); 
 
-            // Graficar el punto B
-            const pointNameB = "PuntoB_0";
-            ggbAPI.evalCommand(`${pointNameB} = (${puntoB}, 0)`);  
-            ggbAPI.evalCommand(`SetPointSize(${pointNameB}, 4)`);
-            ggbAPI.evalCommand(`SetColor(${pointNameB}, 255, 0, 0)`); 
-            ggbAPI.evalCommand(`ShowLabel(${pointNameB}, false)`); 
-
-            // Graficar los puntos medios 
             dataGlobal.iteraciones.forEach((iteracion, index) => {
-                const puntoMedio = iteracion.punto_medio;
-                const pointNameMedio = `PuntoMedio_${index}`;
+                const x0 = iteracion.x0;
+                const x1 = iteracion.x1;
 
-                // Graficar el punto medio
-                ggbAPI.evalCommand(`${pointNameMedio} = (${puntoMedio}, 0)`);  
-                ggbAPI.evalCommand(`SetPointSize(${pointNameMedio}, 4)`);
-                ggbAPI.evalCommand(`SetColor(${pointNameMedio}, 0, 0, 255)`);  
-                ggbAPI.evalCommand(`ShowLabel(${pointNameMedio}, false)`);
+                const puntoX0 = `PuntoX0_${index+1}`;
+                const puntoX1 = `PuntoX1_${index+1}`;
+                const secante = `Secante_${index+1}`;
+                
+                ggbAPI.evalCommand(`${puntoX0} = (${x0}, f(${x0}))`);
+                ggbAPI.evalCommand(`${puntoX1} = (${x1}, f(${x1}))`);
+                ggbAPI.evalCommand(`${secante} = Line(${puntoX0}, ${puntoX1})`);
 
-                console.log(`Iteración ${index}: Punto Medio (${puntoMedio})`);
+                ggbAPI.setLabelVisible(puntoX0, false);
+                ggbAPI.setLabelVisible(puntoX1, false);
+    
+                const color = colors[index % colors.length];
+                ggbAPI.setLabelVisible(secante, false);
+                ggbAPI.setColor(secante, ...color);
+                ggbAPI.setLineThickness(secante, 2);
+
+                // Establecer el color de los puntos 
+                ggbAPI.setColor(puntoX0, ...color);
+                ggbAPI.setColor(puntoX1, ...color);
+
+                // Crear el texto de información 
+                const labelName = `Label_${index+1}`; 
+                const label = `I: ${index+1}`; 
+                ggbAPI.evalCommand(`${labelName}=Text("${label}", (${x0}, 0))`); 
+                ggbAPI.setVisible(labelName, true);
+                ggbAPI.setColor(labelName,...color);
+
+                // Agregar el evento para mostrar/ocultar la etiqueta
+                ggbAPI.registerObjectUpdateListener(secante, () => {
+                    const isMouseOver = ggbAPI.isObjectUnderMouse(secante);
+                    console.log(`Mouse sobre ${secante}: ${isMouseOver}`);
+                    ggbAPI.setVisible(labelName, isMouseOver);
+                });
             });
-
 
             console.log("Puntos añadidos");
         }
+
+
         
     });
 
@@ -192,25 +213,10 @@ document.addEventListener("DOMContentLoaded", function () {
                 `;
                 resultadoTableBody.appendChild(resultadoRow);
 
-                // Renderizar el gráfico de iteraciones
-                const iteracionesData = data.iteraciones.map(iteracion => ({
-                    x: iteracion.PuntoMedio, // Aquí debes ajustar según lo que quieras graficar
-                    y: iteracion.ErrorPorcentual // Aquí también
-                }));
-                renderChart(iteracionesData, 'Iteraciones');
             })
             .catch((error) => {
                 console.error('Error:', error);
             });
-    });
-
-    // Evento para el botón de Función Original
-    document.getElementById('btnFuncionOriginal').addEventListener('click', function () {
-        if (dataGlobal) {
-            const equationInput = document.getElementById('equation-input').value;
-            const puntosFuncion = generarPuntosFuncionOriginal(equationInput, xMin, xMax);
-            renderChart(puntosFuncion, 'Función Original');
-        }
     });
 
 
