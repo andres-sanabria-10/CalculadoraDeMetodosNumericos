@@ -10,7 +10,7 @@ document.addEventListener("DOMContentLoaded", function () {
                 {
                     appName: "graphing",
                     width: 400,
-                    height: 200,
+                    height: 300,
                     showToolBar: false,
                     showAlgebraInput: false,
                     showMenuBar: false,
@@ -31,8 +31,8 @@ document.addEventListener("DOMContentLoaded", function () {
     function graficarFuncion(func) {
         try {
             if (ggbAPI) {
-                ggbAPI.reset(); // Limpia el canvas antes de graficar
-                ggbAPI.evalCommand(func);
+
+                ggbAPI.evalCommand(func); // Graficar la función
                 console.log(`Función graficada: ${func}`);
             } else {
                 console.error("GeoGebra aún no está inicializado.");
@@ -51,49 +51,91 @@ document.addEventListener("DOMContentLoaded", function () {
             alert("Por favor, ingrese una función válida.");
             return;
         }
+        // Limpiar la gráfica anterior si es necesario
+        if (ggbAPI) {
+            ggbAPI.reset(); // Limpia todas las gráficas actuales
+        }
         graficarFuncion(equationInput);
     });
 
+
     document.getElementById('btnIteraciones').addEventListener('click', function () {
         const equationInput = document.getElementById('equation-input').value;
+        const calculatorInput = document.getElementById('calculator-input').value;
         if (!equationInput) {
             alert("Por favor, ingrese una función válida.");
             return;
         }
-
         // Grafica la función original
         graficarFuncion(equationInput);
 
+        // Graficar la función despejada
+        if (calculatorInput) {
+            const calculatorEquation = `x = ${calculatorInput}`;
+            graficarFuncion(calculatorEquation);
+        }
+
+        // Graficar y=x
+        if (ggbAPI) {
+            ggbAPI.evalCommand('y = x'); // Comando para graficar la función y = x
+
+            console.log("Función y = x graficada.");
+        } else {
+            console.error("GeoGebra aún no está inicializado.");
+        }
+
         // Luego, agregar los puntos de iteración al gráfico
+        // Agregar los puntos de iteración al gráfico
+        const colors = [
+            [255, 0, 0],   // Rojo
+            [0, 255, 0],   // Verde
+            [0, 0, 255],   // Azul
+            [255, 165, 0], // Naranja
+            [128, 0, 128], // Púrpura
+            [0, 255, 255], // Cian
+            [255, 255, 0]  // Amarillo
+        ];
+
         if (dataGlobal && dataGlobal.Iteraciones) {
             dataGlobal.Iteraciones.forEach((iteracion, index) => {
-                const x0 = iteracion.X0;
-                const x0Nuevo = iteracion.X0_nuevo;
-                const y0 = iteracion.valor_funcion;
-                const lineName = `Linea_${index}`;
-            
-                const pointNameX0 = `PuntoX0_${index}`;
-                const pointNameX0Nuevo = `PuntoX0Nuevo_${index}`;
-            
-                // Crear los puntos
-                ggbAPI.evalCommand(`${pointNameX0} = (${x0}, ${y0})`);
-                ggbAPI.evalCommand(`${pointNameX0Nuevo} = (${x0Nuevo}, 0)`);
+                try {
+                    const x0 = iteracion.X0;
 
-                // Hacer visuales los puntos
-                ggbAPI.evalCommand(`SetPointSize(${pointNameX0}, 4)`);
-                ggbAPI.evalCommand(`SetColor(${pointNameX0}, 255, 0, 0)`); 
-                ggbAPI.evalCommand(`SetPointSize(${pointNameX0Nuevo}, 4)`);
-                ggbAPI.evalCommand(`SetColor(${pointNameX0Nuevo}, 0, 0, 255)`); 
+                    // Crear línea vertical en x = X0
+                    const lineName = `LineaX0_${index}`;
 
-                ggbAPI.evalCommand(`ShowLabel(${pointNameX0}, false)`);
-                ggbAPI.evalCommand(`ShowLabel(${pointNameX0Nuevo}, false)`);         
+                    // Crear la línea vertical usando el comando x = valor
+                    ggbAPI.evalCommand(`${lineName}: x = ${x0}`);
 
-                ggbAPI.evalCommand(`${lineName} = Line(${pointNameX0}, ${pointNameX0Nuevo})`);
-                ggbAPI.evalCommand(`SetLineStyle(${lineName}, 2)`); 
+                    // Seleccionar el color basado en el índice de la iteración
+                    const color = colors[index % colors.length];
 
-            }
-        )}        
-                
+                    // Configurar la línea con el color seleccionado
+                    ggbAPI.setLabelVisible(lineName, false);
+                    ggbAPI.setColor(lineName, ...color);  // Asignar el color de la lista
+                    ggbAPI.setLineThickness(lineName, 2);
+
+                    // Crear el texto de información (inicialmente oculto)
+                    const labelName = `Label_${index}`; // Nombre de la etiqueta basado en el índice
+                    const label = `I: ${index}`; // Mostrar el número de la iteración
+                    ggbAPI.evalCommand(`${labelName}=Text("${label}", (${x0}, 0))`); // Crear la etiqueta
+                    ggbAPI.setVisible(labelName, true); // Hacerla visible
+
+
+                    // Agregar el evento para mostrar/ocultar el label
+                    ggbAPI.registerObjectUpdateListener(lineName, () => {
+                        const isMouseOver = ggbAPI.isObjectUnderMouse(lineName);
+                        console.log(`Mouse sobre ${lineName}: ${isMouseOver}`);
+
+                        ggbAPI.setVisible(labelName, isMouseOver);
+                    });
+
+                } catch (error) {
+                    console.error(`Error al procesar iteración ${index}:`, error);
+                }
+            });
+        }
+
     });
 
     enviarButton.addEventListener('click', function () {
@@ -104,6 +146,7 @@ document.addEventListener("DOMContentLoaded", function () {
         const selectedOption = document.querySelector('input[name="options"]:checked');
         const selectedValue = selectedOption ? selectedOption.value : null;
 
+        // Graficar la función original
 
         // Validaciones
         if (!equationInput) {
@@ -186,3 +229,5 @@ document.addEventListener("DOMContentLoaded", function () {
     });
 
 });
+
+
