@@ -41,7 +41,7 @@ def metodo_secante():
                 'mensaje': 'Debe enviar los datos requeridos en formato JSON.'
             }), 400
 
-        campos_requeridos = ['punto_inicial_a', 'punto_inicial_b', 'tolerancia', 'funcion']
+        campos_requeridos = ['x0', 'x1', 'tolerancia', 'funcion']
         for campo in campos_requeridos:
             if campo not in data:
                 return jsonify({
@@ -50,13 +50,13 @@ def metodo_secante():
                 }), 400
 
         try:
-            punto_inicial_a = float(data['punto_inicial_a'])
-            punto_inicial_b = float(data['punto_inicial_b'])
+            x0 = float(data['x0'])
+            x1 = float(data['x1'])
             tolerancia = float(data['tolerancia'])
         except (ValueError, TypeError):
             return jsonify({
-                'error': 'Los valores de punto_inicial_a, punto_inicial_b y tolerancia deben ser numéricos.',
-                'mensaje': 'Los valores de punto_inicial_a, punto_inicial_b y tolerancia deben ser numéricos.'
+                'error': 'Los valores de x0, x1 y tolerancia deben ser numéricos.',
+                'mensaje': 'Los valores de x0, x1 y tolerancia deben ser numéricos.'
             }), 400
 
         if tolerancia <= 0:
@@ -80,12 +80,12 @@ def metodo_secante():
         iteraciones = []
         function_calls = 0
         converged = False
-        x_siguiente = None
+        x2 = None
 
         for iteracion in range(1, max_iteraciones + 1):
             try:
-                fx0 = evaluar_funcion_segura(funcion, punto_inicial_a)
-                fx1 = evaluar_funcion_segura(funcion, punto_inicial_b)
+                fx0 = evaluar_funcion_segura(funcion, x0)
+                fx1 = evaluar_funcion_segura(funcion, x1)
                 function_calls += 2
             except ValueError as e:
                 return jsonify({
@@ -95,24 +95,24 @@ def metodo_secante():
 
             if fx1 == fx0:
                 return jsonify({
-                    'error': f'División por cero: f(punto_inicial_a) = f(punto_inicial_b) en la iteración {iteracion}.',
-                    'mensaje': f'División por cero: f(punto_inicial_a) = f(punto_inicial_b) en la iteración {iteracion}.'
+                    'error': f'División por cero: f(x0) = f(x1) en la iteración {iteracion}.',
+                    'mensaje': f'División por cero: f(x0) = f(x1) en la iteración {iteracion}.'
                 }), 400
 
-            x_siguiente = punto_inicial_b - fx1 * (punto_inicial_b - punto_inicial_a) / (fx1 - fx0)
-            if abs(x_siguiente) > 1e10:
+            x2 = x1 - fx1 * (x1 - x0) / (fx1 - fx0)
+            if abs(x2) > 1e10:
                 return jsonify({
-                    'error': f'El valor de x_siguiente se volvió demasiado grande en la iteración {iteracion}.',
+                    'error': f'El valor de x2 se volvió demasiado grande en la iteración {iteracion}.',
                     'mensaje': 'Esto puede indicar divergencia. Intente con valores iniciales diferentes.'
                 }), 400
 
-            error = abs((x_siguiente - punto_inicial_b) / x_siguiente) * 100 if x_siguiente != 0 else float('inf')
+            error = abs((x2 - x1) / x2) * 100 if x2 != 0 else float('inf')
 
             iteraciones.append({
                 'iteracion': iteracion,
-                'punto_a': punto_inicial_a,
-                'punto_b': punto_inicial_b,
-                'x_siguiente': x_siguiente,
+                'x0': x0,
+                'x1': x1,
+                'x2': x2,
                 'error': error
             })
 
@@ -120,7 +120,7 @@ def metodo_secante():
                 converged = True
                 break
 
-            punto_inicial_a, punto_inicial_b = punto_inicial_b, x_siguiente
+            x0, x1 = x1, x2
 
         if not converged:
             return jsonify({
@@ -133,7 +133,7 @@ def metodo_secante():
         return jsonify({
             'converged': True,
             'iteraciones': iteraciones,
-            'resultado_final': x_siguiente,
+            'resultado_final': x2,
             'numero_iteraciones': len(iteraciones),
             'mensaje': f'El método convergió exitosamente en {len(iteraciones)} iteraciones.'
         })

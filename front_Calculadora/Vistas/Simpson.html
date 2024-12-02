@@ -7,49 +7,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"
         integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
-    <link rel="stylesheet" href="css/styleBoryden.css">
+    <link rel="stylesheet" href="css/stylePrincipal.css">
     <link rel="stylesheet" href="css/StyleContenidoPagina.css">
+    <link rel="stylesheet" href="css/styleSimpson.css">
     <title>Calculadora</title>
-    <style>
-        .matrix-table {
-            border-collapse: collapse;
-            margin: 0 auto;
-        }
-
-        #matrix-input {
-            width: 60px;
-
-        }
-
-        .matrix-table th,
-        .matrix-table td {
-            padding: 5px;
-            text-align: center;
-        }
-
-        .matrix-row-label {
-            font-weight: bold;
-        }
-
-        .form-control {
-            width: 60px;
-            text-align: center;
-            border: 1px solid #ced4da;
-            border-radius: 4px;
-            padding: 0.375rem 0.75rem;
-        }
-
-        .matrix-input-control {
-            text-align: center;
-            border: 1px solid #ced4da;
-            border-radius: 4px;
-            padding: 0.375rem 0.75rem;
-        }
-
-        .matrix-input-size {
-            width: 80px;
-        }
-    </style>
 </head>
 
 <body>
@@ -106,42 +67,21 @@
         <div class="center-container">
             <div class="calculator">
                 <div class="contenedor_de_grafico">
-                    <div class="scrollable-container">
-                        <!-- Aquí se generará la tabla -->
+                    <div class="botones_Grafico">
+                        <button type="button" class="btn btn-outline-secondary" id="btnFuncionOriginal">Función
+                            original</button>
+                        <button type="button" class="btn btn-outline-secondary" id="btnIteraciones">Iteraciones</button>
                     </div>
+                    <canvas id="grafico"></canvas>
+                </div>
+
+                <div class="input-container">
+                    <h5>Función</h5>
+                    <input type="text" class="calculator-input" id="equation-input"
+                        placeholder="Ingrese la Funcion para resolver la integral">
 
 
                 </div>
-
-
-
-                <div class="container mb-2">
-                    <div class="row">
-                        <div class="col-12">
-                            <h5>Tamaño del sistema de ecuaciones </h5>
-                        </div>
-                        <div class="col-6">
-                            <input style="width: 100%;" type="number" class="form-control mb-3 calculator-input"
-                                id="num_filas" placeholder="Ecuaciones">
-                        </div>
-                        <div class="col-6">
-                            <input style="width: 100%;" type="number" class="form-control mb-3 calculator-input"
-                                id="num_columnas" placeholder="Variables">
-                        </div>
-                        <div class="col-4 ">
-                            <a class="btn btn-outline-primary" id="crear"> Crear</a>
-                        </div>
-
-                        <div class="col-4 ">
-                            <a class="btn btn-outline-danger" id="limpiar"> Limpiar </a>
-                        </div>
-
-                    </div>
-                </div>
-
-
-
-
                 <div className="custom-keyboard">
                     <div className="calculator-row">
                         <button class="key function " onclick="showKeyboard('numericKeyboard')">123</button>
@@ -311,65 +251,89 @@
         </div>
         <div class="right-container">
             <div class="input-container">
+                <h4>Intervalo a</h4>
+                <input type="text" class="calculator-input" id="initial-point"
+                    placeholder="Ingrese el valor (a) del intervalo">
+                <h4>Intervalo b</h4>
+                <input type="text" class="calculator-input" id="initial-point2"
+                    placeholder="Ingrese el valor (b) del intervalo">
+                <h4>Subintervalos </h4>
+                <input type="text" class="calculator-input" id="initial-point3"
+                    placeholder="Ingrese el numero de subintervalos (n)">
 
 
-                <div class="right-container" style="max-height: 300px; overflow-y: auto;">
-                    <h3>Resultados</h3>
-                    <table class="table table-bordered table-striped-columns" id="iteracionesTabla">
-                        <thead>
-                            <tr class="table-Success ">
-                                <th>Iteración</th>
-                                <th>Valor</th>
-                                <th>Error Porcentual</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <!-- Las filas de la tabla se llenarán dinámicamente -->
-                        </tbody>
-                    </table>
-
-                </div>
-                <table class="table table-bordered table-striped-columns" id="resultadoTabla">
-                    <thead>
-                        <tr class="table-Success">
-                            <th>Resultado</th>
-                            <th>Numero de Iteraciones</th>
-
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <!-- Las filas de la tabla se llenarán dinámicamente -->
-                    </tbody>
-                </table>
             </div>
-        </div>
+            <div class="right-container" style="max-height: 300px; overflow-y: auto;">
+                <h3>Resultados</h3>
+            </div>
+            <!-- Botón para abrir el modal -->
+            <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#resultadoModal">
+                Ver resultados
+            </button>
 
-        <!-- Script para recargar las imágenes y gráficos -->
-        <script>
-            function showKeyboard(keyboard) {
-                const keyboards = document.querySelectorAll('.calculator-keypad');
-                keyboards.forEach(kb => {
-                    kb.style.display = 'none';
-                });
-                const selectedKeyboard = document.getElementById(keyboard);
-                if (selectedKeyboard) {
-                    selectedKeyboard.style.display = 'grid';
+            <!-- Modal -->
+            <div class="modal fade" id="resultadoModal" tabindex="-1" aria-labelledby="resultadoModalLabel"
+                aria-hidden="true">
+                <div class="modal-dialog modal-lg"> <!-- Usar 'modal-lg' para hacer el modal más grande -->
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="resultadoModalLabel">Resultados</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body" style="max-height: 70vh; overflow-y: auto;">
+                            <!-- Hacer la tabla desplazable -->
+                            <table class="table table-bordered table-striped-columns" id="resultadoTabla">
+                                <thead>
+                                    <tr class="table-Success">
+                                        <th>Área bajo la curva</th>
+                                        <th>Convergencia</th>
+                                        <th>Error Relativo</th>
+                                        <th>Puntos</th>
+                                        <th>Puntos Medios</th>
+                                        <th>Imágenes Puntos Medios</th>
+                                        <th>Función Evaluada en Puntos</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <!-- Las filas de la tabla se llenarán dinámicamente -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+
+            <!-- Script para recargar las imágenes y gráficos -->
+            <script>
+                function showKeyboard(keyboard) {
+                    const keyboards = document.querySelectorAll('.calculator-keypad');
+                    keyboards.forEach(kb => {
+                        kb.style.display = 'none';
+                    });
+                    const selectedKeyboard = document.getElementById(keyboard);
+                    if (selectedKeyboard) {
+                        selectedKeyboard.style.display = 'grid';
+                    }
                 }
-            }
-        </script>
+            </script>
 
 
 
-        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
-            integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
-            crossorigin="anonymous"></script>
+            <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
+                integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
+                crossorigin="anonymous"></script>
 
-        <script src="script.js"></script>
-
-        <script src="EnvioJacobi.js"></script>
+            <script src="script.js"></script>
 
 
 
+            <script src="EnvioSimpson.js"> </script>
+
+            <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+            <script src="https://cdn.jsdelivr.net/npm/hammerjs@2.0.8"></script>
+            <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-zoom@2.0.1"></script>
+            <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjs/11.8.0/math.min.js"></script>
 
 </body>
 
