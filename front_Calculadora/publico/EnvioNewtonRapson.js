@@ -1,5 +1,113 @@
 document.addEventListener("DOMContentLoaded", function () {
     const enviarButton = document.querySelector('.key img[data-funcion="enviar"]').parentElement;
+    let ggbAPI = null;
+    let dataGlobal;
+
+    // Inicializa GeoGebra sin ninguna gráfica
+    function inicializarGeoGebra() {
+        try {
+            const ggbApp = new GGBApplet(
+                {
+                    appName: "graphing",
+                    width: 400,
+                    height: 300,
+                    showToolBar: false,
+                    showAlgebraInput: false,
+                    showMenuBar: false,
+                    appletOnLoad: function () {
+                        ggbAPI = window["ggbApplet"];
+                        console.log("GeoGebra cargado correctamente.");
+                    }
+                },
+                true
+            );
+            ggbApp.inject('ggb-element');
+        } catch (error) {
+            console.error("Error al inicializar GeoGebra:", error);
+        }
+    }
+
+    // Agrega una función a GeoGebra
+    function graficarFuncion(func) {
+        try {
+            if (ggbAPI) {
+
+                ggbAPI.evalCommand(func); // Graficar la función
+                console.log(`Función graficada: ${func}`);
+            } else {
+                console.error("GeoGebra aún no está inicializado.");
+            }
+        } catch (error) {
+            console.error("Error al graficar la función en GeoGebra:", error);
+        }
+    }
+
+    inicializarGeoGebra();
+
+    // Manejar clic en el botón "Función Original"
+    document.getElementById('btnFuncionOriginal').addEventListener('click', function () {
+        const equationInput = document.getElementById('equation-input').value;
+        if (!equationInput) {
+            alert("Por favor, ingrese una función válida.");
+            return;
+        }
+        // Limpiar la gráfica anterior si es necesario
+        if (ggbAPI) {
+            ggbAPI.reset(); // Limpia todas las gráficas actuales
+        }
+        graficarFuncion(equationInput);
+    });
+
+    document.getElementById('btnIteraciones').addEventListener('click', function () {
+        const equationInput = document.getElementById('equation-input').value;
+        if (!equationInput) {
+            alert("Por favor, ingrese una función válida.");
+            return;
+        }
+
+        graficarFuncion(equationInput);
+
+        if (dataGlobal && dataGlobal.iteraciones) {
+
+            // Obtener los valores de punto_a y punto_b
+            const puntoA = dataGlobal.iteraciones[0].punto_a;
+            const puntoB = dataGlobal.iteraciones[0].punto_b;
+
+            // Graficar el punto A
+            const pointNameA = "PuntoA_0";
+            ggbAPI.evalCommand(`${pointNameA} = (${puntoA}, 0)`);
+            ggbAPI.evalCommand(`SetPointSize(${pointNameA}, 4)`);
+            ggbAPI.evalCommand(`SetColor(${pointNameA}, 255, 0, 0)`);  
+            ggbAPI.evalCommand(`ShowLabel(${pointNameA}, false)`); 
+
+            // Graficar el punto B
+            const pointNameB = "PuntoB_0";
+            ggbAPI.evalCommand(`${pointNameB} = (${puntoB}, 0)`);  
+            ggbAPI.evalCommand(`SetPointSize(${pointNameB}, 4)`);
+            ggbAPI.evalCommand(`SetColor(${pointNameB}, 255, 0, 0)`); 
+            ggbAPI.evalCommand(`ShowLabel(${pointNameB}, false)`); 
+
+            // Graficar los puntos medios 
+            dataGlobal.iteraciones.forEach((iteracion, index) => {
+                const puntoMedio = iteracion.punto_medio;
+                const pointNameMedio = `PuntoMedio_${index}`;
+
+                // Graficar el punto medio
+                ggbAPI.evalCommand(`${pointNameMedio} = (${puntoMedio}, 0)`);  
+                ggbAPI.evalCommand(`SetPointSize(${pointNameMedio}, 4)`);
+                ggbAPI.evalCommand(`SetColor(${pointNameMedio}, 0, 0, 255)`);  
+                ggbAPI.evalCommand(`ShowLabel(${pointNameMedio}, false)`);
+
+                console.log(`Iteración ${index}: Punto Medio (${puntoMedio})`);
+            });
+
+
+            console.log("Puntos añadidos");
+        }
+        
+    });
+
+
     enviarButton.addEventListener('click', function () {
         const equationInput = document.getElementById('equation-input').value;
         const initialPointInput = document.getElementById('initial-point').value;
