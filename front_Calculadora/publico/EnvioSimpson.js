@@ -57,36 +57,74 @@ document.addEventListener("DOMContentLoaded", function () {
 
     document.getElementById('btnIteraciones').addEventListener('click', function () {
         const equationInput = document.getElementById('equation-input').value;
-        if (!equationInput) {
-            alert("Por favor, ingrese una función válida.");
+        const a = parseFloat(document.getElementById('initial-point').value);
+        const b = parseFloat(document.getElementById('initial-point2').value);
+        const n = parseInt(document.getElementById('initial-point3').value);
+    
+        if (!equationInput || isNaN(a) || isNaN(b) || isNaN(n) || n <= 0) {
+            alert("Por favor, ingresa una función válida, un intervalo [a, b] y un número de subintervalos positivo.");
             return;
         }
-
+    
+        // Graficar la función original
         graficarFuncion(equationInput);
-
-        if (dataGlobal && dataGlobal.puntos && dataGlobal.puntos.length > 0) {
-
-            dataGlobal.puntos.forEach((punto, index) => {
-                ggbAPI.evalCommand(`p${index} = (${punto}, 0)`); 
-                ggbAPI.evalCommand(`L${index} = Line((${punto}, 0), (${punto}, 5))`);
-                ggbAPI.evalCommand(`SetColor(L${index}, "blue")`);
-            });
-
-            dataGlobal.puntos_medios.forEach((puntoMedio, index) => {
-                ggbAPI.evalCommand(`m${index} = (${puntoMedio}, 0)`); 
-                ggbAPI.evalCommand(`Lm${index} = Line((${puntoMedio}, 0), (${puntoMedio}, 5))`);
-                ggbAPI.evalCommand(`SetColor(Lm${index}, "red")`); 
-                ggbAPI.evalCommand(`SetLineStyle(Lm${index}, 2)`); 
-            });
-
-            console.log("Puntos y líneas de iteraciones graficadas.");
-        } else {
-            console.error("No se encontraron puntos para graficar.");
+    
+        // Agregar las subdivisiones del intervalo
+        const step = (b - a) / n;
+        const points = [];
+    
+        // Crear los puntos en GeoGebra y agregar las líneas
+        for (let i = 0; i <= n; i++) {
+            const x = a + i * step;
+            const fAtX = `fAtX_${i}`;
+            ggbAPI.evalCommand(`${fAtX} = ${equationInput.replace(/x/g, `(${x})`)}`);
+            const functionValue = ggbAPI.getValue(fAtX);
+    
+            // Crear un punto en GeoGebra
+            ggbAPI.evalCommand(`F_${i} = (${x}, ${functionValue})`);
+            ggbAPI.evalCommand(`X_${i} = (${x}, 0)`);
+    
+            // Agregar los puntos F_i al arreglo de puntos
+            points.push(`F_${i}`);
+    
+            const trapezoidalCommand = `TrapezoidalSum(${equationInput}, ${a}, ${b}, ${n})`;
+            ggbAPI.evalCommand(`area = ${trapezoidalCommand}`);
         }
-        
-    });
-
-
+    
+        // Graficar puntos medios y sus imágenes
+        if (dataGlobal && dataGlobal.puntos_medios && dataGlobal.puntos_medios.length > 0) {
+            dataGlobal.puntos_medios.forEach((puntoMedio, index) => {
+                const xMedio = puntoMedio;
+                const fMedio = `fAtX_${index + 100}`; // Creación de fAtX para puntos medios
+                ggbAPI.evalCommand(`${fMedio} = ${equationInput.replace(/x/g, `(${xMedio})`)}`);
+                const functionValueMedio = ggbAPI.getValue(fMedio);
+    
+                // Crear punto medio en GeoGebra
+                ggbAPI.evalCommand(`Xm_${index} = (${xMedio}, 0)`); // Puntos medios en el eje X
+                ggbAPI.evalCommand(`Fm_${index} = (${xMedio}, ${functionValueMedio})`); // Puntos medios en la curva
+    
+                // Graficar línea punteada entre el punto medio y su imagen en el eje X
+                ggbAPI.evalCommand(`L${index} = Line(Xm_${index}, Fm_${index})`); // Línea entre Xm y Fm
+                ggbAPI.evalCommand(`SetColor(L${index}, "red")`); // Color de la línea
+                ggbAPI.evalCommand(`SetLineStyle(L${index}, 2)`); // Estilo punteado (2 = punteado)
+                ggbAPI.evalCommand(`SetLineThickness(L${index}, 1)`);
+    
+                // Crear la imagen del punto medio
+                ggbAPI.evalCommand(`(Xm_${index}, "(${xMedio}, 0)")`);
+                ggbAPI.evalCommand(`(Fm_${index}, "(${xMedio}, ${functionValueMedio})")`);
+    
+                // Cambiar el tamaño de la fuente de las etiquetas
+               // ggbAPI.evalCommand(`(Xm_${index})`); 
+                //ggbAPI.evalCommand(`(Fm_${index})`); 
+                // Colocar los puntos medios y sus imágenes de color rojo
+                ggbAPI.evalCommand(`SetColor(Xm_${index}, "red")`); 
+                ggbAPI.evalCommand(`SetColor(Fm_${index}, "red")`);
+            });
+        }
+    
+        console.log(`Líneas creadas desde ${a} hasta ${b} con ${n} subintervalos.`);
+    });    
+    
     enviarButton.addEventListener('click', function () {
         console.log("Enviando datos...");  // Agrega este log para verificar que el evento se dispara
 
