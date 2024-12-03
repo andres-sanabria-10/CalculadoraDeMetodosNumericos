@@ -1,4 +1,4 @@
-version: '3'
+version: "3"
 services:
   metodo_biseccion:
     build:
@@ -71,7 +71,7 @@ services:
       - "5503:5503"
     networks:
       - app-network
-  
+
   metodo_simpson:
     build:
       context: ./calculadora_metodos/Metodo_Simpson
