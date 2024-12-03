@@ -9,14 +9,14 @@ document.addEventListener("DOMContentLoaded", function () {
             const ggbApp = new GGBApplet(
                 {
                     appName: "graphing",
-                    width: 600,
+                    width: 580,
                     height: 300,
                     showToolBar: false,
                     showAlgebraInput: false,
                     showMenuBar: false,
                     appletOnLoad: function () {
                         ggbAPI = window["ggbApplet"];
-                        console.log("GeoGebra cargado correctamente.");
+                        console.log("GeoGebra cargado correctamenteo .");
                     }
                 },
                 true
@@ -64,63 +64,25 @@ document.addEventListener("DOMContentLoaded", function () {
 
         graficarFuncion(equationInput);
 
-        if (dataGlobal && dataGlobal.iteraciones) {
+        if (dataGlobal && dataGlobal.puntos && dataGlobal.puntos.length > 0) {
 
-            // Graficar las iteraciones
-            const colors = [
-                [255, 0, 0],   // Rojo
-                [0, 255, 0],   // Verde
-                [0, 0, 255],   // Azul
-                [255, 165, 0], // Naranja
-                [128, 0, 128], // Púrpura
-                [0, 255, 255], // Cian
-                [255, 255, 0]  // Amarillo
-            ];
-
-
-            dataGlobal.iteraciones.forEach((iteracion, index) => {
-                const x0 = iteracion.x0;
-                const x1 = iteracion.x1;
-
-                const puntoX0 = `PuntoX0_${index+1}`;
-                const puntoX1 = `PuntoX1_${index+1}`;
-                const secante = `Secante_${index+1}`;
-                
-                ggbAPI.evalCommand(`${puntoX0} = (${x0}, f(${x0}))`);
-                ggbAPI.evalCommand(`${puntoX1} = (${x1}, f(${x1}))`);
-                ggbAPI.evalCommand(`${secante} = Line(${puntoX0}, ${puntoX1})`);
-
-                ggbAPI.setLabelVisible(puntoX0, false);
-                ggbAPI.setLabelVisible(puntoX1, false);
-    
-                const color = colors[index % colors.length];
-                ggbAPI.setLabelVisible(secante, false);
-                ggbAPI.setColor(secante, ...color);
-                ggbAPI.setLineThickness(secante, 2);
-
-                // Establecer el color de los puntos 
-                ggbAPI.setColor(puntoX0, ...color);
-                ggbAPI.setColor(puntoX1, ...color);
-
-                // Crear el texto de información 
-                const labelName = `Label_${index+1}`; 
-                const label = `I: ${index+1}`; 
-                ggbAPI.evalCommand(`${labelName}=Text("${label}", (${x0}, 0))`); 
-                ggbAPI.setVisible(labelName, true);
-                ggbAPI.setColor(labelName,...color);
-
-                // Agregar el evento para mostrar/ocultar la etiqueta
-                ggbAPI.registerObjectUpdateListener(secante, () => {
-                    const isMouseOver = ggbAPI.isObjectUnderMouse(secante);
-                    console.log(`Mouse sobre ${secante}: ${isMouseOver}`);
-                    ggbAPI.setVisible(labelName, isMouseOver);
-                });
+            dataGlobal.puntos.forEach((punto, index) => {
+                ggbAPI.evalCommand(`p${index} = (${punto}, 0)`); 
+                ggbAPI.evalCommand(`L${index} = Line((${punto}, 0), (${punto}, 5))`);
+                ggbAPI.evalCommand(`SetColor(L${index}, "blue")`);
             });
 
-            console.log("Puntos añadidos");
+            dataGlobal.puntos_medios.forEach((puntoMedio, index) => {
+                ggbAPI.evalCommand(`m${index} = (${puntoMedio}, 0)`); 
+                ggbAPI.evalCommand(`Lm${index} = Line((${puntoMedio}, 0), (${puntoMedio}, 5))`);
+                ggbAPI.evalCommand(`SetColor(Lm${index}, "red")`); 
+                ggbAPI.evalCommand(`SetLineStyle(Lm${index}, 2)`); 
+            });
+
+            console.log("Puntos y líneas de iteraciones graficadas.");
+        } else {
+            console.error("No se encontraron puntos para graficar.");
         }
-
-
         
     });
 
@@ -159,6 +121,8 @@ document.addEventListener("DOMContentLoaded", function () {
             .then(data => {
                 console.log('Éxito:', data);
                 alert(data.convergencia);
+
+                dataGlobal = data;
 
                 const resultadoTableBody = document.getElementById('resultadoTabla').querySelector('tbody');
                 resultadoTableBody.innerHTML = '';
