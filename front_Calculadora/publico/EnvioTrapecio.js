@@ -55,75 +55,48 @@ document.addEventListener("DOMContentLoaded", function () {
         graficarFuncion(equationInput);
     });
 
+
     document.getElementById('btnIteraciones').addEventListener('click', function () {
         const equationInput = document.getElementById('equation-input').value;
-        if (!equationInput) {
-            alert("Por favor, ingrese una función válida.");
+        const a = parseFloat(document.getElementById('initial-point').value);
+        const b = parseFloat(document.getElementById('initial-point2').value);
+        const n = parseInt(document.getElementById('initial-point3').value);
+    
+        if (!equationInput || isNaN(a) || isNaN(b) || isNaN(n) || n <= 0) {
+            alert("Por favor, ingresa una función válida, un intervalo [a, b] y un número de subintervalos positivo.");
             return;
         }
-
-        graficarFuncion(equationInput);
-
-        if (dataGlobal && dataGlobal.iteraciones) {
-
-            // Graficar las iteraciones
-            const colors = [
-                [255, 0, 0],   // Rojo
-                [0, 255, 0],   // Verde
-                [0, 0, 255],   // Azul
-                [255, 165, 0], // Naranja
-                [128, 0, 128], // Púrpura
-                [0, 255, 255], // Cian
-                [255, 255, 0]  // Amarillo
-            ];
-
-
-            dataGlobal.iteraciones.forEach((iteracion, index) => {
-                const x0 = iteracion.x0;
-                const x1 = iteracion.x1;
-
-                const puntoX0 = `PuntoX0_${index+1}`;
-                const puntoX1 = `PuntoX1_${index+1}`;
-                const secante = `Secante_${index+1}`;
-                
-                ggbAPI.evalCommand(`${puntoX0} = (${x0}, f(${x0}))`);
-                ggbAPI.evalCommand(`${puntoX1} = (${x1}, f(${x1}))`);
-                ggbAPI.evalCommand(`${secante} = Line(${puntoX0}, ${puntoX1})`);
-
-                ggbAPI.setLabelVisible(puntoX0, false);
-                ggbAPI.setLabelVisible(puntoX1, false);
     
-                const color = colors[index % colors.length];
-                ggbAPI.setLabelVisible(secante, false);
-                ggbAPI.setColor(secante, ...color);
-                ggbAPI.setLineThickness(secante, 2);
+        // Graficar la función original
+        graficarFuncion(equationInput);
+    
+        // Agregar las subdivisiones del intervalo
+        const step = (b - a) / n;
+        const points = [];
+    
+        // Crear los puntos en GeoGebra y agregar las líneas
+        for (let i = 0; i <= n; i++) {
+            const x = a + i * step;
+            const fAtX = `fAtX_${i}`;
+            ggbAPI.evalCommand(`${fAtX} = ${equationInput.replace(/x/g, `(${x})`)}`);
+            const functionValue = ggbAPI.getValue(fAtX);
+    
+            // Crear un punto en GeoGebra
+            ggbAPI.evalCommand(`F_${i} = (${x}, ${functionValue})`);
+            ggbAPI.evalCommand(`X_${i} = (${x}, 0)`);
+    
+            // Agregar los puntos F_i al arreglo de puntos
+            points.push(`F_${i}`);
+    
+            const trapezoidalCommand = `TrapezoidalSum(${equationInput}, ${a}, ${b}, ${n})`;
+            ggbAPI.evalCommand(`area = ${trapezoidalCommand}`);
 
-                // Establecer el color de los puntos 
-                ggbAPI.setColor(puntoX0, ...color);
-                ggbAPI.setColor(puntoX1, ...color);
-
-                // Crear el texto de información 
-                const labelName = `Label_${index+1}`; 
-                const label = `I: ${index+1}`; 
-                ggbAPI.evalCommand(`${labelName}=Text("${label}", (${x0}, 0))`); 
-                ggbAPI.setVisible(labelName, true);
-                ggbAPI.setColor(labelName,...color);
-
-                // Agregar el evento para mostrar/ocultar la etiqueta
-                ggbAPI.registerObjectUpdateListener(secante, () => {
-                    const isMouseOver = ggbAPI.isObjectUnderMouse(secante);
-                    console.log(`Mouse sobre ${secante}: ${isMouseOver}`);
-                    ggbAPI.setVisible(labelName, isMouseOver);
-                });
-            });
-
-            console.log("Puntos añadidos");
         }
-
-
-        
+    
+        console.log(`Líneas creadas desde ${a} hasta ${b} con ${n} subintervalos.`);
     });
-
+    
+        
     enviarButton.addEventListener('click', function () {
         console.log("Enviando datos...");  // Agrega este log para verificar que el evento se dispara
 
